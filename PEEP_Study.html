@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventilation Assessment - PEEP Study</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .row {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .row-2 { grid-template-columns: repeat(2, 1fr); }
+        .row-3 { grid-template-columns: repeat(3, 1fr); }
+        .row-4 { grid-template-columns: repeat(4, 1fr); }
+        .row-5 { grid-template-columns: repeat(5, 1fr); }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 30px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+
+        .output-grid.three-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .output-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .output-label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .output-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .optimal-peep-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+
+        .optimal-peep-box h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .optimal-peep-box h3 select {
+            padding: 6px 10px;
+            font-size: 13px;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            background: white;
+            color: #2e7d32;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .optimal-peep-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1b5e20;
+            margin: 10px 0;
+        }
+
+        .optimal-peep-rationale {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .weighting-controls {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #c8e6c9;
+        }
+
+        .weighting-controls h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .weight-input-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .weight-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .weight-input-group label {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .weight-input-group input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .weight-input-group input[type="number"]:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .weight-input-group input[type="number"]:disabled {
+            background-color: #f5f5f5;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .weight-total {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .weight-total.valid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .weight-total.invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .weight-input-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .optimal-peep-box h3 {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .optimal-peep-box h3 select {
+                width: 100%;
+            }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .status-safe { background-color: #d4edda; color: #155724; }
+        .status-caution { background-color: #fff3cd; color: #856404; }
+        .status-risk { background-color: #f8d7da; color: #721c24; }
+
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .peep-grid {
+            margin: 20px 0;
+        }
+
+        .peep-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            table-layout: fixed;
+        }
+
+        .peep-table th {
+            background-color: #34495e;
+            color: white;
+            padding: 8px 4px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            position: sticky;
+            top: 0;
+        }
+
+        .peep-table td {
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .peep-table input {
+            width: 100%;
+            text-align: center;
+            padding: 4px 2px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        .peep-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .peep-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+
+        .preview-table th {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .preview-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .preview-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .compliance-bar {
+            height: 20px;
+            background: linear-gradient(to right, #fff, #3498db);
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .compliance-bar-value {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .recruitability-good {
+            background-color: #d4edda;
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .button-secondary {
+            background-color: #95a5a6;
+        }
+
+        .button-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+        }
+
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .row-2, .row-3, .row-4, .row-5 {
+                grid-template-columns: 1fr;
+            }
+
+            .output-grid,
+            .output-grid.three-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .output-item {
+                flex-wrap: wrap;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 18px;
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+
+            h2 .form-group {
+                max-width: 100% !important;
+            }
+
+            input, select {
+                font-size: 16px;
+                min-height: 44px;
+            }
+
+            .output-value {
+                font-size: 16px;
+            }
+
+            .button {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .row-4, .row-5 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .output-grid,
+            .output-grid.three-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1025px) and (max-width: 1280px) {
+            .output-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .peep-tables-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🫁 Ventilation Assessment & PEEP Titration Calculator</h1>
+
+        <!-- Patient Demographics Calculated -->
+        <h2>Patient Demographics</h2>
+        <div class="row row-4">
+            <div class="form-group">
+                <label for="age">Age (years)</label>
+                <input type="number" id="age" value="65" min="18" max="120" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="sex">Sex</label>
+                <select id="sex" onchange="calculate()">
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="height">Height (cm)</label>
+                <input type="number" id="height" value="170" min="100" max="250" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="weight">Weight (kg)</label>
+                <input type="number" id="weight" value="70" min="30" max="300" oninput="calculate()">
+            </div>
+        </div>
+
+        <div class="output-grid">
+            <div class="output-item">
+                <span class="output-label">Predicted Body Weight:</span>
+                <span class="output-value" id="pbw">-</span>
+                <span>kg</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">BMI:</span>
+                <span class="output-value" id="bmi">-</span>
+                <span>kg/m²</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">REE:</span>
+                <span class="output-value" id="ree">-</span>
+                <span>kcal/day</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">VCO₂:</span>
+                <span class="output-value" id="vco2">-</span>
+                <span>mL/min</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Theoretical FRC:</span>
+                <span class="output-value" id="frc_theo">-</span>
+                <span>mL</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Actual FRC:</span>
+                <span class="output-value" id="frc_actual">-</span>
+                <span>mL</span>
+            </div>
+        </div>
+
+        <!-- Current Ventilator Settings -->
+        <h2>Current Ventilator Settings</h2>
+        <div class="row row-5">
+            <div class="form-group">
+                <label for="mode">Mode</label>
+                <select id="mode" onchange="toggleAPRVInputs(); calculate();">
+                    <option value="PC-SIMV">PC-SIMV</option>
+                    <option value="VC-SIMV">VC-SIMV</option>
+                    <option value="DuoPAP">DuoPAP</option>
+                    <option value="BIPAP">BIPAP</option>
+                    <option value="APRV">APRV</option>
+                    <option value="TCAV">TCAV</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vt">Tidal Volume (mL)</label>
+                <input type="number" id="vt" value="450" min="100" max="1500" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="rr">Respiratory Rate (bpm)</label>
+                <input type="number" id="rr" value="18" min="5" max="40" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="peep">PEEP (cmH₂O)</label>
+                <input type="number" id="peep" value="10" min="0" max="30" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="fio2">FiO₂ (%)</label>
+                <input type="number" id="fio2" value="60" min="21" max="100" oninput="calculate()">
+            </div>
+        </div>
+
+        <div class="row row-5">
+            <div class="form-group">
+                <label for="pip">Peak Inspiratory Pressure (cmH₂O)</label>
+                <input type="number" id="pip" value="28" min="0" max="60" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="pplat">Plateau Pressure (cmH₂O)</label>
+                <input type="number" id="pplat" value="24" min="0" max="60" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="mpaw">Mean Airway Pressure (cmH₂O)</label>
+                <input type="number" id="mpaw" value="15" min="0" max="50" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="itime">Inspiratory Time (s)</label>
+                <input type="number" id="itime" value="1.0" min="0.1" max="5" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="flow">Peak Flow (L/min)</label>
+                <input type="number" id="flow" value="60" min="10" max="150" oninput="calculate()">
+            </div>
+        </div>
+
+        <!-- APRV-specific inputs (hidden by default) -->
+        <div id="aprv-inputs" style="display: none;">
+            <div class="info-box" style="margin-top: 15px;">
+                <strong>APRV Mode Parameters</strong>
+            </div>
+            <div class="row row-5">
+                <div class="form-group">
+                    <label for="phigh">P<sub>high</sub> (cmH₂O)</label>
+                    <input type="number" id="phigh" value="28" min="0" max="50" step="0.1" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label for="plow">P<sub>low</sub> (cmH₂O)</label>
+                    <input type="number" id="plow" value="5" min="0" max="30" step="0.1" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label for="thigh">T<sub>high</sub> (seconds)</label>
+                    <input type="number" id="thigh" value="4.5" min="0.1" max="10" step="0.1" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label for="tlow">T<sub>low</sub> (seconds)</label>
+                    <input type="number" id="tlow" value="0.6" min="0.1" max="3" step="0.1" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label for="eft">Expiratory Flow Termination (%)</label>
+                    <input type="number" id="eft" value="75" min="0" max="100" step="1" oninput="calculate()">
+                </div>
+            </div>
+        </div>
+
+        <div class="output-grid">
+            <div class="output-item">
+                <span class="output-label">Tidal Volume per PBW:</span>
+                <span class="output-value" id="vt_pbw">-</span>
+                <span>mL/kg</span>
+                <span class="status-badge" id="vt_pbw_status"></span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Minute Ventilation:</span>
+                <span class="output-value" id="mv">-</span>
+                <span>L/min</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">I:E Ratio:</span>
+                <span class="output-value" id="ie_ratio">-</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Static Compliance:</span>
+                <span class="output-value" id="compliance">-</span>
+                <span>mL/cmH₂O</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Driving Pressure:</span>
+                <span class="output-value" id="driving_pressure">-</span>
+                <span>cmH₂O</span>
+                <span class="status-badge" id="dp_status"></span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Airway Resistance:</span>
+                <span class="output-value" id="resistance">-</span>
+                <span>cmH₂O/L/s</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Mechanical Power:</span>
+                <span class="output-value" id="mech_power">-</span>
+                <span>J/min</span>
+                <span class="status-badge" id="mp_status"></span>
+            </div>
+            <div class="output-item"></div>
+            <div class="output-item">
+                <span class="output-label">Dynamic Strain:</span>
+                <span class="output-value" id="dynamic_strain">-</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Total Strain:</span>
+                <span class="output-value" id="total_strain">-</span>
+                <span class="status-badge" id="ts_status"></span>
+            </div>
+        </div>
+
+        <!-- Blood Gas Analysis -->
+        <h2 style="display: flex; align-items: center; gap: 15px;">
+            <span>Blood Gas Analysis</span>
+            <select id="unitToggle" onchange="updateAllDisplays()" style="padding: 6px 10px; font-size: 13px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="kPa">kPa</option>
+                <option value="mmHg">mmHg</option>
+            </select>
+        </h2>
+        <div class="row row-5">
+            <div class="form-group">
+                <label for="pao2">PaO₂ <span id="pao2_unit">(kPa)</span></label>
+                <input type="number" id="pao2" value="12.0" min="1" max="100" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="paco2">PaCO₂ <span id="paco2_unit">(kPa)</span></label>
+                <input type="number" id="paco2" value="6.0" min="1" max="20" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="etco2">EtCO₂ <span id="etco2_unit">(kPa)</span></label>
+                <input type="number" id="etco2" value="4.5" min="1" max="20" step="0.1" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="sao2">SaO₂ (%)</label>
+                <input type="number" id="sao2" value="95" min="50" max="100" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label for="svo2">SvO₂ (%)</label>
+                <input type="number" id="svo2" value="70" min="30" max="100" oninput="calculate()">
+            </div>
+        </div>
+
+        <div class="output-grid">
+            <div class="output-item">
+                <span class="output-label">P/F Ratio:</span>
+                <span class="output-value" id="pf_ratio">-</span>
+                <span id="pf_unit">(kPa)</span>
+                <span class="status-badge" id="ards_severity"></span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Oxygenation Index:</span>
+                <span class="output-value" id="oi">-</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Intrapulmonary Shunt:</span>
+                <span class="output-value" id="shunt">-</span>
+                <span>%</span>
+            </div>
+            <div class="output-item"></div>
+            <div class="output-item">
+                <span class="output-label">Dead Space:</span>
+                <span class="output-value" id="dead_space">-</span>
+                <span>%</span>
+            </div>
+            <div class="output-item">
+                <span class="output-label">Dead Space Index:</span>
+                <span class="output-value" id="dead_space_idx">-</span>
+            </div>
+        </div>
+
+        <!-- PEEP Study -->
+        <h2>PEEP STUDY (Enter Multiple Rows)</h2>
+        <div class="info-box">
+            <strong>PEEP Titration Study:</strong> Enter data for PEEP titration UP (increasing PEEP) and DOWN (decreasing PEEP).
+            This allows assessment of lung recruitability by comparing compliance and oxygenation at matching PEEP levels.
+            Plots and optimal-PEEP suggestions require <strong>at least 2 valid rows</strong>. Leave cells as 0 to indicate missing data.
+        </div>
+
+        <div class="form-group" style="max-width: 300px;">
+            <label for="numRows">Number of PEEP Steps (Rows)</label>
+            <input type="number" id="numRows" value="5" min="2" max="12" onchange="updatePeepGrid()">
+        </div>
+
+        <div class="peep-tables-container">
+            <div>
+                <h3>PEEP Titration UP ↑</h3>
+                <div class="peep-grid">
+                    <table class="peep-table" id="peep-up-table">
+                        <!-- Will be populated by JavaScript -->
+                    </table>
+                </div>
+            </div>
+            <div>
+                <h3>PEEP Titration DOWN ↓</h3>
+                <div class="peep-grid">
+                    <table class="peep-table" id="peep-down-table">
+                        <!-- Will be populated by JavaScript -->
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="warning-container"></div>
+
+        <!-- PEEP Study Preview -->
+        <h2>PEEP Study Preview & Recruitability Assessment</h2>
+        <div id="peep-preview-container"></div>
+
+        <!-- Optimal PEEP Suggestion -->
+        <div id="optimal-peep-container"></div>
+
+        <!-- Charts -->
+        <h2>PEEP Study Charts</h2>
+        <div class="chart-container">
+            <canvas id="complianceChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="pfChart"></canvas>
+        </div>
+
+        <!-- Export Buttons -->
+        <h2>Export Data</h2>
+        <div>
+            <button class="button" onclick="exportCSV()">📄 Export CSV</button>
+            <button class="button button-secondary" onclick="exportExcel()">📊 Export Excel</button>
+        </div>
+
+        <!-- Clinical Reference -->
+        <div class="info-box" style="margin-top: 30px;">
+            <h3 style="margin-bottom: 10px;">Clinical Reference Ranges & Calculation Formulas</h3>
+            
+            <p><strong>Lung-Protective Ventilation Targets:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><strong>Tidal Volume:</strong> 6-8 mL/kg PBW (ARDS: 4-6 mL/kg)</li>
+                <li><strong>Driving Pressure:</strong> &lt;15 cmH₂O (optimal), 15-20 (caution), &gt;20 (high risk)</li>
+                <li><strong>Plateau Pressure:</strong> &lt;30 cmH₂O (safe), 30-35 (caution), &gt;35 (high risk)</li>
+                <li><strong>Mechanical Power:</strong> &lt;12 J/min (safe), 12-17 (caution), &gt;17 (high risk)</li>
+                <li><strong>Total Strain:</strong> &lt;1.0 (safe), 1.0-2.0 (caution), &gt;2.0 (high risk)</li>
+                <li><strong>ARDS Severity (P/F ratio in kPa):</strong> Mild ≥40, Moderate 26.7-40, Severe &lt;26.7</li>
+                <li><strong>ARDS Severity (P/F ratio in mmHg):</strong> Mild ≥300, Moderate 200-300, Severe &lt;200</li>
+                <li><strong>Recruitability (ΔCrs):</strong> &gt;1.2 fold change indicates good recruitment potential</li>
+            </ul>
+
+            <p style="margin-top: 20px;"><strong>Calculation Formulas:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><strong>Predicted Body Weight (PBW):</strong>
+                    <br>• Male: 50 + 0.91 × (Height in cm - 152.4)
+                    <br>• Female: 45.5 + 0.91 × (Height in cm - 152.4)
+                </li>
+                <li><strong>Body Mass Index (BMI):</strong> Weight (kg) / Height (m)²</li>
+                <li><strong>Tidal Volume per PBW:</strong> VT (mL) / PBW (kg)</li>
+                <li><strong>Minute Ventilation (MV):</strong> VT (L) × Respiratory Rate (bpm)</li>
+                <li><strong>I:E Ratio:</strong> 1 : (Expiratory Time / Inspiratory Time)
+                    <br>• Expiratory Time = (60 / RR) - Inspiratory Time
+                </li>
+                <li><strong>Driving Pressure (ΔP):</strong> Plateau Pressure - PEEP</li>
+                <li><strong>Static Compliance (Crs):</strong> VT / Driving Pressure</li>
+                <li><strong>Airway Resistance (Raw):</strong> (PIP - Pplat) / Flow (L/s)</li>
+                <li><strong>Mechanical Power:</strong> 0.098 × RR × VT × (PIP - 0.5 × ΔP) / 1000</li>
+                <li><strong>P/F Ratio:</strong> PaO₂ / FiO₂ (as decimal)</li>
+                <li><strong>Oxygenation Index (OI):</strong> (FiO₂ × mPAW) / PaO₂</li>
+                <li><strong>Dead Space (%):</strong> ((PaCO₂ - EtCO₂) / PaCO₂) × 100</li>
+                <li><strong>Dead Space Index:</strong> EtCO₂ / PaCO₂</li>
+                <li><strong>Theoretical FRC:</strong>
+                    <br>• Male: 2.34 × Height (m) + 0.009 × Age - 1.09
+                    <br>• Female: 2.24 × Height (m) + 0.001 × Age - 1.00
+                </li>
+                <li><strong>Actual FRC:</strong> Compliance (mL/cmH₂O) × 1000 / 40</li>
+                <li><strong>Dynamic Strain:</strong> VT / Actual FRC</li>
+                <li><strong>Total Strain:</strong> (VT + Compliance × PEEP) / Actual FRC</li>
+                <li><strong>Intrapulmonary Shunt:</strong> ((CaO₂ - CvO₂) / (CaO₂ - CvO₂ + 5)) × 100
+                    <br>• CaO₂ = 1.34 × Hb × (SaO₂/100) + 0.003 × PaO₂
+                    <br>• Assumes Hb = 15 g/dL
+                </li>
+                <li><strong>Resting Energy Expenditure (REE) - Harris-Benedict:</strong>
+                    <br>• Male: 88.362 + (13.397 × Weight) + (4.799 × Height) - (5.677 × Age)
+                    <br>• Female: 447.593 + (9.247 × Weight) + (3.098 × Height) - (4.330 × Age)
+                </li>
+                <li><strong>VCO₂:</strong> (REE × 0.8) / 7.2</li>
+                <li><strong>ΔVt (%):</strong> ((VT_DOWN - VT_UP) / VT_DOWN) × 100</li>
+                <li><strong>ΔCrs (fold change):</strong> Compliance_DOWN / Compliance_UP</li>
+            </ul>
+
+            <p style="margin-top: 20px;"><strong>APRV Mode Parameters:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><strong>P<sub>high</sub>:</strong> Upper pressure level (typically 25-30 cmH₂O)</li>
+                <li><strong>P<sub>low</sub>:</strong> Lower pressure level (typically 0-10 cmH₂O)</li>
+                <li><strong>T<sub>high</sub>:</strong> Duration at P<sub>high</sub> (typically 4-6 seconds)</li>
+                <li><strong>T<sub>low</sub>:</strong> Duration at P<sub>low</sub> (typically 0.4-0.8 seconds)</li>
+                <li><strong>Expiratory Flow Termination:</strong> Percentage of peak expiratory flow at which to terminate release (typically 50-75%)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let complianceChart = null;
+        let pfChart = null;
+
+        // Initialise on page load
+        window.onload = function() {
+            updatePeepGrid();
+            calculate();
+        };
+
+        // Toggle APRV-specific inputs
+        function toggleAPRVInputs() {
+            const mode = document.getElementById('mode').value;
+            const aprvInputs = document.getElementById('aprv-inputs');
+            if (mode === 'APRV') {
+                aprvInputs.style.display = 'block';
+            } else {
+                aprvInputs.style.display = 'none';
+            }
+        }
+
+        // Calculate all outputs
+        function calculate() {
+            // Get inputs
+            const age = parseFloat(document.getElementById('age').value) || 0;
+            const sex = document.getElementById('sex').value;
+            const height = parseFloat(document.getElementById('height').value) || 0;
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            const vt = parseFloat(document.getElementById('vt').value) || 0;
+            const rr = parseFloat(document.getElementById('rr').value) || 0;
+            const peep = parseFloat(document.getElementById('peep').value) || 0;
+            const fio2 = parseFloat(document.getElementById('fio2').value) || 0;
+            const pip = parseFloat(document.getElementById('pip').value) || 0;
+            const pplat = parseFloat(document.getElementById('pplat').value) || 0;
+            const mpaw = parseFloat(document.getElementById('mpaw').value) || 0;
+            const itime = parseFloat(document.getElementById('itime').value) || 0;
+            const flow = parseFloat(document.getElementById('flow').value) || 0;
+            const pao2 = parseFloat(document.getElementById('pao2').value) || 0;
+            const paco2 = parseFloat(document.getElementById('paco2').value) || 0;
+            const etco2 = parseFloat(document.getElementById('etco2').value) || 0;
+            const sao2 = parseFloat(document.getElementById('sao2').value) || 0;
+            const svo2 = parseFloat(document.getElementById('svo2').value) || 0;
+
+            // Calculate PBW
+            const pbw = sex === 'M' 
+                ? 50 + 0.91 * (height - 152.4)
+                : 45.5 + 0.91 * (height - 152.4);
+
+            // Calculate BMI
+            const bmi = weight / Math.pow(height / 100, 2);
+
+            // Calculate VT/PBW
+            const vt_pbw = vt / pbw;
+
+            // Calculate Minute Ventilation
+            const mv = (vt * rr) / 1000;
+
+            // Calculate I:E Ratio
+            const cycle_time = 60 / rr; // Total cycle time in seconds
+            const etime = cycle_time - itime; // Expiratory time
+            const ie_ratio = itime > 0 && etime > 0 ? `1:${(etime / itime).toFixed(2)}` : '-';
+
+            // Calculate P/F ratio
+            const fio2_decimal = fio2 / 100;
+            const pf_ratio_kPa = pao2 / fio2_decimal;
+            const pf_ratio_mmHg = pf_ratio_kPa * 7.5;
+
+            // ARDS Severity
+            let ards_severity = '';
+            let ards_class = '';
+            if (pf_ratio_kPa >= 40) {
+                ards_severity = 'Mild';
+                ards_class = 'status-safe';
+            } else if (pf_ratio_kPa >= 26.7) {
+                ards_severity = 'Moderate';
+                ards_class = 'status-caution';
+            } else {
+                ards_severity = 'Severe';
+                ards_class = 'status-risk';
+            }
+
+            // Calculate Driving Pressure
+            const driving_pressure = pplat - peep;
+
+            // Calculate Compliance
+            const compliance = vt / driving_pressure;
+
+            // Calculate Resistance
+            const flow_Ls = flow / 60;
+            const resistance = (pip - pplat) / flow_Ls;
+
+            // Calculate Mechanical Power
+            const mech_power = 0.098 * rr * vt * (pip - 0.5 * driving_pressure) / 1000;
+
+            // Calculate OI
+            const oi = (fio2 * mpaw) / pao2;
+
+            // Calculate Dead Space
+            const dead_space = ((paco2 - etco2) / paco2) * 100;
+            const dead_space_idx = etco2 / paco2;
+
+            // Calculate FRC
+            const frc_theo = sex === 'M' 
+                ? 2.34 * height + 0.009 * age - 1.09
+                : 2.24 * height + 0.001 * age - 1.00;
+            const frc_actual = compliance * 1000 / 40;
+
+            // Calculate Strain
+            const dynamic_strain = vt / frc_actual;
+            const total_strain = (vt + compliance * peep) / frc_actual;
+
+            // Calculate Shunt
+            const cao2 = 1.34 * (sao2 / 100) * 15 + 0.003 * pao2;
+            const cvo2 = 1.34 * (svo2 / 100) * 15 + 0.003 * 5; // Assuming PvO2 ~ 5 kPa
+            const shunt = ((cao2 - cvo2) / (cao2 - cvo2 + 5)) * 100;
+
+            // Calculate REE (Harris-Benedict)
+            const ree = sex === 'M'
+                ? 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
+                : 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+
+            // Calculate VCO2
+            const vco2 = (ree * 0.8) / 7.2;
+
+            // Status checks
+            let vt_pbw_status = '';
+            let vt_pbw_class = '';
+            if (vt_pbw <= 8 && vt_pbw >= 6) {
+                vt_pbw_status = 'Target';
+                vt_pbw_class = 'status-safe';
+            } else if (vt_pbw < 6 || vt_pbw > 10) {
+                vt_pbw_status = 'Review';
+                vt_pbw_class = 'status-risk';
+            } else {
+                vt_pbw_status = 'Caution';
+                vt_pbw_class = 'status-caution';
+            }
+
+            let dp_status = '';
+            let dp_class = '';
+            if (driving_pressure < 15) {
+                dp_status = 'Safe';
+                dp_class = 'status-safe';
+            } else if (driving_pressure <= 20) {
+                dp_status = 'Caution';
+                dp_class = 'status-caution';
+            } else {
+                dp_status = 'High Risk';
+                dp_class = 'status-risk';
+            }
+
+            let mp_status = '';
+            let mp_class = '';
+            if (mech_power < 12) {
+                mp_status = 'Safe';
+                mp_class = 'status-safe';
+            } else if (mech_power <= 17) {
+                mp_status = 'Caution';
+                mp_class = 'status-caution';
+            } else {
+                mp_status = 'High Risk';
+                mp_class = 'status-risk';
+            }
+
+            let ts_status = '';
+            let ts_class = '';
+            if (total_strain < 1.0) {
+                ts_status = 'Safe';
+                ts_class = 'status-safe';
+            } else if (total_strain <= 2.0) {
+                ts_status = 'Caution';
+                ts_class = 'status-caution';
+            } else {
+                ts_status = 'High Risk';
+                ts_class = 'status-risk';
+            }
+
+            // Update displays
+            document.getElementById('pbw').textContent = pbw.toFixed(1);
+            document.getElementById('bmi').textContent = bmi.toFixed(1);
+            document.getElementById('vt_pbw').textContent = vt_pbw.toFixed(1);
+            document.getElementById('vt_pbw_status').textContent = vt_pbw_status;
+            document.getElementById('vt_pbw_status').className = 'status-badge ' + vt_pbw_class;
+            document.getElementById('mv').textContent = mv.toFixed(1);
+            document.getElementById('ie_ratio').textContent = ie_ratio;
+            
+            // Update P/F ratio based on units
+            const units = document.getElementById('unitToggle').value;
+            if (units === 'kPa') {
+                document.getElementById('pf_ratio').textContent = pf_ratio_kPa.toFixed(1);
+                document.getElementById('pf_unit').textContent = '(kPa)';
+            } else {
+                document.getElementById('pf_ratio').textContent = pf_ratio_mmHg.toFixed(0);
+                document.getElementById('pf_unit').textContent = '(mmHg)';
+            }
+            
+            document.getElementById('ards_severity').textContent = ards_severity;
+            document.getElementById('ards_severity').className = 'status-badge ' + ards_class;
+            document.getElementById('driving_pressure').textContent = driving_pressure.toFixed(1);
+            document.getElementById('dp_status').textContent = dp_status;
+            document.getElementById('dp_status').className = 'status-badge ' + dp_class;
+            document.getElementById('compliance').textContent = compliance.toFixed(1);
+            document.getElementById('resistance').textContent = resistance.toFixed(1);
+            document.getElementById('mech_power').textContent = mech_power.toFixed(1);
+            document.getElementById('mp_status').textContent = mp_status;
+            document.getElementById('mp_status').className = 'status-badge ' + mp_class;
+            document.getElementById('oi').textContent = oi.toFixed(1);
+            document.getElementById('dead_space').textContent = dead_space.toFixed(1);
+            document.getElementById('dead_space_idx').textContent = dead_space_idx.toFixed(2);
+            document.getElementById('frc_theo').textContent = frc_theo.toFixed(0);
+            document.getElementById('frc_actual').textContent = frc_actual.toFixed(0);
+            document.getElementById('dynamic_strain').textContent = dynamic_strain.toFixed(2);
+            document.getElementById('total_strain').textContent = total_strain.toFixed(2);
+            document.getElementById('ts_status').textContent = ts_status;
+            document.getElementById('ts_status').className = 'status-badge ' + ts_class;
+            document.getElementById('shunt').textContent = shunt.toFixed(1);
+            document.getElementById('ree').textContent = ree.toFixed(0);
+            document.getElementById('vco2').textContent = vco2.toFixed(0);
+
+            // Update PEEP study preview
+            updatePeepPreview();
+        }
+
+        function updateAllDisplays() {
+            const units = document.getElementById('unitToggle').value;
+            
+            // Update blood gas input labels
+            if (units === 'kPa') {
+                document.getElementById('pao2_unit').textContent = '(kPa)';
+                document.getElementById('paco2_unit').textContent = '(kPa)';
+                document.getElementById('etco2_unit').textContent = '(kPa)';
+            } else {
+                document.getElementById('pao2_unit').textContent = '(mmHg)';
+                document.getElementById('paco2_unit').textContent = '(mmHg)';
+                document.getElementById('etco2_unit').textContent = '(mmHg)';
+            }
+            
+            // Recalculate everything
+            calculate();
+        }
+
+        function updatePeepGrid() {
+            const numRows = parseInt(document.getElementById('numRows').value) || 2;
+            
+            // Create UP table
+            createPeepTable('peep-up-table', numRows, 'up');
+            
+            // Create DOWN table
+            createPeepTable('peep-down-table', numRows, 'down');
+            
+            // Update preview
+            updatePeepPreview();
+        }
+
+        function createPeepTable(tableId, numRows, direction) {
+            const table = document.getElementById(tableId);
+            
+            // Create header
+            let html = `
+                <thead>
+                    <tr>
+                        <th>PEEP<br>(cmH₂O)</th>
+                        <th>VT<br>(mL)</th>
+                        <th>Pplat<br>(cmH₂O)</th>
+                        <th>PaO₂<br>(kPa)</th>
+                        <th>FiO₂<br>(%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            // Create rows with pre-filled example data for first 2 rows
+            for (let i = 0; i < numRows; i++) {
+                const rowNum = direction === 'up' ? i + 1 : numRows - i;
+                const peepValue = direction === 'up' ? (5 + i * 2) : (5 + (numRows - 1 - i) * 2);
+                
+                // Pre-fill first 2 rows with example data
+                let defaultVT = 0, defaultPplat = 0, defaultPaO2 = 0, defaultFiO2 = 0;
+                if (i === 0) {
+                    defaultVT = 450;
+                    defaultPplat = direction === 'up' ? 20 : 30;
+                    defaultPaO2 = direction === 'up' ? 10.0 : 14.0;
+                    defaultFiO2 = 60;
+                } else if (i === 1) {
+                    defaultVT = 450;
+                    defaultPplat = direction === 'up' ? 24 : 26;
+                    defaultPaO2 = direction === 'up' ? 12.0 : 13.0;
+                    defaultFiO2 = 60;
+                }
+                
+                html += `
+                    <tr>
+                        <td><input type="number" id="peep_${direction}_${rowNum}" value="${peepValue}" min="0" max="30" step="1" oninput="updatePeepPreview()"></td>
+                        <td><input type="number" id="vt_${direction}_${rowNum}" value="${defaultVT}" min="0" max="1500" step="10" oninput="updatePeepPreview()"></td>
+                        <td><input type="number" id="pplat_${direction}_${rowNum}" value="${defaultPplat}" min="0" max="60" step="0.1" oninput="updatePeepPreview()"></td>
+                        <td><input type="number" id="pao2_${direction}_${rowNum}" value="${defaultPaO2}" min="0" max="100" step="0.1" oninput="updatePeepPreview()"></td>
+                        <td><input type="number" id="fio2_${direction}_${rowNum}" value="${defaultFiO2}" min="21" max="100" step="1" oninput="updatePeepPreview()"></td>
+                    </tr>
+                `;
+            }
+            
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        function updatePeepPreview() {
+            const numRows = parseInt(document.getElementById('numRows').value) || 2;
+            const units = document.getElementById('unitToggle').value;
+            
+            let html = `
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>PEEP<br>(cmH₂O)</th>
+                            <th>VT UP<br>(mL)</th>
+                            <th>VT DOWN<br>(mL)</th>
+                            <th>ΔVt<br>(%)</th>
+                            <th>Driving Pressure UP<br>(cmH₂O)</th>
+                            <th>Driving Pressure DOWN<br>(cmH₂O)</th>
+                            <th>Compliance UP<br>(mL/cmH₂O)</th>
+                            <th>Compliance DOWN<br>(mL/cmH₂O)</th>
+                            <th>ΔCrs<br>(fold)</th>
+                            <th>P/F Ratio UP<br>${units}</th>
+                            <th>P/F Ratio DOWN<br>${units}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            let maxRecruitability = 0;
+            let validRows = 0;
+            
+            for (let i = 1; i <= numRows; i++) {
+                // Get UP values
+                const peep_up = parseFloat(document.getElementById(`peep_up_${i}`).value) || 0;
+                const vt_up = parseFloat(document.getElementById(`vt_up_${i}`).value) || 0;
+                const pplat_up = parseFloat(document.getElementById(`pplat_up_${i}`).value) || 0;
+                const pao2_up = parseFloat(document.getElementById(`pao2_up_${i}`).value) || 0;
+                const fio2_up = parseFloat(document.getElementById(`fio2_up_${i}`).value) || 0;
+                
+                // Get DOWN values
+                const peep_down = parseFloat(document.getElementById(`peep_down_${i}`).value) || 0;
+                const vt_down = parseFloat(document.getElementById(`vt_down_${i}`).value) || 0;
+                const pplat_down = parseFloat(document.getElementById(`pplat_down_${i}`).value) || 0;
+                const pao2_down = parseFloat(document.getElementById(`pao2_down_${i}`).value) || 0;
+                const fio2_down = parseFloat(document.getElementById(`fio2_down_${i}`).value) || 0;
+                
+                // Use PEEP from UP table as reference
+                const peep = peep_up;
+                
+                // Calculate UP metrics
+                const dp_up = pplat_up - peep;
+                const crs_up = dp_up > 0 ? vt_up / dp_up : 0;
+                const pf_up_kPa = fio2_up > 0 ? pao2_up / (fio2_up / 100) : 0;
+                const pf_up_mmHg = pf_up_kPa * 7.5;
+                const pf_up = units === 'kPa' ? pf_up_kPa : pf_up_mmHg;
+                
+                // Calculate DOWN metrics
+                const dp_down = pplat_down - peep;
+                const crs_down = dp_down > 0 ? vt_down / dp_down : 0;
+                const pf_down_kPa = fio2_down > 0 ? pao2_down / (fio2_down / 100) : 0;
+                const pf_down_mmHg = pf_down_kPa * 7.5;
+                const pf_down = units === 'kPa' ? pf_down_kPa : pf_down_mmHg;
+                
+                // Calculate recruitability metrics
+                const delta_vt = vt_down > 0 ? ((vt_down - vt_up) / vt_down) * 100 : 0;
+                const delta_crs = crs_up > 0 && crs_down > 0 ? crs_down / crs_up : 0;
+                
+                if (delta_crs > maxRecruitability) {
+                    maxRecruitability = delta_crs;
+                }
+                
+                // Check if row has valid data
+                const isValid = vt_up > 0 && pplat_up > 0 && vt_down > 0 && pplat_down > 0;
+                if (isValid) validRows++;
+                
+                // Highlight good recruitability
+                const recruitClass = delta_crs > 1.2 ? 'recruitability-good' : '';
+                
+                html += `
+                    <tr>
+                        <td><strong>${peep.toFixed(0)}</strong></td>
+                        <td>${vt_up > 0 ? vt_up.toFixed(0) : '-'}</td>
+                        <td>${vt_down > 0 ? vt_down.toFixed(0) : '-'}</td>
+                        <td ${recruitClass}>${Math.abs(delta_vt) > 0.01 ? delta_vt.toFixed(1) : '-'}</td>
+                        <td>${dp_up > 0 ? dp_up.toFixed(1) : '-'}</td>
+                        <td>${dp_down > 0 ? dp_down.toFixed(1) : '-'}</td>
+                        <td>
+                            ${crs_up > 0 ? `
+                                <div class="compliance-bar" style="width: ${Math.min(crs_up / 100 * 100, 100)}%">
+                                    <div class="compliance-bar-value">${crs_up.toFixed(1)}</div>
+                                </div>
+                            ` : '-'}
+                        </td>
+                        <td>
+                            ${crs_down > 0 ? `
+                                <div class="compliance-bar" style="width: ${Math.min(crs_down / 100 * 100, 100)}%">
+                                    <div class="compliance-bar-value">${crs_down.toFixed(1)}</div>
+                                </div>
+                            ` : '-'}
+                        </td>
+                        <td ${recruitClass}>${delta_crs > 0 ? delta_crs.toFixed(2) : '-'}</td>
+                        <td>${pf_up > 0 ? pf_up.toFixed(units === 'kPa' ? 1 : 0) : '-'}</td>
+                        <td>${pf_down > 0 ? pf_down.toFixed(units === 'kPa' ? 1 : 0) : '-'}</td>
+                    </tr>
+                `;
+            }
+            
+            html += '</tbody></table>';
+            
+            // Add recruitability summary
+            let recruitStatus = '';
+            let recruitClass = '';
+            if (maxRecruitability > 1.2) {
+                recruitStatus = 'Good recruitability detected';
+                recruitClass = 'status-safe';
+            } else if (maxRecruitability > 1.0) {
+                recruitStatus = 'Moderate recruitability';
+                recruitClass = 'status-caution';
+            } else {
+                recruitStatus = 'Limited recruitability';
+                recruitClass = 'status-risk';
+            }
+            
+            html += `
+                <div style="margin-top: 15px;">
+                    <strong>Maximum Recruitability (ΔCrs):</strong> ${maxRecruitability.toFixed(2)}
+                    <span class="status-badge ${recruitClass}">${recruitStatus}</span>
+                </div>
+            `;
+            
+            // Display warning if insufficient data
+            if (validRows < 2) {
+                html += `
+                    <div class="warning-box" style="margin-top: 15px;">
+                        <strong>⚠ Insufficient Data:</strong> At least 2 valid rows (with VT and Pplat in both UP and DOWN) are required for meaningful analysis.
+                    </div>
+                `;
+            }
+            
+            document.getElementById('peep-preview-container').innerHTML = html;
+            
+            // Calculate and display optimal PEEP
+            calculateOptimalPEEP(numRows, units);
+            
+            // Update charts
+            updateCharts();
+        }
+
+        function calculateOptimalPEEP(numRows, units) {
+            // Get current preset or default
+            const preset = document.getElementById('peep_preset')?.value || 'default';
+            
+            // Get current weight values based on preset or custom
+            let weight_compliance, weight_dp, weight_pf, weight_pplat;
+            
+            if (preset === 'default') {
+                weight_compliance = 40;
+                weight_dp = 30;
+                weight_pf = 20;
+                weight_pplat = 10;
+            } else if (preset === 'oxygenation') {
+                weight_compliance = 20;
+                weight_dp = 20;
+                weight_pf = 50;
+                weight_pplat = 10;
+            } else if (preset === 'lung_protection') {
+                weight_compliance = 30;
+                weight_dp = 50;
+                weight_pf = 10;
+                weight_pplat = 10;
+            } else {
+                // Custom - read from inputs
+                weight_compliance = parseFloat(document.getElementById('weight_compliance')?.value) || 40;
+                weight_dp = parseFloat(document.getElementById('weight_dp')?.value) || 30;
+                weight_pf = parseFloat(document.getElementById('weight_pf')?.value) || 20;
+                weight_pplat = parseFloat(document.getElementById('weight_pplat')?.value) || 10;
+            }
+            
+            // Calculate total
+            const total = weight_compliance + weight_dp + weight_pf + weight_pplat;
+            const weightsValid = total === 100;
+            
+            // Collect DOWN curve data for analysis
+            const peepData = [];
+            
+            for (let i = 1; i <= numRows; i++) {
+                const peep = parseFloat(document.getElementById(`peep_down_${i}`).value) || 0;
+                const vt = parseFloat(document.getElementById(`vt_down_${i}`).value) || 0;
+                const pplat = parseFloat(document.getElementById(`pplat_down_${i}`).value) || 0;
+                const pao2 = parseFloat(document.getElementById(`pao2_down_${i}`).value) || 0;
+                const fio2 = parseFloat(document.getElementById(`fio2_down_${i}`).value) || 0;
+                
+                if (peep > 0 && vt > 0 && pplat > 0 && pao2 > 0 && fio2 > 0) {
+                    const dp = pplat - peep;
+                    const crs = dp > 0 ? vt / dp : 0;
+                    const pf_kPa = pao2 / (fio2 / 100);
+                    const pf = units === 'kPa' ? pf_kPa : pf_kPa * 7.5;
+                    
+                    peepData.push({
+                        peep: peep,
+                        dp: dp,
+                        crs: crs,
+                        pf: pf,
+                        pplat: pplat
+                    });
+                }
+            }
+            
+            // Check if we have sufficient data
+            if (peepData.length < 2) {
+                document.getElementById('optimal-peep-container').innerHTML = `
+                    <div class="warning-box">
+                        <strong>⚠ Insufficient Data:</strong> At least 2 valid PEEP DOWN data points required for optimal PEEP suggestion.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Variable to hold optimal PEEP result
+            let optimalPEEP = null;
+            let rationaleText = '';
+            
+            // Only calculate if weights are valid
+            if (weightsValid) {
+                // Score each PEEP level based on multiple factors
+                let bestScore = -Infinity;
+                
+                peepData.forEach(data => {
+                    let score = 0;
+                    let reasons = [];
+                    
+                    // Factor 1: Compliance (higher is better)
+                    const crsScore = (data.crs / 100) * weight_compliance; // Normalized around 100 mL/cmH₂O
+                    score += crsScore;
+                    
+                    // Factor 2: Driving Pressure (lower is better)
+                    let dpScore = 0;
+                    if (data.dp < 15) {
+                        dpScore = weight_dp;
+                        reasons.push('safe driving pressure');
+                    } else if (data.dp <= 20) {
+                        dpScore = weight_dp * 0.67;
+                        reasons.push('acceptable driving pressure');
+                    } else {
+                        dpScore = weight_dp * 0.33;
+                    }
+                    score += dpScore;
+                    
+                    // Factor 3: P/F Ratio (higher is better)
+                    const pfThreshold = units === 'kPa' ? 40 : 300;
+                    const pfScore = (data.pf / pfThreshold) * weight_pf;
+                    score += pfScore;
+                    
+                    // Factor 4: Plateau Pressure safety
+                    let pplatScore = 0;
+                    if (data.pplat < 30) {
+                        pplatScore = weight_pplat;
+                        reasons.push('safe plateau pressure');
+                    } else if (data.pplat <= 35) {
+                        pplatScore = weight_pplat * 0.5;
+                    } else {
+                        pplatScore = 0;
+                    }
+                    score += pplatScore;
+                    
+                    // Store best PEEP
+                    if (score > bestScore) {
+                        bestScore = score;
+                        optimalPEEP = data;
+                    }
+                });
+                
+                // Generate rationale text based on preset
+                let presetDescription = '';
+                if (preset === 'default') {
+                    presetDescription = 'Using balanced weighting strategy. ';
+                } else if (preset === 'oxygenation') {
+                    presetDescription = 'Prioritising oxygenation (50% weight on P/F ratio). ';
+                } else if (preset === 'lung_protection') {
+                    presetDescription = 'Prioritising lung protection (50% weight on driving pressure). ';
+                } else {
+                    presetDescription = 'Using custom weighting strategy. ';
+                }
+                
+                rationaleText = presetDescription + 'Selected based on ';
+                const reasons = [];
+                
+                if (optimalPEEP.crs > 50) {
+                    reasons.push(`good compliance (${optimalPEEP.crs.toFixed(1)} mL/cmH₂O)`);
+                }
+                if (optimalPEEP.dp < 15) {
+                    reasons.push(`optimal driving pressure (${optimalPEEP.dp.toFixed(1)} cmH₂O)`);
+                } else if (optimalPEEP.dp <= 20) {
+                    reasons.push(`acceptable driving pressure (${optimalPEEP.dp.toFixed(1)} cmH₂O)`);
+                }
+                if (optimalPEEP.pplat < 30) {
+                    reasons.push(`safe plateau pressure (${optimalPEEP.pplat.toFixed(1)} cmH₂O)`);
+                }
+                
+                const pfThreshold = units === 'kPa' ? 40 : 300;
+                if (optimalPEEP.pf >= pfThreshold) {
+                    reasons.push(`adequate oxygenation (P/F ${optimalPEEP.pf.toFixed(units === 'kPa' ? 1 : 0)})`);
+                }
+                
+                rationaleText += reasons.join(', ');
+                rationaleText += '. This PEEP level provides the best balance of lung protection and oxygenation on the de-recruitment curve.';
+            }
+            
+            // Determine if inputs should be disabled
+            const isCustom = preset === 'custom';
+            const disabledAttr = isCustom ? '' : 'disabled';
+            
+            // Display optimal PEEP with weighting controls
+            let html = `
+                <div class="optimal-peep-box">
+                    <h3>
+                        <span>Suggested Optimal PEEP (from DOWN curve)</span>
+                        <select id="peep_preset" onchange="handlePresetChange()">
+                            <option value="default" ${preset === 'default' ? 'selected' : ''}>Default (Balanced)</option>
+                            <option value="oxygenation" ${preset === 'oxygenation' ? 'selected' : ''}>Oxygenation Priority</option>
+                            <option value="lung_protection" ${preset === 'lung_protection' ? 'selected' : ''}>Lung Protection Priority</option>
+                            <option value="custom" ${preset === 'custom' ? 'selected' : ''}>Custom</option>
+                        </select>
+                    </h3>
+            `;
+            
+            if (weightsValid && optimalPEEP) {
+                html += `
+                    <div class="optimal-peep-value">${optimalPEEP.peep.toFixed(0)} cmH₂O</div>
+                    <div class="optimal-peep-rationale">${rationaleText}</div>
+                `;
+            } else if (!weightsValid) {
+                html += `
+                    <div class="warning-box" style="margin: 15px 0;">
+                        <strong>⚠ Invalid Weights:</strong> Weights must total exactly 100% to calculate optimal PEEP.
+                    </div>
+                `;
+            }
+            
+            html += `
+                    <div class="weighting-controls">
+                        <h4>Scoring Weights ${!isCustom ? '(Preset)' : '(Editable)'}</h4>
+                        
+                        <div class="weight-input-row">
+                            <div class="weight-input-group">
+                                <label>Compliance Weight (%)</label>
+                                <input type="number" id="weight_compliance" min="0" max="100" value="${weight_compliance}" 
+                                       ${disabledAttr} oninput="recalculateOptimalPEEP();">
+                            </div>
+                            
+                            <div class="weight-input-group">
+                                <label>Driving Pressure Weight (%)</label>
+                                <input type="number" id="weight_dp" min="0" max="100" value="${weight_dp}" 
+                                       ${disabledAttr} oninput="recalculateOptimalPEEP();">
+                            </div>
+                            
+                            <div class="weight-input-group">
+                                <label>P/F Ratio Weight (%)</label>
+                                <input type="number" id="weight_pf" min="0" max="100" value="${weight_pf}" 
+                                       ${disabledAttr} oninput="recalculateOptimalPEEP();">
+                            </div>
+                            
+                            <div class="weight-input-group">
+                                <label>Plateau Pressure Weight (%)</label>
+                                <input type="number" id="weight_pplat" min="0" max="100" value="${weight_pplat}" 
+                                       ${disabledAttr} oninput="recalculateOptimalPEEP();">
+                            </div>
+                        </div>
+                        
+                        <div class="weight-total ${weightsValid ? 'valid' : 'invalid'}">
+                            Total: ${total}% ${weightsValid ? '✓' : '✗ Must equal 100%'}
+                        </div>
+            `;
+            
+            if (isCustom) {
+                html += `
+                        <div style="margin-top: 15px; text-align: center;">
+                            <button class="button" onclick="resetWeights()">Reset to Default Weights</button>
+                        </div>
+                `;
+            }
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('optimal-peep-container').innerHTML = html;
+        }
+
+        function handlePresetChange() {
+            const preset = document.getElementById('peep_preset').value;
+            recalculateOptimalPEEP();
+        }
+
+        function recalculateOptimalPEEP() {
+            const numRows = parseInt(document.getElementById('numRows').value) || 2;
+            const units = document.getElementById('unitToggle').value;
+            calculateOptimalPEEP(numRows, units);
+        }
+
+        function resetWeights() {
+            // Set preset to default
+            document.getElementById('peep_preset').value = 'default';
+            recalculateOptimalPEEP();
+        }
+
+        function updateCharts() {
+            const numRows = parseInt(document.getElementById('numRows').value) || 2;
+            const units = document.getElementById('unitToggle').value;
+            
+            // Collect data
+            const peepValues = [];
+            const complianceUp = [];
+            const complianceDown = [];
+            const pfUp = [];
+            const pfDown = [];
+            
+            for (let i = 1; i <= numRows; i++) {
+                const peep = parseFloat(document.getElementById(`peep_up_${i}`).value) || 0;
+                const vt_up = parseFloat(document.getElementById(`vt_up_${i}`).value) || 0;
+                const pplat_up = parseFloat(document.getElementById(`pplat_up_${i}`).value) || 0;
+                const pao2_up = parseFloat(document.getElementById(`pao2_up_${i}`).value) || 0;
+                const fio2_up = parseFloat(document.getElementById(`fio2_up_${i}`).value) || 0;
+                
+                const vt_down = parseFloat(document.getElementById(`vt_down_${i}`).value) || 0;
+                const pplat_down = parseFloat(document.getElementById(`pplat_down_${i}`).value) || 0;
+                const pao2_down = parseFloat(document.getElementById(`pao2_down_${i}`).value) || 0;
+                const fio2_down = parseFloat(document.getElementById(`fio2_down_${i}`).value) || 0;
+                
+                if (peep > 0) {
+                    peepValues.push(peep);
+                    
+                    // UP compliance
+                    const dp_up = pplat_up - peep;
+                    const crs_up = dp_up > 0 && vt_up > 0 ? vt_up / dp_up : null;
+                    complianceUp.push(crs_up);
+                    
+                    // DOWN compliance
+                    const dp_down = pplat_down - peep;
+                    const crs_down = dp_down > 0 && vt_down > 0 ? vt_down / dp_down : null;
+                    complianceDown.push(crs_down);
+                    
+                    // UP P/F ratio
+                    const pf_up_kPa = fio2_up > 0 && pao2_up > 0 ? pao2_up / (fio2_up / 100) : null;
+                    const pf_up = units === 'kPa' ? pf_up_kPa : (pf_up_kPa ? pf_up_kPa * 7.5 : null);
+                    pfUp.push(pf_up);
+                    
+                    // DOWN P/F ratio
+                    const pf_down_kPa = fio2_down > 0 && pao2_down > 0 ? pao2_down / (fio2_down / 100) : null;
+                    const pf_down = units === 'kPa' ? pf_down_kPa : (pf_down_kPa ? pf_down_kPa * 7.5 : null);
+                    pfDown.push(pf_down);
+                }
+            }
+            
+            // Update Compliance Chart
+            const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+            if (complianceChart) {
+                complianceChart.destroy();
+            }
+            complianceChart = new Chart(complianceCtx, {
+                type: 'line',
+                data: {
+                    labels: peepValues,
+                    datasets: [
+                        {
+                            label: 'Compliance UP (mL/cmH₂O)',
+                            data: complianceUp,
+                            borderColor: 'rgb(52, 152, 219)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Compliance DOWN (mL/cmH₂O)',
+                            data: complianceDown,
+                            borderColor: 'rgb(231, 76, 60)',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Static Compliance vs PEEP',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'PEEP (cmH₂O)',
+                                font: { size: 14, weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Compliance (mL/cmH₂O)',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Update P/F Chart
+            const pfCtx = document.getElementById('pfChart').getContext('2d');
+            if (pfChart) {
+                pfChart.destroy();
+            }
+            pfChart = new Chart(pfCtx, {
+                type: 'line',
+                data: {
+                    labels: peepValues,
+                    datasets: [
+                        {
+                            label: `P/F Ratio UP (${units})`,
+                            data: pfUp,
+                            borderColor: 'rgb(46, 204, 113)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: `P/F Ratio DOWN (${units})`,
+                            data: pfDown,
+                            borderColor: 'rgb(230, 126, 34)',
+                            backgroundColor: 'rgba(230, 126, 34, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `PaO₂/FiO₂ Ratio vs PEEP (${units})`,
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'PEEP (cmH₂O)',
+                                font: { size: 14, weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: `P/F Ratio (${units})`,
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportCSV() {
+            let csv = 'PEEP Study Export\n\n';
+            
+            // Add current patient data
+            csv += 'Current Patient Data\n';
+            csv += 'Parameter,Value\n';
+            csv += `Age,${document.getElementById('age').value}\n`;
+            csv += `Sex,${document.getElementById('sex').value}\n`;
+            csv += `Height (cm),${document.getElementById('height').value}\n`;
+            csv += `Weight (kg),${document.getElementById('weight').value}\n`;
+            csv += `PBW (kg),${document.getElementById('pbw').textContent}\n`;
+            csv += `BMI,${document.getElementById('bmi').textContent}\n`;
+            csv += '\n';
+            
+            // Add PEEP study data
+            csv += 'PEEP Study Data\n';
+            csv += 'PEEP,VT UP,VT DOWN,ΔVt %,Pplat UP,Pplat DOWN,Compliance UP,Compliance DOWN,ΔCrs,P/F UP,P/F DOWN\n';
+            
+            const numRows = parseInt(document.getElementById('numRows').value) || 2;
+            const units = document.getElementById('unitToggle').value;
+            
+            for (let i = 1; i <= numRows; i++) {
+                const peep = document.getElementById(`peep_up_${i}`).value;
+                const vt_up = document.getElementById(`vt_up_${i}`).value;
+                const vt_down = document.getElementById(`vt_down_${i}`).value;
+                const pplat_up = document.getElementById(`pplat_up_${i}`).value;
+                const pplat_down = document.getElementById(`pplat_down_${i}`).value;
+                const pao2_up = document.getElementById(`pao2_up_${i}`).value;
+                const pao2_down = document.getElementById(`pao2_down_${i}`).value;
+                const fio2_up = document.getElementById(`fio2_up_${i}`).value;
+                const fio2_down = document.getElementById(`fio2_down_${i}`).value;
+                
+                const dp_up = pplat_up - peep;
+                const dp_down = pplat_down - peep;
+                const crs_up = dp_up > 0 ? vt_up / dp_up : 0;
+                const crs_down = dp_down > 0 ? vt_down / dp_down : 0;
+                const delta_vt = vt_down > 0 ? ((vt_down - vt_up) / vt_down) * 100 : 0;
+                const delta_crs = crs_up > 0 && crs_down > 0 ? crs_down / crs_up : 0;
+                
+                const pf_up_kPa = fio2_up > 0 ? pao2_up / (fio2_up / 100) : 0;
+                const pf_down_kPa = fio2_down > 0 ? pao2_down / (fio2_down / 100) : 0;
+                const pf_up = units === 'kPa' ? pf_up_kPa : pf_up_kPa * 7.5;
+                const pf_down = units === 'kPa' ? pf_down_kPa : pf_down_kPa * 7.5;
+                
+                csv += `${peep},${vt_up},${vt_down},${delta_vt.toFixed(1)},${pplat_up},${pplat_down},${crs_up.toFixed(1)},${crs_down.toFixed(1)},${delta_crs.toFixed(2)},${pf_up.toFixed(1)},${pf_down.toFixed(1)}\n`;
+            }
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'peep_study_export.csv';
+            a.click();
+        }
+
+        function exportExcel() {
+            const numRows = parseInt(document.getElementById('numRows').value) || 2;
+            const units = document.getElementById('unitToggle').value;
+            
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Summary sheet
+            const summaryData = [
+                ['Ventilation Assessment Summary'],
+                [''],
+                ['Patient Demographics'],
+                ['Age', document.getElementById('age').value],
+                ['Sex', document.getElementById('sex').value],
+                ['Height (cm)', document.getElementById('height').value],
+                ['Weight (kg)', document.getElementById('weight').value],
+                ['PBW (kg)', document.getElementById('pbw').textContent],
+                ['BMI', document.getElementById('bmi').textContent],
+                [''],
+                ['Calculated Parameters'],
+                ['VT/PBW (mL/kg)', document.getElementById('vt_pbw').textContent],
+                ['Minute Ventilation (L/min)', document.getElementById('mv').textContent],
+                [`P/F Ratio (${units})`, document.getElementById('pf_ratio').textContent],
+                ['ARDS Severity', document.getElementById('ards_severity').textContent],
+                ['Driving Pressure (cmH₂O)', document.getElementById('driving_pressure').textContent],
+                ['Compliance (mL/cmH₂O)', document.getElementById('compliance').textContent],
+                ['Resistance (cmH₂O/L/s)', document.getElementById('resistance').textContent],
+                ['Mechanical Power (J/min)', document.getElementById('mech_power').textContent],
+                ['Oxygenation Index', document.getElementById('oi').textContent],
+                ['Dead Space %', document.getElementById('dead_space').textContent],
+                ['Dead Space Index', document.getElementById('dead_space_idx').textContent],
+                ['Theoretical FRC (mL)', document.getElementById('frc_theo').textContent],
+                ['Actual FRC (mL)', document.getElementById('frc_actual').textContent],
+                ['Dynamic Strain', document.getElementById('dynamic_strain').textContent],
+                ['Total Strain', document.getElementById('total_strain').textContent],
+                ['Shunt (%)', document.getElementById('shunt').textContent],
+                ['REE (kcal/day)', document.getElementById('ree').textContent],
+                ['VCO₂ (mL/min)', document.getElementById('vco2').textContent]
+            ];
+            
+            const ws_summary = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, ws_summary, 'Summary');
+            
+            // PEEP Study sheet
+            const peepData = [
+                ['PEEP Study Data'],
+                [''],
+                ['PEEP', 'VT UP', 'VT DOWN', 'ΔVt %', 'Pplat UP', 'Pplat DOWN', 'Compliance UP', 'Compliance DOWN', 'ΔCrs', `P/F UP (${units})`, `P/F DOWN (${units})`]
+            ];
+            
+            for (let i = 1; i <= numRows; i++) {
+                const peep = parseFloat(document.getElementById(`peep_up_${i}`).value) || 0;
+                const vt_up = parseFloat(document.getElementById(`vt_up_${i}`).value) || 0;
+                const vt_down = parseFloat(document.getElementById(`vt_down_${i}`).value) || 0;
+                const pplat_up = parseFloat(document.getElementById(`pplat_up_${i}`).value) || 0;
+                const pplat_down = parseFloat(document.getElementById(`pplat_down_${i}`).value) || 0;
+                const pao2_up = parseFloat(document.getElementById(`pao2_up_${i}`).value) || 0;
+                const pao2_down = parseFloat(document.getElementById(`pao2_down_${i}`).value) || 0;
+                const fio2_up = parseFloat(document.getElementById(`fio2_up_${i}`).value) || 0;
+                const fio2_down = parseFloat(document.getElementById(`fio2_down_${i}`).value) || 0;
+                
+                const dp_up = pplat_up - peep;
+                const dp_down = pplat_down - peep;
+                const crs_up = dp_up > 0 && vt_up > 0 ? vt_up / dp_up : 0;
+                const crs_down = dp_down > 0 && vt_down > 0 ? vt_down / dp_down : 0;
+                const delta_vt = vt_down > 0 ? ((vt_down - vt_up) / vt_down) * 100 : 0;
+                const delta_crs = crs_up > 0 && crs_down > 0 ? crs_down / crs_up : 0;
+                
+                const pf_up_kPa = fio2_up > 0 && pao2_up > 0 ? pao2_up / (fio2_up / 100) : 0;
+                const pf_down_kPa = fio2_down > 0 && pao2_down > 0 ? pao2_down / (fio2_down / 100) : 0;
+                const pf_up = units === 'kPa' ? pf_up_kPa : pf_up_kPa * 7.5;
+                const pf_down = units === 'kPa' ? pf_down_kPa : pf_down_kPa * 7.5;
+                
+                peepData.push([
+                    peep,
+                    vt_up || '-',
+                    vt_down || '-',
+                    delta_vt ? delta_vt.toFixed(1) : '-',
+                    pplat_up || '-',
+                    pplat_down || '-',
+                    crs_up ? crs_up.toFixed(1) : '-',
+                    crs_down ? crs_down.toFixed(1) : '-',
+                    delta_crs ? delta_crs.toFixed(2) : '-',
+                    pf_up ? pf_up.toFixed(1) : '-',
+                    pf_down ? pf_down.toFixed(1) : '-'
+                ]);
+            }
+            
+            const ws_peep = XLSX.utils.aoa_to_sheet(peepData);
+            XLSX.utils.book_append_sheet(wb, ws_peep, 'PEEP Study');
+            
+            // Download
+            XLSX.writeFile(wb, 'ventilation_assessment.xlsx');
+        }
+    </script>
+</body>
+</html>
