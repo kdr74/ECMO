@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ECMO Retrieval and Cannulation Record</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; }
+    section { margin-bottom: 30px; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, textarea { display: block; width: 100%; padding: 5px; margin-top: 3px; }
+    .inline { display: inline-block; width: 48%; }
+    .checkbox-group label { display: inline-block; font-weight: normal; margin-right: 12px; }
+    h2 { border-bottom: 1px solid #aaa; }
+    h3 { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>ECMO Retrieval and Cannulation Record</h1>
+  <form id="ecmoForm">
+
+    <section>
+      <h2>Patient Demographics</h2>
+      <label>Name</label> <input type="text" name="Name" required>
+      <label>Date of Birth</label> <input type="date" name="DOB" required>
+      <label>Hospital Number</label> <input type="text" name="HospitalNumber" required>
+    </section>
+
+    <section>
+      <h2>Consent</h2>
+      <label>Discussed with</label> <input type="text" name="DiscussedWith">
+      <label>Relationship to patient</label> <input type="text" name="Relationship">
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="ProcedureDiscussed"> Procedure Discussed</label>
+        <label><input type="checkbox" name="RisksDiscussed"> Risks Discussed (Failure, bleeding, stroke, death due to procedure, death due to ECMO process, death despite ECMO support)</label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Logistics</h2>
+      <label>Date & Time of Referral</label> <input type="datetime-local" name="ReferralDateTime">
+      <label>Date & Time of Decision to Deploy</label> <input type="datetime-local" name="DeployDecisionDateTime">
+      <label>Date & Time of Arrival at Referring Centre</label> <input type="datetime-local" name="ArrivalReferringDateTime">
+      <label>Date & Time at Patient Bedside</label> <input type="datetime-local" name="BedsideDateTime">
+      <label>Date & Time of Decision for ECMO</label> <input type="datetime-local" name="ECMODecisionDateTime">
+      <label>Date & Time into Theatre</label> <input type="datetime-local" name="TheatreDateTime">
+      <label>Date & Time of Initiation of ECMO</label> <input type="datetime-local" name="ECMOInitiationDateTime">
+      <label>Date & Time of Leaving Referring Centre</label> <input type="datetime-local" name="LeavingReferringDateTime">
+      <label>Date & Time of Arrival back at BRI</label> <input type="datetime-local" name="ArrivalBRIDateTime">
+
+      <label>Management Decision at Referring Centre</label>
+      <select name="ManagementDecision">
+        <option value="">Select decision</option>
+        <option>Continue active management at referral centre</option>
+        <option>Retrieve conventionally</option>
+        <option>VV-ECMO retrieval</option>
+        <option>VA-ECMO retrieval</option>
+        <option>Likely unsurvivable - remain at referring centre</option>
+      </select>
+    </section>
+
+    <section>
+      <h2>Cannulation</h2>
+      <h3>Personnel</h3>
+      <label>Lead ECMO Consultant</label> <input type="text" name="LeadConsultant">
+      <label>Access Cannulator</label> <input type="text" name="AccessCannulator">
+      <label>Return Cannulator</label> <input type="text" name="ReturnCannulator">
+      <label>ENS 1</label> <input type="text" name="ENS1">
+      <label>ENS 2</label> <input type="text" name="ENS2">
+      <label>Perfusionist</label> <input type="text" name="Perfusionist">
+      <label>Anaesthesia</label> <input type="text" name="Anaesthesia">
+
+      <label>Location of Cannulation</label>
+      <select name="CannulationLocation">
+        <option value="">Select location</option>
+        <option>Intensive Care</option>
+        <option>Theatre</option>
+      </select>
+      <label>Imaging Modality</label>
+      <select name="ImagingModality">
+        <option value="">Select modality</option>
+        <option>Fluoroscopy</option>
+        <option>Transthoracic echocardiogram</option>
+        <option>Transoesophageal echocardiogram</option>
+        <option>Fluoroscopy + TTE/TOE</option>
+      </select>
+    </section>
+
+    <section>
+      <h2>Cannulation Details</h2>
+      <label>WHO Checklist performed</label>
+      <select name="WHOChecklist">
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+      <label>Initial ACT</label> <input type="text" name="InitialACT">
+      <label>Dose of heparin</label> <input type="text" name="HeparinDose">
+      <label>Circuit heparin prime</label> <input type="text" name="CircuitHeparinPrime">
+      <label>Antibiotics given (dose)</label> <input type="text" name="AntibioticsGiven">
+    </section>
+
+    <section>
+      <h2>Access (Drainage)</h2>
+      <label>Site</label> <input type="text" name="AccessSite">
+      <label>Cannula size</label> <input type="text" name="AccessCannulaSize">
+      <label>Cannula type</label> <input type="text" name="AccessCannulaType">
+      <label>Wires used</label> <input type="text" name="AccessWiresUsed">
+      <label>Wire visualised</label> <input type="text" name="AccessWireVisualised">
+      <label>Cannula tip position</label> <input type="text" name="AccessTipPosition">
+    </section>
+
+    <section>
+      <h2>Return</h2>
+      <label>Site</label> <input type="text" name="ReturnSite">
+      <label>Cannula size</label> <input type="text" name="ReturnCannulaSize">
+      <label>Cannula type</label> <input type="text" name="ReturnCannulaType">
+      <label>Wires used</label> <input type="text" name="ReturnWiresUsed">
+      <label>Wire visualised</label> <input type="text" name="ReturnWireVisualised">
+      <label>Cannula tip position</label> <input type="text" name="ReturnTipPosition">
+      <label>Successful cannulation and start ECMO</label> <input type="text" name="StartECMO">
+    </section>
+
+    <button type="button" onclick="exportTxt()">Export as Plain Text</button>
+  </form>
+
+  <script>
+    function exportTxt() {
+      const form = document.getElementById('ecmoForm');
+      let output = '';
+
+      for (let section of form.querySelectorAll('section')) {
+        output += `--- ${section.querySelector('h2').innerText} ---\n`;
+
+        let inputs = Array.from(section.querySelectorAll('input, select, textarea'));
+        for (let input of inputs) {
+          let label = '';
+          // Find the label for this input
+          const labelNode = input.previousElementSibling;
+          if (labelNode && labelNode.tagName === 'LABEL') {
+            label = labelNode.innerText;
+          } else if (input.name === 'ProcedureDiscussed') {
+            label = 'Procedure Discussed';
+          } else if (input.name === 'RisksDiscussed') {
+            label = 'Risks Discussed';
+          }
+
+          if (input.type === 'checkbox') {
+            output += `${label}: ${input.checked ? 'Yes' : 'No'}\n`;
+          } else {
+            output += `${label}: ${input.value}\n`;
+          }
+        }
+        output += '\n';
+      }
+
+      // Download file
+      const blob = new Blob([output], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "ecmo_record.txt";
+      a.click();
+    }
+  </script>
+</body>
+</html>
