@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VV-ECMO Candidacy Assessment Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            background: #fafafa;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .calculated {
+            background-color: #e8f4fd;
+            border-color: #4a90e2;
+            font-weight: 600;
+            cursor: not-allowed;
+        }
+
+        .btn-toggle {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0;
+        }
+
+        .btn-toggle:hover {
+            background: #5568d3;
+            border-color: #5568d3;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .injurious-marker {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .protective-marker {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result-box {
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border: 3px solid;
+        }
+
+        .result-accept {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .result-decline {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .result-discuss {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .result-optimize {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .score-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+        }
+
+        .score-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .score-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .optimization-list {
+            margin-top: 15px;
+        }
+
+        .optimization-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab:hover {
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .evidence-box {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .evidence-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .reference {
+            font-size: 13px;
+            color: #555;
+            margin: 8px 0;
+            padding-left: 15px;
+            border-left: 3px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🫁 VV-ECMO Candidacy Assessment Tool</h1>
+            <p>Evidence-based decision support for severe acute respiratory failure</p>
+        </div>
+
+        <div class="content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('assessment')">Assessment</div>
+                <div class="tab" onclick="showTab('results')">Results & Recommendation</div>
+                <div class="tab" onclick="showTab('evidence')">Evidence Base</div>
+            </div>
+
+            <!-- Assessment Tab -->
+            <div id="assessment" class="tab-content active">
+                
+                <!-- Section 1: Demographics -->
+                <div class="section">
+                    <div class="section-title">Patient Demographics</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Patient ID</label>
+                            <input type="text" id="patientId">
+                        </div>
+                        <div class="form-group">
+                            <label>Assessment Date</label>
+                            <input type="date" id="assessmentDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Age (years)</label>
+                            <input type="number" id="age" min="18" max="100" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>Sex</label>
+                            <select id="sex" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Clinical Frailty Scale</label>
+                            <select id="cfs" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="1">1 - Very Fit (robust, active, energetic, motivated, exercises regularly)</option>
+                                <option value="2">2 - Well (no active disease, less fit than category 1, exercises occasionally)</option>
+                                <option value="3">3 - Managing Well (medical problems well controlled, not regularly active beyond routine walking)</option>
+                                <option value="4">4 - Vulnerable (not dependent but symptoms limit activities, often complains of being slowed up)</option>
+                                <option value="5">5 - Mildly Frail (limited dependence on others for IADLs, needs help with finances, transport, heavy housework)</option>
+                                <option value="6">6 - Moderately Frail (help needed with ADLs and IADLs, typically has problems with bathing and dressing)</option>
+                                <option value="7">7 - Severely Frail (completely dependent for personal care, stable condition, not approaching end of life)</option>
+                                <option value="8">8 - Very Severely Frail (completely dependent, approaching end of life, could not recover from minor illness)</option>
+                                <option value="9">9 - Terminally Ill (life expectancy <6 months, not otherwise frail)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weight" step="0.1" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="height" step="0.1" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>Body Mass Index (kg/m²)</label>
+                            <input type="number" id="bmi" class="calculated" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ideal Body Weight (kg)</label>
+                            <input type="number" id="ibw" class="calculated" readonly>
+                        </div>
+                        <div class="form-group"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Immunocompromised?</label>
+                        <select id="immunocomp" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes (solid organ/bone marrow transplant, haematological malignancy, HIV CD4 <200, high-dose steroids/immunosuppression, cirrhosis Child-Pugh C)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 2: Diagnosis -->
+                <div class="section">
+                    <div class="section-title">Diagnosis & Timeline</div>
+                    
+                    <div class="form-group">
+                        <label>Primary Diagnosis</label>
+                        <select id="diagnosis" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="viral">Viral pneumonia</option>
+                            <option value="bacterial">Bacterial pneumonia</option>
+                            <option value="asthma">Status asthmaticus</option>
+                            <option value="aspiration">Aspiration pneumonitis</option>
+                            <option value="trauma">Trauma/burn</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Potentially reversible?</label>
+                        <select id="reversible" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Uncertain">Uncertain</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of intubation</label>
+                            <input type="date" id="intubationDate" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>Days mechanically ventilated</label>
+                            <input type="number" id="mvDays" step="0.1" min="0" onchange="doCalculate()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Ventilator Settings -->
+                <div class="section">
+                    <div class="section-title">Ventilator Settings</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ventilation Mode</label>
+                            <select id="ventMode" onchange="toggleVentMode()">
+                                <option value="">Select</option>
+                                <option value="FacemaskO2">Facemask Oxygen</option>
+                                <option value="HFNC">High Flow Nasal Cannula (HFNC)</option>
+                                <option value="NIV-CPAP">Non-invasive Ventilation - CPAP</option>
+                                <option value="NIV-BiPAP">Non-invasive Ventilation - BiPAP</option>
+                                <option value="VC-SIMV">VC-SIMV</option>
+                                <option value="PC-SIMV">PC-SIMV</option>
+                                <option value="BIPAP">BIPAP</option>
+                                <option value="DuoPAP">DuoPAP</option>
+                                <option value="APRV">APRV</option>
+                                <option value="TCAV">TCAV</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>FiO₂ (decimal, e.g. 0.6)</label>
+                            <input type="number" id="fio2" step="0.01" min="0.21" max="1.0" onchange="doCalculate()">
+                        </div>
+                    </div>
+
+                    <div id="facemaskFields" style="display: none;">
+                        <div class="alert alert-info">Facemask Oxygen Parameters</div>
+                        <div class="form-group">
+                            <label>Oxygen Flow Rate (L/min)</label>
+                            <input type="number" id="facemaskFlow" min="0" max="15" onchange="doCalculate()">
+                        </div>
+                    </div>
+
+                    <div id="hfncFields" style="display: none;">
+                        <div class="alert alert-info">High Flow Nasal Cannula Parameters</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Flow Rate (L/min)</label>
+                                <input type="number" id="hfncFlow" min="0" max="80" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>Temperature (°C)</label>
+                                <input type="number" id="hfncTemp" min="31" max="37" value="37">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cpapFields" style="display: none;">
+                        <div class="alert alert-info">NIV-CPAP Parameters</div>
+                        <div class="form-group">
+                            <label>CPAP Pressure (cmH₂O)</label>
+                            <input type="number" id="cpapPressure" min="0" max="20" onchange="doCalculate()">
+                        </div>
+                    </div>
+
+                    <div id="bipapFields" style="display: none;">
+                        <div class="alert alert-info">NIV-BiPAP Parameters</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>iPAP (cmH₂O)</label>
+                                <input type="number" id="ipap" min="0" max="30" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>ePAP (cmH₂O)</label>
+                                <input type="number" id="epap" min="0" max="20" onchange="doCalculate()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="aprvFields" style="display: none;">
+                        <div class="alert alert-info">APRV/TCAV Parameters</div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>P<sub>high</sub> (cmH₂O)</label>
+                                <input type="number" id="phigh" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>P<sub>low</sub> (cmH₂O)</label>
+                                <input type="number" id="plow" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>Flow Cut-Off (%)</label>
+                                <input type="number" id="flowCutoff" onchange="doCalculate()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>T<sub>high</sub> (sec)</label>
+                                <input type="number" id="thigh" step="0.1" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>T<sub>low</sub> (sec)</label>
+                                <input type="number" id="tlow" step="0.1" onchange="doCalculate()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="standardFields">
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>PEEP (cmH₂O)</label>
+                                <input type="number" id="peep" min="0" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>Tidal Volume (ml)</label>
+                                <input type="number" id="tidalVolume" min="0" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>Vt/kg IBW <span id="vtMarker"></span></label>
+                                <input type="number" id="vtPerKg" class="calculated" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>Respiratory Rate</label>
+                                <input type="number" id="rr" min="0" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>PIP (cmH₂O)</label>
+                                <input type="number" id="pip" min="0" onchange="doCalculate()">
+                            </div>
+                            <div class="form-group">
+                                <label>Pplat (cmH₂O) <span id="pplatMarker"></span></label>
+                                <input type="number" id="pplat" min="0" onchange="doCalculate()">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Driving Pressure <span id="dpMarker"></span></label>
+                                <input type="number" id="drivingPressure" class="calculated" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Static Compliance (ml/cmH₂O)</label>
+                                <input type="number" id="compliance" class="calculated" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mechanical Power (J/min) <span id="mpMarker"></span></label>
+                            <input type="number" id="mechanicalPower" class="calculated" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Gas Exchange -->
+                <div class="section">
+                    <div class="section-title">
+                        Gas Exchange
+                        <div style="margin-left: auto;">
+                            <button type="button" class="btn-toggle" onclick="toggleUnits()" id="unitBtn">mmHg</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>PaO₂ <span id="unitLabel1">(mmHg)</span></label>
+                            <input type="number" id="pao2" step="0.1" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>PaO₂/FiO₂ <span id="unitLabel2">(mmHg)</span> <span id="ardsLabel"></span></label>
+                            <input type="number" id="pfRatio" class="calculated" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>PaCO₂ <span id="unitLabel3">(mmHg)</span></label>
+                            <input type="number" id="paco2" step="0.1" onchange="doCalculate()">
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>pH</label>
+                            <input type="number" id="ph" step="0.01" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>Base Excess (mmol/L)</label>
+                            <input type="number" id="baseExcess" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Lactate (mmol/L)</label>
+                            <input type="number" id="lactate" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>SpO₂ (%)</label>
+                            <input type="number" id="spo2" min="0" max="100" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>EtCO₂ <span id="unitLabel4">(mmHg)</span></label>
+                            <input type="number" id="etco2" step="0.1" onchange="doCalculate()">
+                        </div>
+                        <div class="form-group">
+                            <label>Dead Space (%)</label>
+                            <input type="number" id="deadSpace" class="calculated" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>A-a Gradient <span id="unitLabel5">(mmHg)</span></label>
+                            <input type="number" id="aaGradient" class="calculated" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Est. Shunt (%)</label>
+                            <input type="number" id="shunt" class="calculated" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Imaging -->
+                <div class="section">
+                    <div class="section-title">Imaging</div>
+                    
+                    <div class="form-group">
+                        <label>CXR: Quadrants with Infiltrates</label>
+                        <select id="cxrQuadrants" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="0">0 quadrants</option>
+                            <option value="1">1 quadrant</option>
+                            <option value="2">2 quadrants</option>
+                            <option value="3">3 quadrants</option>
+                            <option value="4">4 quadrants</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Murray Score <span id="murrayMarker"></span></label>
+                        <input type="number" id="murrayScore" class="calculated" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>CT Findings</label>
+                        <textarea id="ctFindings" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 6: Interventions -->
+                <div class="section">
+                    <div class="section-title">Interventions Attempted</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prone Positioning</label>
+                            <select id="prone" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">Not attempted</option>
+                                <option value="Yes">Yes - completed session(s)</option>
+                                <option value="Contraindicated">Contraindicated</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Neuromuscular Blockade</label>
+                            <select id="nmb" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes - in use</option>
+                                <option value="Previous">Previously used</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Inhaled Nitric Oxide</label>
+                            <select id="inhaledNO" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes - in use</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Recruitment Manoeuvres</label>
+                            <select id="recruitment">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Corticosteroids</label>
+                        <select id="steroids">
+                            <option value="">Select</option>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 7: Other Organ Support -->
+                <div class="section">
+                    <div class="section-title">Other Organ Support & Complications</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Noradrenaline Dose (mcg/kg/min)</label>
+                            <input type="number" id="noradDose" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Renal Replacement Therapy</label>
+                            <select id="rrt">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Current Fluid Balance (ml)</label>
+                        <input type="number" id="fluidBalance">
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Creatinine (μmol/L)</label>
+                            <input type="number" id="creatinine" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Bilirubin (μmol/L)</label>
+                            <input type="number" id="bilirubin" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Platelet Count (×10⁹/L)</label>
+                            <input type="number" id="platelets" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 8: RESP Components -->
+                <div class="section">
+                    <div class="section-title">RESP Score Components</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>CNS Dysfunction (GCS ≤8 not sedation)</label>
+                            <select id="cnsDysfunction" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Acute Non-Pulmonary Infection</label>
+                            <select id="acuteInfection" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cardiac Arrest Pre-ECMO</label>
+                            <select id="cardiacArrest" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Bicarbonate Infusion</label>
+                            <select id="bicarbonate" onchange="doCalculate()">
+                                <option value="">Select</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 9: Contraindications -->
+                <div class="section">
+                    <div class="section-title">Absolute Contraindications</div>
+                    
+                    <div class="form-group">
+                        <label>Major Contraindication to Anticoagulation?</label>
+                        <select id="anticoagContra" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes (active major bleeding)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Advanced Malignancy (prognosis <1 year)?</label>
+                        <select id="malignancy" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Catastrophic Neurological Injury?</label>
+                        <select id="neuroInjury" onchange="doCalculate()">
+                            <option value="">Select</option>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes (incompatible with meaningful recovery)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="calculateResults()">Calculate Assessment</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div id="results" class="tab-content">
+                <div id="resultsContent">
+                    <div class="alert alert-info">
+                        Please complete the assessment form and click "Calculate Assessment" to see results.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Base Tab -->
+            <div id="evidence" class="tab-content">
+                <div class="evidence-box">
+                    <div class="evidence-title">📚 Evidence Base & References</div>
+                    
+                    <h3 style="color: #1e3c72; margin-top: 20px;">RESP Score</h3>
+                    <div class="reference">
+                        <strong>Schmidt M, Bailey M, Sheldrake J, et al.</strong> (2014). 
+                        <em>Predicting survival after extracorporeal membrane oxygenation for severe acute respiratory failure.</em><br>
+                        Am J Respir Crit Care Med. 189(11):1374-1382.<br>
+                        DOI: 10.1164/rccm.201311-2023OC
+                    </div>
+
+                    <h3 style="color: #1e3c72; margin-top: 20px;">Age-Stratified Outcomes on VV-ECMO</h3>
+                    <div class="reference">
+                        <strong>Fernando SM, Brodie D, Barbaro RP, et al.</strong> (2024). 
+                        <em>Age and associated outcomes among patients receiving venovenous extracorporeal membrane oxygenation for acute respiratory failure: analysis of the Extracorporeal Life Support Organization registry.</em><br>
+                        Intensive Care Med. 50(3):395-405.<br>
+                        DOI: 10.1007/s00134-024-07343-5<br>
+                        <strong>PMID: 38376515</strong>
+                    </div>
+                    <p style="margin: 10px 0; color: #666;">
+                        ELSO registry analysis of 27,811 VV-ECMO patients (2017-2022). Demonstrated progressive increase in mortality with each decade of age starting from age 30. Age 70-79: OR 4.57 for hospital mortality. Age ≥80: OR 8.08 compared to reference (18-29 years). Overall hospital mortality 41.5%.
+                    </p>
+
+                    <h3 style="color: #1e3c72; margin-top: 20px;">Driving Pressure</h3>
+                    <div class="reference">
+                        <strong>Amato MBP, Meade MO, Slutsky AS, et al.</strong> (2015). 
+                        <em>Driving pressure and survival in the acute respiratory distress syndrome.</em><br>
+                        N Engl J Med. 372(8):747-755.<br>
+                        DOI: 10.1056/NEJMsa1410639
+                    </div>
+
+                    <h3 style="color: #1e3c72; margin-top: 20px;">Protective Ventilation</h3>
+                    <div class="reference">
+                        <strong>ARDS Network.</strong> (2000). 
+                        <em>Ventilation with lower tidal volumes.</em><br>
+                        N Engl J Med. 342(18):1301-1308.<br>
+                        DOI: 10.1056/NEJM200005043421801
+                    </div>
+
+                    <h3 style="color: #1e3c72; margin-top: 20px;">Prone Positioning</h3>
+                    <div class="reference">
+                        <strong>Guérin C, Reignier J, Richard JC, et al.</strong> (2013). 
+                        <em>Prone positioning in severe ARDS.</em><br>
+                        N Engl J Med. 368(23):2159-2168.<br>
+                        DOI: 10.1056/NEJMoa1214103
+                    </div>
+
+                    <h3 style="color: #1e3c72; margin-top: 20px;">Murray Lung Injury Score</h3>
+                    <div class="reference">
+                        <strong>Murray JF, Matthay MA, Luce JM, Flick MR.</strong> (1988). 
+                        <em>An expanded definition of ARDS.</em><br>
+                        Am Rev Respir Dis. 138(3):720-723.<br>
+                        DOI: 10.1164/ajrccm/138.3.720
+                    </div>
+
+                    <h3 style="color: #1e3c72; margin-top: 20px;">Berlin Definition of ARDS</h3>
+                    <div class="reference">
+                        <strong>ARDS Definition Task Force.</strong> (2012). 
+                        <em>Acute respiratory distress syndrome: the Berlin Definition.</em><br>
+                        JAMA. 307(23):2526-2533.<br>
+                        DOI: 10.1001/jama.2012.5669
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUnit = 'mmHg';
+        
+        // Set today's date
+        document.getElementById('assessmentDate').valueAsDate = new Date();
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        function toggleVentMode() {
+            const mode = document.getElementById('ventMode').value;
+            const aprv = document.getElementById('aprvFields');
+            const std = document.getElementById('standardFields');
+            const facemask = document.getElementById('facemaskFields');
+            const hfnc = document.getElementById('hfncFields');
+            const cpap = document.getElementById('cpapFields');
+            const bipap = document.getElementById('bipapFields');
+            
+            // Hide all mode-specific fields first
+            aprv.style.display = 'none';
+            std.style.display = 'none';
+            facemask.style.display = 'none';
+            hfnc.style.display = 'none';
+            cpap.style.display = 'none';
+            bipap.style.display = 'none';
+            
+            // Show appropriate fields based on mode
+            if (mode === 'APRV' || mode === 'TCAV') {
+                aprv.style.display = 'block';
+            } else if (mode === 'FacemaskO2') {
+                facemask.style.display = 'block';
+            } else if (mode === 'HFNC') {
+                hfnc.style.display = 'block';
+            } else if (mode === 'NIV-CPAP') {
+                cpap.style.display = 'block';
+            } else if (mode === 'NIV-BiPAP') {
+                bipap.style.display = 'block';
+            } else if (mode !== '') {
+                // Standard invasive ventilation modes
+                std.style.display = 'block';
+            }
+            
+            doCalculate();
+        }
+
+        function toggleUnits() {
+            const btn = document.getElementById('unitBtn');
+            const fields = ['pao2', 'paco2', 'etco2'];
+            
+            if (currentUnit === 'mmHg') {
+                currentUnit = 'kPa';
+                btn.textContent = 'kPa';
+                document.getElementById('unitLabel1').textContent = '(kPa)';
+                document.getElementById('unitLabel2').textContent = '(kPa)';
+                document.getElementById('unitLabel3').textContent = '(kPa)';
+                document.getElementById('unitLabel4').textContent = '(kPa)';
+                document.getElementById('unitLabel5').textContent = '(kPa)';
+                
+                // Convert values
+                fields.forEach(id => {
+                    const field = document.getElementById(id);
+                    const val = parseFloat(field.value);
+                    if (!isNaN(val) && val > 0) {
+                        field.value = (val / 7.50062).toFixed(2);
+                    }
+                });
+            } else {
+                currentUnit = 'mmHg';
+                btn.textContent = 'mmHg';
+                document.getElementById('unitLabel1').textContent = '(mmHg)';
+                document.getElementById('unitLabel2').textContent = '(mmHg)';
+                document.getElementById('unitLabel3').textContent = '(mmHg)';
+                document.getElementById('unitLabel4').textContent = '(mmHg)';
+                document.getElementById('unitLabel5').textContent = '(mmHg)';
+                
+                // Convert values
+                fields.forEach(id => {
+                    const field = document.getElementById(id);
+                    const val = parseFloat(field.value);
+                    if (!isNaN(val) && val > 0) {
+                        field.value = (val * 7.50062).toFixed(1);
+                    }
+                });
+            }
+            
+            doCalculate();
+        }
+
+        function doCalculate() {
+            // IBW and BMI
+            const sex = document.getElementById('sex').value;
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (sex && height) {
+                let ibw = sex === 'M' ? 50 + 0.91 * (height - 152.4) : 45.5 + 0.91 * (height - 152.4);
+                document.getElementById('ibw').value = ibw.toFixed(1);
+            }
+
+            if (weight && height) {
+                const bmi = weight / ((height / 100) ** 2);
+                document.getElementById('bmi').value = bmi.toFixed(1);
+            }
+
+            // Vt/kg
+            const tv = parseFloat(document.getElementById('tidalVolume').value);
+            const ibw = parseFloat(document.getElementById('ibw').value);
+            
+            if (tv && ibw) {
+                const vtkg = tv / ibw;
+                document.getElementById('vtPerKg').value = vtkg.toFixed(1);
+                
+                const marker = document.getElementById('vtMarker');
+                if (vtkg > 8) {
+                    marker.innerHTML = '<span class="injurious-marker">⚠ INJURIOUS</span>';
+                } else if (vtkg < 6) {
+                    marker.innerHTML = '<span class="protective-marker">✓ Protective</span>';
+                } else {
+                    marker.innerHTML = '<span style="color:#ffc107;font-weight:bold;font-size:12px;margin-left:10px;">✓ Acceptable</span>';
+                }
+            }
+
+            // Driving Pressure
+            const pplat = parseFloat(document.getElementById('pplat').value);
+            const peep = parseFloat(document.getElementById('peep').value);
+            
+            if (!isNaN(pplat) && !isNaN(peep)) {
+                const dp = pplat - peep;
+                document.getElementById('drivingPressure').value = dp.toFixed(1);
+                
+                const dpMarker = document.getElementById('dpMarker');
+                if (dp > 15) {
+                    dpMarker.innerHTML = '<span class="injurious-marker">⚠ HIGH</span>';
+                } else if (dp <= 12) {
+                    dpMarker.innerHTML = '<span class="protective-marker">✓ Good</span>';
+                } else {
+                    dpMarker.innerHTML = '<span style="color:#ffc107;font-weight:bold;font-size:12px;margin-left:10px;">⚠ Borderline</span>';
+                }
+
+                const pplatMarker = document.getElementById('pplatMarker');
+                if (pplat > 30) {
+                    pplatMarker.innerHTML = '<span class="injurious-marker">⚠ HIGH</span>';
+                } else {
+                    pplatMarker.innerHTML = '<span class="protective-marker">✓ <30</span>';
+                }
+                
+                // Compliance
+                if (tv && dp > 0) {
+                    const comp = tv / dp;
+                    document.getElementById('compliance').value = comp.toFixed(1);
+                }
+                
+                // Mechanical Power: MP = 0.098 × RR × Vt × (Ppeak - ½ × ΔP)
+                const rr = parseFloat(document.getElementById('rr').value);
+                const pip = parseFloat(document.getElementById('pip').value);
+                if (tv && rr && pip && !isNaN(dp)) {
+                    const vtLiters = tv / 1000;
+                    const mp = 0.098 * rr * vtLiters * (pip - (0.5 * dp));
+                    document.getElementById('mechanicalPower').value = mp.toFixed(1);
+                    
+                    const mpMarker = document.getElementById('mpMarker');
+                    if (mp > 17) {
+                        mpMarker.innerHTML = '<span class="injurious-marker">⚠ HIGH RISK VILI</span>';
+                    } else if (mp <= 12) {
+                        mpMarker.innerHTML = '<span class="protective-marker">✓ Safe</span>';
+                    } else {
+                        mpMarker.innerHTML = '<span style="color:#ffc107;font-weight:bold;font-size:12px;margin-left:10px;">⚠ Moderate</span>';
+                    }
+                } else {
+                    document.getElementById('mechanicalPower').value = '';
+                    document.getElementById('mpMarker').innerHTML = '';
+                }
+            }
+
+            // PF Ratio
+            let pao2 = parseFloat(document.getElementById('pao2').value);
+            const fio2 = parseFloat(document.getElementById('fio2').value);
+            
+            if (pao2 && fio2 && fio2 > 0) {
+                let pao2_mmhg = currentUnit === 'kPa' ? pao2 * 7.50062 : pao2;
+                let pfRatio = pao2_mmhg / fio2;
+                
+                if (currentUnit === 'kPa') {
+                    document.getElementById('pfRatio').value = (pfRatio / 7.50062).toFixed(0);
+                } else {
+                    document.getElementById('pfRatio').value = pfRatio.toFixed(0);
+                }
+                
+                // ARDS classification
+                const ardsLabel = document.getElementById('ardsLabel');
+                if (pfRatio > 300) {
+                    ardsLabel.innerHTML = '<span style="color:#28a745;font-weight:bold;font-size:12px;margin-left:10px;">Normal</span>';
+                } else if (pfRatio > 200) {
+                    ardsLabel.innerHTML = '<span style="color:#ffc107;font-weight:bold;font-size:12px;margin-left:10px;">Mild ARDS</span>';
+                } else if (pfRatio > 100) {
+                    ardsLabel.innerHTML = '<span style="color:#fd7e14;font-weight:bold;font-size:12px;margin-left:10px;">Moderate ARDS</span>';
+                } else {
+                    ardsLabel.innerHTML = '<span style="color:#dc3545;font-weight:bold;font-size:12px;margin-left:10px;">Severe ARDS</span>';
+                }
+            }
+
+            // Dead Space
+            let paco2 = parseFloat(document.getElementById('paco2').value);
+            let etco2 = parseFloat(document.getElementById('etco2').value);
+            
+            if (currentUnit === 'kPa') {
+                if (paco2) paco2 = paco2 * 7.50062;
+                if (etco2) etco2 = etco2 * 7.50062;
+            }
+            
+            if (paco2 && etco2 && paco2 > 0) {
+                const vd = ((paco2 - etco2) / paco2) * 100;
+                document.getElementById('deadSpace').value = vd.toFixed(1);
+            }
+
+            // A-a Gradient and Shunt
+            if (pao2 && paco2 && fio2) {
+                const pao2_mmhg = currentUnit === 'kPa' ? pao2 * 7.50062 : pao2;
+                const paco2_mmhg = currentUnit === 'kPa' ? parseFloat(document.getElementById('paco2').value) * 7.50062 : parseFloat(document.getElementById('paco2').value);
+                const PAO2 = fio2 * (760 - 47) - (paco2_mmhg / 0.8);
+                const aaGrad = PAO2 - pao2_mmhg;
+                
+                if (currentUnit === 'kPa') {
+                    document.getElementById('aaGradient').value = (aaGrad / 7.50062).toFixed(1);
+                } else {
+                    document.getElementById('aaGradient').value = aaGrad.toFixed(1);
+                }
+                
+                const shunt = ((PAO2 - pao2_mmhg) * 0.003) / (((PAO2 - pao2_mmhg) * 0.003) + 5);
+                document.getElementById('shunt').value = (shunt * 100).toFixed(1);
+            }
+
+            // Murray Score
+            calculateMurrayScore();
+        }
+
+        function calculateMurrayScore() {
+            let sum = 0;
+            let count = 0;
+
+            // CXR
+            const cxr = document.getElementById('cxrQuadrants').value;
+            if (cxr !== '') {
+                sum += parseInt(cxr);
+                count++;
+            }
+
+            // Hypoxemia
+            const pfVal = parseFloat(document.getElementById('pfRatio').value);
+            if (pfVal) {
+                let pfRatio_mmhg = currentUnit === 'kPa' ? pfVal * 7.50062 : pfVal;
+                let hypoxScore = 0;
+                if (pfRatio_mmhg >= 300) hypoxScore = 0;
+                else if (pfRatio_mmhg >= 225) hypoxScore = 1;
+                else if (pfRatio_mmhg >= 175) hypoxScore = 2;
+                else if (pfRatio_mmhg >= 100) hypoxScore = 3;
+                else hypoxScore = 4;
+                sum += hypoxScore;
+                count++;
+            }
+
+            // PEEP
+            const peep = parseFloat(document.getElementById('peep').value);
+            if (!isNaN(peep)) {
+                let peepScore = 0;
+                if (peep <= 5) peepScore = 0;
+                else if (peep <= 8) peepScore = 1;
+                else if (peep <= 11) peepScore = 2;
+                else if (peep <= 14) peepScore = 3;
+                else peepScore = 4;
+                sum += peepScore;
+                count++;
+            }
+
+            // Compliance
+            const comp = parseFloat(document.getElementById('compliance').value);
+            if (!isNaN(comp) && comp > 0) {
+                let compScore = 0;
+                if (comp >= 80) compScore = 0;
+                else if (comp >= 60) compScore = 1;
+                else if (comp >= 40) compScore = 2;
+                else if (comp >= 20) compScore = 3;
+                else compScore = 4;
+                sum += compScore;
+                count++;
+            }
+
+            if (count > 0) {
+                const murray = sum / count;
+                document.getElementById('murrayScore').value = murray.toFixed(2);
+                
+                const marker = document.getElementById('murrayMarker');
+                if (murray === 0) {
+                    marker.innerHTML = '<span class="protective-marker">No injury</span>';
+                } else if (murray <= 2.5) {
+                    marker.innerHTML = '<span style="color:#ffc107;font-weight:bold;font-size:12px;margin-left:10px;">Mild-Moderate</span>';
+                } else {
+                    marker.innerHTML = '<span class="injurious-marker">Severe ARDS</span>';
+                }
+            }
+        }
+
+        function calculateRESPScore() {
+            let score = 0;
+            const components = {};
+
+            // Age
+            const age = parseInt(document.getElementById('age').value);
+            if (age < 50) components.age = 0;
+            else if (age < 60) components.age = -2;
+            else components.age = -3;
+            score += components.age;
+
+            // Immunocomp
+            components.immunocomp = (document.getElementById('immunocomp').value === 'Yes') ? -2 : 0;
+            score += components.immunocomp;
+
+            // MV Duration
+            const mvDays = parseFloat(document.getElementById('mvDays').value) || 0;
+            if (mvDays < 2) components.mvDuration = 3;
+            else if (mvDays >= 7) components.mvDuration = -1;
+            else components.mvDuration = 0;
+            score += components.mvDuration;
+
+            // Diagnosis
+            const diag = document.getElementById('diagnosis').value;
+            switch(diag) {
+                case 'viral':
+                case 'bacterial':
+                    components.diagnosis = 3;
+                    break;
+                case 'asthma':
+                    components.diagnosis = 11;
+                    break;
+                case 'trauma':
+                    components.diagnosis = 3;
+                    break;
+                case 'aspiration':
+                    components.diagnosis = -5;
+                    break;
+                default:
+                    components.diagnosis = 0;
+            }
+            score += components.diagnosis;
+
+            // Other components
+            components.cns = (document.getElementById('cnsDysfunction').value === 'Yes') ? -7 : 0;
+            components.infection = (document.getElementById('acuteInfection').value === 'Yes') ? -3 : 0;
+            components.nmb = (document.getElementById('nmb').value === 'Yes') ? 1 : 0;
+            components.no = (document.getElementById('inhaledNO').value === 'Yes') ? -1 : 0;
+            components.bicarb = (document.getElementById('bicarbonate').value === 'Yes') ? -2 : 0;
+            components.arrest = (document.getElementById('cardiacArrest').value === 'Yes') ? -2 : 0;
+
+            score += components.cns + components.infection + components.nmb + components.no + components.bicarb + components.arrest;
+
+            // PaCO2
+            let paco2 = parseFloat(document.getElementById('paco2').value);
+            if (currentUnit === 'kPa') paco2 = paco2 * 7.50062;
+            components.paco2 = (paco2 < 75) ? 1 : 0;
+            score += components.paco2;
+
+            // PIP
+            const pip = parseFloat(document.getElementById('pip').value);
+            components.pip = (pip < 42) ? 1 : 0;
+            score += components.pip;
+
+            return { score, components };
+        }
+
+        function getRESPClass(score) {
+            if (score >= 6) return { class: 'I', survival: '92%', description: 'Excellent candidate' };
+            if (score >= 3) return { class: 'II', survival: '76%', description: 'Good candidate' };
+            if (score >= -1) return { class: 'III', survival: '57%', description: 'Acceptable candidate' };
+            if (score >= -5) return { class: 'IV', survival: '33%', description: 'Marginal candidate' };
+            return { class: 'V', survival: '18%', description: 'Poor candidate' };
+        }
+
+        function getAgeStratifiedRisk(age) {
+            // Fernando et al. 2024, Intensive Care Med - ELSO Registry Analysis
+            // Reference: 18-29 years (baseline mortality ~41.5%)
+            if (age < 18) {
+                return { bracket: '<18', or: 'N/A', risk: 'Paediatric', color: '#6c757d', interpretation: 'Paediatric data not included in adult ELSO registry' };
+            } else if (age <= 29) {
+                return { bracket: '18-29', or: '1.00', risk: 'Reference', color: '#28a745', interpretation: 'Baseline age bracket (reference group)' };
+            } else if (age <= 39) {
+                return { bracket: '30-39', or: '1.17', risk: 'Slightly increased', color: '#90ee90', interpretation: 'OR 1.17 - 17% increased mortality vs reference' };
+            } else if (age <= 49) {
+                return { bracket: '40-49', or: '1.65', risk: 'Moderately increased', color: '#ffc107', interpretation: 'OR 1.65 - 65% increased mortality vs reference' };
+            } else if (age <= 59) {
+                return { bracket: '50-59', or: '2.39', risk: 'Significantly increased', color: '#fd7e14', interpretation: 'OR 2.39 - 139% increased mortality vs reference' };
+            } else if (age <= 69) {
+                return { bracket: '60-69', or: '3.29', risk: 'High risk', color: '#ff6347', interpretation: 'OR 3.29 - 229% increased mortality vs reference' };
+            } else if (age <= 79) {
+                return { bracket: '70-79', or: '4.57', risk: 'Very high risk', color: '#dc3545', interpretation: 'OR 4.57 - 357% increased mortality vs reference' };
+            } else {
+                return { bracket: '≥80', or: '8.08', risk: 'Extremely high risk', color: '#8b0000', interpretation: 'OR 8.08 - 708% increased mortality vs reference' };
+            }
+        }
+
+        function assessSeverity() {
+            const pfRatio = parseFloat(document.getElementById('pfRatio').value);
+            let pfRatio_mmhg = currentUnit === 'kPa' ? pfRatio * 7.50062 : pfRatio;
+            const ph = parseFloat(document.getElementById('ph').value);
+            const mvDays = parseFloat(document.getElementById('mvDays').value);
+
+            return (pfRatio_mmhg < 80) || 
+                   (pfRatio_mmhg < 100 && mvDays > 0.25) || 
+                   (ph < 7.20);
+        }
+
+        function assessAbsoluteContra() {
+            return (document.getElementById('anticoagContra').value === 'Yes') ||
+                   (document.getElementById('malignancy').value === 'Yes') ||
+                   (document.getElementById('neuroInjury').value === 'Yes');
+        }
+
+        function countRelativeContra() {
+            let count = 0;
+            
+            const age = parseInt(document.getElementById('age').value);
+            if (age > 75) count++;
+
+            const mvDays = parseFloat(document.getElementById('mvDays').value);
+            if (mvDays > 7) count++;
+
+            if (document.getElementById('immunocomp').value === 'Yes') count++;
+
+            const cfs = parseInt(document.getElementById('cfs').value);
+            if (cfs >= 6) count++;
+
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            if (weight && height) {
+                const bmi = weight / ((height/100) ** 2);
+                if (bmi > 50) count++;
+            }
+
+            return count;
+        }
+
+        function assessOptimization() {
+            const optimizations = [];
+
+            // Check if patient on non-invasive ventilation
+            const ventMode = document.getElementById('ventMode').value;
+            const nonInvasiveModes = ['FacemaskO2', 'HFNC', 'NIV-CPAP', 'NIV-BiPAP'];
+            if (nonInvasiveModes.includes(ventMode)) {
+                optimizations.push('INTUBATE PATIENT - Currently on non-invasive support, invasive mechanical ventilation required before considering ECMO');
+            }
+
+            const vtPerKg = parseFloat(document.getElementById('vtPerKg').value);
+            if (vtPerKg > 6) {
+                optimizations.push('Reduce tidal volume to ≤6 ml/kg IBW (currently ' + vtPerKg.toFixed(1) + ' ml/kg)');
+            }
+
+            const pplat = parseFloat(document.getElementById('pplat').value);
+            if (pplat > 30) {
+                optimizations.push('Reduce plateau pressure <30 cmH₂O (currently ' + pplat.toFixed(0) + ' cmH₂O)');
+            }
+
+            const dp = parseFloat(document.getElementById('drivingPressure').value);
+            if (dp > 15) {
+                optimizations.push('Minimize driving pressure <15 cmH₂O (currently ' + dp.toFixed(1) + ' cmH₂O)');
+            }
+
+            const pfRatio = parseFloat(document.getElementById('pfRatio').value);
+            let pfRatio_mmhg = currentUnit === 'kPa' ? pfRatio * 7.50062 : pfRatio;
+            const nmb = document.getElementById('nmb').value;
+            if (pfRatio_mmhg < 150 && nmb !== 'Yes' && !nonInvasiveModes.includes(ventMode)) {
+                optimizations.push('Consider neuromuscular blockade (PaO₂/FiO₂ <150 mmHg)');
+            }
+
+            const prone = document.getElementById('prone').value;
+            if (pfRatio_mmhg < 150 && prone === 'No' && !nonInvasiveModes.includes(ventMode)) {
+                optimizations.push('Start prone positioning - minimum 16 hour sessions (PaO₂/FiO₂ <150 mmHg)');
+            }
+
+            if (dp > 15 && !nonInvasiveModes.includes(ventMode)) {
+                optimizations.push('Optimize PEEP - titrate to minimize driving pressure');
+            }
+
+            return optimizations;
+        }
+
+        function calculateResults() {
+            const respResult = calculateRESPScore();
+            const respClass = getRESPClass(respResult.score);
+            const age = parseInt(document.getElementById('age').value) || 0;
+            const ageRisk = getAgeStratifiedRisk(age);
+            const severityMet = assessSeverity();
+            const absoluteContra = assessAbsoluteContra();
+            const relativeContraCount = countRelativeContra();
+            const reversible = document.getElementById('reversible').value;
+            const optimizations = assessOptimization();
+
+            let recommendation = '';
+            let recommendationClass = '';
+            let recommendationDescription = '';
+
+            // Decision logic with age-stratified risk consideration
+            if (!severityMet) {
+                recommendation = 'OPTIMIZE FIRST';
+                recommendationClass = 'result-optimize';
+                recommendationDescription = 'Severity criteria not yet met. Continue optimized conventional management and reassess.';
+            } else if (reversible === 'No') {
+                recommendation = 'DECLINE - Not Indicated';
+                recommendationClass = 'result-decline';
+                recommendationDescription = 'Non-reversible respiratory pathology. VV-ECMO unlikely to provide benefit.';
+            } else if (absoluteContra) {
+                recommendation = 'DECLINE - Contraindicated';
+                recommendationClass = 'result-decline';
+                recommendationDescription = 'Absolute contraindication present. VV-ECMO not appropriate.';
+            } else if (respResult.score <= -6) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+                recommendationClass = 'result-discuss';
+                recommendationDescription = 'Poor candidate (RESP Class V, 18% predicted survival). Collaborative decision-making required with family discussion.';
+            } else if (age >= 80) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+                recommendationClass = 'result-discuss';
+                recommendationDescription = 'Age ≥80 years with 8-fold increased mortality risk (ELSO data). Requires careful risk-benefit discussion with family.';
+            } else if (age >= 70 && (respResult.score <= 2 || relativeContraCount >= 2)) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+                recommendationClass = 'result-discuss';
+                recommendationDescription = 'Age 70-79 with 4.6-fold increased mortality risk. Borderline RESP score or multiple comorbidities warrant collaborative decision-making.';
+            } else if (relativeContraCount >= 4 && respResult.score <= -2) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+                recommendationClass = 'result-discuss';
+                recommendationDescription = 'Multiple relative contraindications with low RESP score. Consider patient wishes and quality of life.';
+            } else if (respResult.score >= 3 && relativeContraCount <= 1 && optimizations.length === 0) {
+                recommendation = 'RECOMMENDED FOR VV-ECMO';
+                recommendationClass = 'result-accept';
+                if (age >= 60) {
+                    recommendationDescription = 'On-site assessment recommended. Note: Age ' + age + ' associated with ' + ageRisk.or + '-fold increased mortality (ELSO data).';
+                } else {
+                    recommendationDescription = 'On-site assessment recommended.';
+                }
+            } else if (respResult.score >= -1 && optimizations.length === 0) {
+                recommendation = 'RECOMMENDED FOR VV-ECMO';
+                recommendationClass = 'result-accept';
+                if (age >= 60) {
+                    recommendationDescription = 'On-site assessment recommended. Note: Age ' + age + ' associated with ' + ageRisk.or + '-fold increased mortality (ELSO data).';
+                } else {
+                    recommendationDescription = 'On-site assessment recommended.';
+                }
+            } else if (optimizations.length > 0) {
+                recommendation = 'OPTIMIZE BEFORE ECMO';
+                recommendationClass = 'result-optimize';
+                recommendationDescription = 'Complete optimization of conventional management first. Reassess after interventions.';
+            } else {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+                recommendationClass = 'result-discuss';
+                recommendationDescription = 'Borderline candidate. Collaborative decision-making recommended.';
+            }
+
+            // Build results HTML
+            let html = `
+                <div class="result-box ${recommendationClass}">
+                    <div class="result-title">
+                        ${recommendation === 'RECOMMENDED FOR VV-ECMO' ? '✅' : 
+                          recommendation.includes('DECLINE') ? '❌' : 
+                          recommendation.includes('OPTIMIZE') ? '⚠️' : '💬'}
+                        ${recommendation}
+                    </div>
+                    <p style="font-size: 16px; margin-top: 10px;">${recommendationDescription}</p>
+                </div>
+
+                <div class="score-display">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">📊 RESP Score Results</h3>
+                    <div class="score-row">
+                        <span class="score-label">Total RESP Score:</span>
+                        <span class="score-value">${respResult.score}</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Risk Class:</span>
+                        <span class="score-value">Class ${respClass.class}</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Predicted In-Hospital Survival:</span>
+                        <span class="score-value" style="color: ${respClass.class === 'I' || respClass.class === 'II' ? '#28a745' : 
+                                                                     respClass.class === 'III' ? '#ffc107' : '#dc3545'}">${respClass.survival}</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Candidacy:</span>
+                        <span style="font-size: 16px;">${respClass.description}</span>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">🔍 RESP Score Breakdown</h3>
+                    <div class="score-row"><span>Age:</span><span>${respResult.components.age > 0 ? '+' : ''}${respResult.components.age}</span></div>
+                    <div class="score-row"><span>Immunocompromised:</span><span>${respResult.components.immunocomp}</span></div>
+                    <div class="score-row"><span>MV Duration:</span><span>${respResult.components.mvDuration > 0 ? '+' : ''}${respResult.components.mvDuration}</span></div>
+                    <div class="score-row"><span>Diagnosis:</span><span>${respResult.components.diagnosis > 0 ? '+' : ''}${respResult.components.diagnosis}</span></div>
+                    <div class="score-row"><span>CNS Dysfunction:</span><span>${respResult.components.cns}</span></div>
+                    <div class="score-row"><span>Acute Infection:</span><span>${respResult.components.infection}</span></div>
+                    <div class="score-row"><span>Neuromuscular Blockade:</span><span>${respResult.components.nmb > 0 ? '+' : ''}${respResult.components.nmb}</span></div>
+                    <div class="score-row"><span>Nitric Oxide:</span><span>${respResult.components.no}</span></div>
+                    <div class="score-row"><span>Bicarbonate Infusion:</span><span>${respResult.components.bicarb}</span></div>
+                    <div class="score-row"><span>Cardiac Arrest:</span><span>${respResult.components.arrest}</span></div>
+                    <div class="score-row"><span>PaCO₂ <75 mmHg:</span><span>${respResult.components.paco2 > 0 ? '+' : ''}${respResult.components.paco2}</span></div>
+                    <div class="score-row"><span>PIP <42 cmH₂O:</span><span>${respResult.components.pip > 0 ? '+' : ''}${respResult.components.pip}</span></div>
+                </div>
+
+                <div class="score-display">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">📅 Age-Stratified Mortality Risk</h3>
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px; font-size: 13px; color: #666;">
+                            <strong>Based on ELSO Registry Analysis (Fernando et al. 2024):</strong> 27,811 VV-ECMO patients, 2017-2022
+                        </p>
+                        <div class="score-row">
+                            <span class="score-label">Patient Age Bracket:</span>
+                            <span style="font-weight: bold; color: ${ageRisk.color};">${ageRisk.bracket} years</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="score-label">Odds Ratio for Mortality:</span>
+                            <span style="font-weight: bold; color: ${ageRisk.color};">${ageRisk.or}</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="score-label">Risk Category:</span>
+                            <span style="font-weight: bold; color: ${ageRisk.color};">${ageRisk.risk}</span>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 13px; color: #555; font-style: italic;">
+                            ${ageRisk.interpretation}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">⚖️ Risk Assessment</h3>
+                    <div class="score-row">
+                        <span class="score-label">Severity Criteria Met:</span>
+                        <span style="color: ${severityMet ? '#dc3545' : '#28a745'}; font-weight: bold;">${severityMet ? 'YES' : 'NO'}</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Potentially Reversible:</span>
+                        <span style="color: ${reversible === 'Yes' ? '#28a745' : reversible === 'No' ? '#dc3545' : '#ffc107'}; font-weight: bold;">${reversible || 'Not specified'}</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Absolute Contraindications:</span>
+                        <span style="color: ${absoluteContra ? '#dc3545' : '#28a745'}; font-weight: bold;">${absoluteContra ? 'YES' : 'NO'}</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Relative Contraindications:</span>
+                        <span style="color: ${relativeContraCount >= 4 ? '#dc3545' : relativeContraCount >= 2 ? '#ffc107' : '#28a745'}; font-weight: bold;">${relativeContraCount}</span>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">📈 Current Physiological Parameters</h3>
+                    <div class="score-row">
+                        <span class="score-label">Ventilation Mode:</span>
+                        <span style="font-weight: bold;">
+                            ${document.getElementById('ventMode').options[document.getElementById('ventMode').selectedIndex].text || 'Not selected'}
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">PaO₂/FiO₂ Ratio:</span>
+                        <span style="color: ${parseFloat(document.getElementById('pfRatio').value) < 100 ? '#dc3545' : '#ffc107'}; font-weight: bold;">
+                            ${document.getElementById('pfRatio').value || 'Not calculated'} ${currentUnit}
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Murray Lung Injury Score:</span>
+                        <span style="color: ${parseFloat(document.getElementById('murrayScore').value) > 2.5 ? '#dc3545' : parseFloat(document.getElementById('murrayScore').value) > 0 ? '#ffc107' : '#28a745'}; font-weight: bold;">
+                            ${document.getElementById('murrayScore').value || 'Not calculated'}
+                        </span>
+                    </div>
+                    ${!['FacemaskO2', 'HFNC', 'NIV-CPAP', 'NIV-BiPAP'].includes(document.getElementById('ventMode').value) ? `
+                    <div class="score-row">
+                        <span class="score-label">Driving Pressure:</span>
+                        <span style="color: ${parseFloat(document.getElementById('drivingPressure').value) > 15 ? '#dc3545' : '#28a745'}; font-weight: bold;">
+                            ${document.getElementById('drivingPressure').value || 'Not calculated'} cmH₂O
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Plateau Pressure:</span>
+                        <span style="color: ${parseFloat(document.getElementById('pplat').value) > 30 ? '#dc3545' : '#28a745'}; font-weight: bold;">
+                            ${document.getElementById('pplat').value || 'Not entered'} cmH₂O
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Tidal Volume (ml/kg IBW):</span>
+                        <span style="color: ${parseFloat(document.getElementById('vtPerKg').value) > 8 ? '#dc3545' : '#28a745'}; font-weight: bold;">
+                            ${document.getElementById('vtPerKg').value || 'Not calculated'} ml/kg
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Mechanical Power:</span>
+                        <span style="color: ${parseFloat(document.getElementById('mechanicalPower').value) > 17 ? '#dc3545' : '#28a745'}; font-weight: bold;">
+                            ${document.getElementById('mechanicalPower').value || 'Not calculated'} J/min
+                        </span>
+                    </div>
+                    ` : ''}
+                    <div class="score-row">
+                        <span class="score-label">pH:</span>
+                        <span style="color: ${parseFloat(document.getElementById('ph').value) < 7.20 ? '#dc3545' : '#28a745'}; font-weight: bold;">
+                            ${document.getElementById('ph').value || 'Not entered'}
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Dead Space:</span>
+                        <span style="font-weight: bold;">
+                            ${document.getElementById('deadSpace').value || 'Not calculated'}%
+                        </span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Estimated Shunt:</span>
+                        <span style="font-weight: bold;">
+                            ${document.getElementById('shunt').value || 'Not calculated'}%
+                        </span>
+                    </div>
+                </div>
+            `;
+
+            if (optimizations.length > 0) {
+                html += `
+                    <div class="score-display" style="background: #fff3cd;">
+                        <h3 style="color: #856404; margin-bottom: 15px;">⚙️ Required Optimization</h3>
+                        <div class="optimization-list">
+                            ${optimizations.map(opt => `<div class="optimization-item">• ${opt}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (recommendation === 'RECOMMENDED FOR VV-ECMO') {
+                html += `
+                    <div class="score-display" style="background: #d4edda;">
+                        <h3 style="color: #155724; margin-bottom: 15px;">✅ Next Steps</h3>
+                        <div style="line-height: 1.8;">
+                            <strong>1. Send ECMO preparation sheet to referring centre</strong><br>
+                            <strong>2. Request family available to consent</strong><br>
+                            <strong>3. Ensure theatre / radiography available at referring centre</strong><br>
+                            <strong>4. Assemble retrieval team</strong>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ Print Summary</button>
+                    <button class="btn btn-primary" onclick="printPlainText()">📄 Print Plain Text Summary</button>
+                    <button class="btn btn-secondary" onclick="showTab('assessment')">← Back to Assessment</button>
+                </div>
+            `;
+
+            document.getElementById('resultsContent').innerHTML = html;
+            showTab('results');
+        }
+
+        function printPlainText() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>VV-ECMO Assessment</title>');
+            printWindow.document.write('<style>body{font-family:monospace;padding:20px;font-size:12px;}pre{white-space:pre-wrap;}</style>');
+            printWindow.document.write('</head><body><pre>');
+            
+            const respResult = calculateRESPScore();
+            const respClass = getRESPClass(respResult.score);
+            const age = parseInt(document.getElementById('age').value) || 0;
+            const ageRisk = getAgeStratifiedRisk(age);
+            const severityMet = assessSeverity();
+            const absoluteContra = assessAbsoluteContra();
+            const relativeContraCount = countRelativeContra();
+            const reversible = document.getElementById('reversible').value;
+            const optimizations = assessOptimization();
+            
+            // Determine recommendation
+            let recommendation = '';
+            if (!severityMet) {
+                recommendation = 'OPTIMIZE FIRST';
+            } else if (reversible === 'No') {
+                recommendation = 'DECLINE - Not Indicated';
+            } else if (absoluteContra) {
+                recommendation = 'DECLINE - Contraindicated';
+            } else if (respResult.score <= -6) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+            } else if (age >= 80) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE (Age ≥80)';
+            } else if (age >= 70 && (respResult.score <= 2 || relativeContraCount >= 2)) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE (Age 70-79 + Risk Factors)';
+            } else if (relativeContraCount >= 4 && respResult.score <= -2) {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+            } else if (respResult.score >= 3 && relativeContraCount <= 1 && optimizations.length === 0) {
+                recommendation = 'RECOMMENDED FOR VV-ECMO';
+            } else if (respResult.score >= -1 && optimizations.length === 0) {
+                recommendation = 'RECOMMENDED FOR VV-ECMO';
+            } else if (optimizations.length > 0) {
+                recommendation = 'OPTIMIZE BEFORE ECMO';
+            } else {
+                recommendation = 'DISCUSS WITH ECMO CENTRE';
+            }
+            
+            let text = '═══════════════════════════════════════════════════════════════\n';
+            text += '        VV-ECMO CANDIDACY ASSESSMENT SUMMARY\n';
+            text += '═══════════════════════════════════════════════════════════════\n\n';
+            text += 'Patient: ' + (document.getElementById('patientId').value || 'Not specified') + '\n';
+            text += 'Date: ' + document.getElementById('assessmentDate').value + '\n';
+            text += 'Generated: ' + new Date().toLocaleString() + '\n\n';
+            
+            text += '───────────────────────────────────────────────────────────────\n';
+            text += 'RECOMMENDATION: ' + recommendation + '\n';
+            text += '───────────────────────────────────────────────────────────────\n\n';
+            
+            text += 'PATIENT DEMOGRAPHICS\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'Age:                ' + (document.getElementById('age').value || 'Not entered') + ' years\n';
+            text += 'Sex:                ' + (document.getElementById('sex').value || 'Not specified') + '\n';
+            text += 'Weight:             ' + (document.getElementById('weight').value || 'Not entered') + ' kg\n';
+            text += 'Height:             ' + (document.getElementById('height').value || 'Not entered') + ' cm\n';
+            text += 'BMI:                ' + (document.getElementById('bmi').value || 'Not calculated') + ' kg/m²\n';
+            text += 'IBW:                ' + (document.getElementById('ibw').value || 'Not calculated') + ' kg\n';
+            const cfsValue = document.getElementById('cfs').value;
+            const cfsText = cfsValue ? 'CFS ' + cfsValue : 'Not selected';
+            text += 'Frailty:            ' + cfsText + '\n';
+            text += 'Immunocompromised:  ' + (document.getElementById('immunocomp').value || 'Not specified') + '\n\n';
+            
+            text += 'DIAGNOSIS & TIMELINE\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            const diagValue = document.getElementById('diagnosis').value;
+            const diagText = diagValue ? document.getElementById('diagnosis').options[document.getElementById('diagnosis').selectedIndex].text : 'Not selected';
+            text += 'Diagnosis:          ' + diagText + '\n';
+            text += 'Reversible:         ' + (document.getElementById('reversible').value || 'Not specified') + '\n';
+            text += 'Days on MV:         ' + (document.getElementById('mvDays').value || 'Not entered') + '\n\n';
+            
+            text += 'VENTILATOR SETTINGS\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            const ventModeValue = document.getElementById('ventMode').value;
+            const ventModeText = ventModeValue ? document.getElementById('ventMode').options[document.getElementById('ventMode').selectedIndex].text : 'Not selected';
+            text += 'Mode:               ' + ventModeText + '\n';
+            text += 'FiO₂:               ' + (document.getElementById('fio2').value || 'Not entered') + '\n';
+            
+            // Add mode-specific parameters
+            if (ventModeValue === 'FacemaskO2') {
+                text += 'Flow Rate:          ' + (document.getElementById('facemaskFlow').value || 'Not entered') + ' L/min\n';
+            } else if (ventModeValue === 'HFNC') {
+                text += 'Flow Rate:          ' + (document.getElementById('hfncFlow').value || 'Not entered') + ' L/min\n';
+                text += 'Temperature:        ' + (document.getElementById('hfncTemp').value || 'Not entered') + ' °C\n';
+            } else if (ventModeValue === 'NIV-CPAP') {
+                text += 'CPAP:               ' + (document.getElementById('cpapPressure').value || 'Not entered') + ' cmH₂O\n';
+            } else if (ventModeValue === 'NIV-BiPAP') {
+                text += 'iPAP:               ' + (document.getElementById('ipap').value || 'Not entered') + ' cmH₂O\n';
+                text += 'ePAP:               ' + (document.getElementById('epap').value || 'Not entered') + ' cmH₂O\n';
+            } else if (ventModeValue === 'APRV' || ventModeValue === 'TCAV') {
+                text += 'P high:             ' + (document.getElementById('phigh').value || 'Not entered') + ' cmH₂O\n';
+                text += 'P low:              ' + (document.getElementById('plow').value || 'Not entered') + ' cmH₂O\n';
+                text += 'T high:             ' + (document.getElementById('thigh').value || 'Not entered') + ' sec\n';
+                text += 'T low:              ' + (document.getElementById('tlow').value || 'Not entered') + ' sec\n';
+                text += 'Flow Cut-Off:       ' + (document.getElementById('flowCutoff').value || 'Not entered') + ' %\n';
+            } else if (ventModeValue !== '') {
+                // Standard invasive ventilation
+                text += 'PEEP:               ' + (document.getElementById('peep').value || 'Not entered') + ' cmH₂O\n';
+                text += 'Tidal Volume:       ' + (document.getElementById('tidalVolume').value || 'Not entered') + ' ml\n';
+                text += 'Vt/kg IBW:          ' + (document.getElementById('vtPerKg').value || 'Not calculated') + ' ml/kg\n';
+                text += 'Respiratory Rate:   ' + (document.getElementById('rr').value || 'Not entered') + ' bpm\n';
+                text += 'PIP:                ' + (document.getElementById('pip').value || 'Not entered') + ' cmH₂O\n';
+                text += 'Plateau Pressure:   ' + (document.getElementById('pplat').value || 'Not entered') + ' cmH₂O\n';
+                text += 'Driving Pressure:   ' + (document.getElementById('drivingPressure').value || 'Not calculated') + ' cmH₂O\n';
+                text += 'Compliance:         ' + (document.getElementById('compliance').value || 'Not calculated') + ' ml/cmH₂O\n';
+                text += 'Mechanical Power:   ' + (document.getElementById('mechanicalPower').value || 'Not calculated') + ' J/min\n';
+            }
+            text += '\n';
+            
+            text += 'GAS EXCHANGE (Units: ' + currentUnit + ')\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'PaO₂:               ' + (document.getElementById('pao2').value || 'Not entered') + ' ' + currentUnit + '\n';
+            text += 'PaO₂/FiO₂:          ' + (document.getElementById('pfRatio').value || 'Not calculated') + ' ' + currentUnit + '\n';
+            text += 'PaCO₂:              ' + (document.getElementById('paco2').value || 'Not entered') + ' ' + currentUnit + '\n';
+            text += 'pH:                 ' + (document.getElementById('ph').value || 'Not entered') + '\n';
+            text += 'SpO₂:               ' + (document.getElementById('spo2').value || 'Not entered') + '%\n';
+            text += 'EtCO₂:              ' + (document.getElementById('etco2').value || 'Not entered') + ' ' + currentUnit + '\n';
+            text += 'Dead Space:         ' + (document.getElementById('deadSpace').value || 'Not calculated') + '%\n';
+            text += 'A-a Gradient:       ' + (document.getElementById('aaGradient').value || 'Not calculated') + ' ' + currentUnit + '\n';
+            text += 'Est. Shunt:         ' + (document.getElementById('shunt').value || 'Not calculated') + '%\n\n';
+            
+            text += 'IMAGING\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            const cxrValue = document.getElementById('cxrQuadrants').value;
+            const cxrText = cxrValue !== '' ? cxrValue + ' quadrant(s) infiltrated' : 'Not selected';
+            text += 'Chest X-Ray:        ' + cxrText + '\n';
+            text += 'Murray Score:       ' + (document.getElementById('murrayScore').value || 'Not calculated') + '\n';
+            const ctFindings = document.getElementById('ctFindings').value;
+            if (ctFindings) {
+                text += 'CT Findings:\n' + ctFindings + '\n\n';
+            } else {
+                text += 'CT Findings:        Not entered\n\n';
+            }
+            
+            text += 'INTERVENTIONS\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'Prone Positioning:  ' + (document.getElementById('prone').value || 'Not specified') + '\n';
+            text += 'NM Blockade:        ' + (document.getElementById('nmb').value || 'Not specified') + '\n';
+            text += 'Inhaled NO:         ' + (document.getElementById('inhaledNO').value || 'Not specified') + '\n';
+            text += 'Recruitment:        ' + (document.getElementById('recruitment').value || 'Not specified') + '\n';
+            text += 'Steroids:           ' + (document.getElementById('steroids').value || 'Not specified') + '\n\n';
+            
+            text += 'OTHER ORGAN SUPPORT\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'Noradrenaline:      ' + (document.getElementById('noradDose').value || 'Not entered') + ' mcg/kg/min\n';
+            text += 'RRT:                ' + (document.getElementById('rrt').value || 'Not specified') + '\n';
+            text += 'Fluid Balance:      ' + (document.getElementById('fluidBalance').value || 'Not entered') + ' ml\n';
+            text += 'Creatinine:         ' + (document.getElementById('creatinine').value || 'Not entered') + ' μmol/L\n';
+            text += 'Bilirubin:          ' + (document.getElementById('bilirubin').value || 'Not entered') + ' μmol/L\n';
+            text += 'Platelets:          ' + (document.getElementById('platelets').value || 'Not entered') + ' ×10⁹/L\n\n';
+            
+            text += 'RESP SCORE CALCULATION\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'Age:                ' + (respResult.components.age > 0 ? '+' : '') + respResult.components.age + '\n';
+            text += 'Immunocompromised:  ' + respResult.components.immunocomp + '\n';
+            text += 'MV Duration:        ' + (respResult.components.mvDuration > 0 ? '+' : '') + respResult.components.mvDuration + '\n';
+            text += 'Diagnosis:          ' + (respResult.components.diagnosis > 0 ? '+' : '') + respResult.components.diagnosis + '\n';
+            text += 'CNS Dysfunction:    ' + respResult.components.cns + '\n';
+            text += 'Acute Infection:    ' + respResult.components.infection + '\n';
+            text += 'NM Blockade:        ' + (respResult.components.nmb > 0 ? '+' : '') + respResult.components.nmb + '\n';
+            text += 'Nitric Oxide:       ' + respResult.components.no + '\n';
+            text += 'Bicarbonate:        ' + respResult.components.bicarb + '\n';
+            text += 'Cardiac Arrest:     ' + respResult.components.arrest + '\n';
+            text += 'PaCO₂ <75 mmHg:     ' + (respResult.components.paco2 > 0 ? '+' : '') + respResult.components.paco2 + '\n';
+            text += 'PIP <42 cmH₂O:      ' + (respResult.components.pip > 0 ? '+' : '') + respResult.components.pip + '\n';
+            text += '───────────────────────────────────────────────────────────────\n';
+            text += 'TOTAL RESP SCORE:   ' + respResult.score + '\n';
+            text += 'Risk Class:         Class ' + respClass.class + '\n';
+            text += 'Predicted Survival: ' + respClass.survival + '\n';
+            text += 'Assessment:         ' + respClass.description + '\n\n';
+            
+            text += 'AGE-STRATIFIED MORTALITY RISK (ELSO Registry)\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'Source:             Fernando et al. 2024, Intensive Care Med\n';
+            text += 'Data:               27,811 VV-ECMO patients (2017-2022)\n';
+            text += 'Age Bracket:        ' + ageRisk.bracket + ' years\n';
+            text += 'Odds Ratio:         ' + ageRisk.or + '\n';
+            text += 'Risk Category:      ' + ageRisk.risk + '\n';
+            text += 'Interpretation:     ' + ageRisk.interpretation + '\n\n';
+            
+            text += 'RISK ASSESSMENT\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'Severity Met:       ' + (severityMet ? 'YES' : 'NO') + '\n';
+            text += 'Reversible:         ' + (reversible || 'Not specified') + '\n';
+            text += 'Absolute Contra:    ' + (absoluteContra ? 'YES' : 'NO') + '\n';
+            text += 'Relative Contra:    ' + relativeContraCount + ' factor(s)\n\n';
+            
+            if (optimizations.length > 0) {
+                text += 'OPTIMIZATION REQUIRED\n';
+                text += '═══════════════════════════════════════════════════════════════\n';
+                optimizations.forEach(opt => {
+                    text += '• ' + opt + '\n';
+                });
+                text += '\n';
+            }
+            
+            if (recommendation === 'RECOMMENDED FOR VV-ECMO') {
+                text += 'NEXT STEPS\n';
+                text += '═══════════════════════════════════════════════════════════════\n';
+                text += '1. Send ECMO preparation sheet to referring centre\n';
+                text += '2. Request family available to consent\n';
+                text += '3. Ensure theatre / radiography available at referring centre\n';
+                text += '4. Assemble retrieval team\n\n';
+            }
+            
+            text += '═══════════════════════════════════════════════════════════════\n';
+            text += 'End of Assessment\n';
+            text += '═══════════════════════════════════════════════════════════════\n';
+            
+            printWindow.document.write(text);
+            printWindow.document.write('</pre></body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function resetForm() {
+            if (confirm('Reset all fields?')) {
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    if (el.type === 'date') {
+                        el.valueAsDate = new Date();
+                    } else if (!el.readOnly && !el.classList.contains('calculated')) {
+                        el.value = '';
+                    }
+                });
+                doCalculate();
+            }
+        }
+
+        // Initial calculation
+        doCalculate();
+    </script>
+</body>
+</html>
