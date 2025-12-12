@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECMO Retrieval and Cannulation Record</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f7fa;
+      color: #2c3e50;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    
+    .header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    
+    .form-container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8ecf1;
+    }
+    
+    .section-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      background: #667eea;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #4a5568;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    label .required {
+      color: #e53e3e;
+      font-size: 16px;
+    }
+    
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: #f7fafc;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .checkbox-item:hover {
+      background: #edf2f7;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    
+    .checkbox-item label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      flex: 1;
+    }
+    
+    .ecmo-type-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .ecmo-type-btn {
+      flex: 1;
+      padding: 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .ecmo-type-btn:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+    
+    .ecmo-type-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .conditional-section {
+      display: none;
+    }
+    
+    .conditional-section.visible {
+      display: block;
+    }
+    
+    .time-interval {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4c51bf;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 140px;
+      justify-content: center;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+      background: #f7fafc;
+      border-color: #cbd5e0;
+    }
+    
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #e53e3e;
+      transform: translateY(-2px);
+    }
+    
+    .alert {
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .alert-info {
+      background: #ebf8ff;
+      color: #2c5282;
+      border-left: 4px solid #3182ce;
+    }
+    
+    .alert-warning {
+      background: #fefcbf;
+      color: #744210;
+      border-left: 4px solid #d69e2e;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+    
+    .dosage-calculator {
+      background: #f0fff4;
+      border: 2px solid #9ae6b4;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #22543d;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏥 ECMO Retrieval and Cannulation Record</h1>
+    <p>Bristol ECMO Service | Comprehensive Documentation System</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; margin-bottom: 20px; align-items: center;">
+    <div class="alert alert-info" style="margin-bottom: 0;">
+      <span style="font-size: 20px;">💡</span>
+      <div>
+        <strong>Auto-save enabled:</strong> Your data is automatically saved to your browser as you type. Use "Reset Form" to clear all data and start fresh.
+      </div>
+    </div>
+    <button type="button" class="btn btn-danger" onclick="resetForm()" style="min-width: 160px; flex: 0;">
+      🔄 Reset Form
+    </button>
+  </div>
+
+  <form id="ecmoForm">
+    <!-- Patient Demographics -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">👤</div>
+        <h2>Patient Demographics</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="patientName">
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" name="dob" id="dob">
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="text" name="age" id="age" readonly style="background-color: #f5f5f5;">
+        </div>
+        <div class="form-group">
+          <label>Hospital Number</label>
+          <input type="text" name="hospitalNumber">
+        </div>
+        <div class="form-group">
+          <label>Weight (kg)</label>
+          <input type="number" name="weight" step="0.1" placeholder="For equipment sizing">
+        </div>
+        <div class="form-group">
+          <label>Height (cm)</label>
+          <input type="number" name="height" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Management Decision -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">🎯</div>
+        <h2>Management Decision</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Management Decision at Referring Centre</label>
+          <select name="managementDecision">
+            <option value="">Select decision</option>
+            <option>Continue active management at referral centre</option>
+            <option>Retrieve conventionally</option>
+            <option>VV-ECMO retrieval</option>
+            <option>VA-ECMO retrieval</option>
+            <option>Likely unsurvivable - remain at referring centre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Referring Centre</label>
+          <select name="referringCentre" id="referringCentre">
+            <option value="">Select centre</option>
+            <optgroup label="England - Bristol">
+              <option>Bristol Royal Infirmary (UHBW)</option>
+              <option>Southmead Hospital</option>
+              <option>Weston General Hospital (UHBW)</option>
+            </optgroup>
+            <optgroup label="England - Cornwall">
+              <option>Royal Cornwall Hospital (Treliske/Truro)</option>
+            </optgroup>
+            <optgroup label="England - Devon">
+              <option>Derriford Hospital (Plymouth)</option>
+              <option>North Devon District Hospital (Barnstaple)</option>
+              <option>Royal Devon and Exeter Hospital (Wonford, Exeter)</option>
+              <option>Torbay Hospital (Torquay)</option>
+            </optgroup>
+            <optgroup label="England - Gloucestershire">
+              <option>Cheltenham General Hospital</option>
+              <option>Gloucester Royal Hospital</option>
+            </optgroup>
+            <optgroup label="England - Somerset">
+              <option>Musgrove Park Hospital (Taunton)</option>
+              <option>Yeovil Hospital</option>
+            </optgroup>
+            <optgroup label="England - Wiltshire">
+              <option>Great Western Hospital (Swindon)</option>
+              <option>Royal United Hospital (Bath)</option>
+            </optgroup>
+            <optgroup label="Wales - Aneurin Bevan UHB">
+              <option>The Grange University Hospital (Cwmbran)</option>
+            </optgroup>
+            <optgroup label="Wales - Cardiff and Vale UHB">
+              <option>University Hospital of Wales (Cardiff)</option>
+            </optgroup>
+            <optgroup label="Wales - Cwm Taf Morgannwg UHB">
+              <option>Prince Charles Hospital (Merthyr Tydfil)</option>
+              <option>Princess of Wales Hospital (Bridgend)</option>
+              <option>Royal Glamorgan Hospital (Llantrisant)</option>
+            </optgroup>
+            <optgroup label="Wales - Hywel Dda UHB">
+              <option>Bronglais General Hospital (Aberystwyth)</option>
+              <option>Glangwili Hospital (Carmarthen)</option>
+              <option>Prince Philip Hospital (Llanelli)</option>
+              <option>Withybush Hospital (Haverfordwest)</option>
+            </optgroup>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width" id="otherReferringCentre" style="display: none;">
+        <label>Other Referring Centre</label>
+        <input type="text" name="otherReferringCentreText" placeholder="Please specify referring centre">
+      </div>
+    </div>
+
+    <!-- ECMO Type Selection -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">⚙️</div>
+        <h2>ECMO Configuration</h2>
+      </div>
+      <div class="ecmo-type-selector">
+        <button type="button" class="ecmo-type-btn" data-type="VV">
+          VV-ECMO<br><small>Respiratory Support</small>
+        </button>
+        <button type="button" class="ecmo-type-btn" data-type="VA">
+          VA-ECMO<br><small>Cardiorespiratory Support</small>
+        </button>
+      </div>
+      <input type="hidden" name="ecmoType" id="ecmoType">
+    </div>
+
+    <!-- Consent -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">📋</div>
+        <h2>Consent</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Discussed with</label>
+          <input type="text" name="discussedWith">
+        </div>
+        <div class="form-group">
+          <label>Relationship to patient</label>
+          <input type="text" name="relationship">
+        </div>
+      </div>
+      <div class="checkbox-grid">
+        <div class="checkbox-item">
+          <input type="checkbox" name="procedureDiscussed" id="procedureDiscussed">
+          <label for="procedureDiscussed">Procedure Discussed</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="risksDiscussed" id="risksDiscussed">
+          <label for="risksDiscussed">Risks Discussed</label>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>Risks Discussed - Select applicable risks</label>
+        <div class="checkbox-grid">
+          <div class="checkbox-item">
+            <input type="checkbox" name="riskFailureCannulate" id="riskFailureCannulate" class="risk-checkbox">
+            <label for="riskFailureCannulate">Failure to cannulate</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="riskDamageStructures" id="riskDamageStructures" class="risk-checkbox">
+            <label for="riskDamageStructures">Damage to surrounding structures</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="riskSevereBleeding" id="riskSevereBleeding" class="risk-checkbox">
+            <label for="riskSevereBleeding">Severe bleeding (10%)</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="riskInfection" id="riskInfection" class="risk-checkbox">
+            <label for="riskInfection">Infection</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="riskFailureWean" id="riskFailureWean" class="risk-checkbox">
+            <label for="riskFailureWean">Failure to wean from ECMO</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="riskDeath" id="riskDeath" class="risk-checkbox">
+            <label for="riskDeath">Death</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>Risks discussed - Documentation</label>
+        <textarea name="risksDetails" id="risksDetails" placeholder="Selected risks will appear here. You can add additional details..."></textarea>
+      </div>
+    </div>
+
+    <!-- Logistics & Timings -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">🕐</div>
+        <h2>Logistics & Timings</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Date & Time - Referral <span class="required">*</span></label>
+          <input type="datetime-local" name="referralDateTime" required>
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Decision to Deploy</label>
+          <input type="datetime-local" name="deployDecisionDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Leaving BRI</label>
+          <input type="datetime-local" name="leavingBRIDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Arrival Referring Centre</label>
+          <input type="datetime-local" name="arrivalReferringDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Arrive Referral Centre ICU</label>
+          <input type="datetime-local" name="arriveICUDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Patient Bedside</label>
+          <input type="datetime-local" name="bedsideDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Decision for ECMO</label>
+          <input type="datetime-local" name="ecmoDecisionDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Theatre/Procedure Area</label>
+          <input type="datetime-local" name="theatreDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Knife to Skin</label>
+          <input type="datetime-local" name="knifeToSkinDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Initiation ECMO <span class="required">*</span></label>
+          <input type="datetime-local" name="ecmoInitiationDateTime" required>
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Leaving Referring Centre</label>
+          <input type="datetime-local" name="leavingReferringDateTime">
+        </div>
+        <div class="form-group">
+          <label>Date & Time - Arrival back BRI</label>
+          <input type="datetime-local" name="arrivalBRIDateTime">
+        </div>
+      </div>
+      <div id="timeIntervals"></div>
+    </div>
+
+    <!-- Personnel -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">👥</div>
+        <h2>Personnel</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Lead ECMO Consultant <span class="required">*</span></label>
+          <select name="leadConsultant" id="leadConsultant" required>
+            <option value="">Select consultant</option>
+            <option>Dr Chris Bourdeaux</option>
+            <option>Dr Matt Govier</option>
+            <option>Dr Stefan Gurney</option>
+            <option>Dr Inthu Kangesan</option>
+            <option>Dr James Lavers</option>
+            <option>Dr Kieran Oglesby</option>
+            <option>Dr Adrian Wagstaff</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="otherLeadConsultant" style="display: none;">
+          <label>Other Lead Consultant</label>
+          <input type="text" name="otherLeadConsultantText">
+        </div>
+        <div class="form-group">
+          <label>Access Cannulator</label>
+          <select name="accessCannulator" id="accessCannulator">
+            <option value="">Select cannulator</option>
+            <option>Dr Annie Amphlett</option>
+            <option>Dr Chris Bourdeaux</option>
+            <option>Dr Ivan Collin</option>
+            <option>Dr Matt Gibbins</option>
+            <option>Dr Matt Govier</option>
+            <option>Dr Stefan Gurney</option>
+            <option>Dr Inthu Kangesan</option>
+            <option>Dr James Lavers</option>
+            <option>Dr Kieran Oglesby</option>
+            <option>Dr Emma Riley</option>
+            <option>Dr Kieron Rooney</option>
+            <option>Dr Adrian Wagstaff</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="otherAccessCannulator" style="display: none;">
+          <label>Other Access Cannulator</label>
+          <input type="text" name="otherAccessCannulatorText">
+        </div>
+        <div class="form-group">
+          <label>Return Cannulator</label>
+          <select name="returnCannulator" id="returnCannulator">
+            <option value="">Select cannulator</option>
+            <option>Dr Annie Amphlett</option>
+            <option>Dr Chris Bourdeaux</option>
+            <option>Dr Ivan Collin</option>
+            <option>Dr Matt Gibbins</option>
+            <option>Dr Matt Govier</option>
+            <option>Dr Stefan Gurney</option>
+            <option>Dr Inthu Kangesan</option>
+            <option>Dr James Lavers</option>
+            <option>Dr Kieran Oglesby</option>
+            <option>Dr Emma Riley</option>
+            <option>Dr Kieron Rooney</option>
+            <option>Dr Adrian Wagstaff</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="otherReturnCannulator" style="display: none;">
+          <label>Other Return Cannulator</label>
+          <input type="text" name="otherReturnCannulatorText">
+        </div>
+        <div class="form-group">
+          <label>ECMO Nurse Specialist 1</label>
+          <select name="ens1" id="ens1">
+            <option value="">Select ENS</option>
+            <option>Rinse Anil</option>
+            <option>Anne Christian</option>
+            <option>Jenna Cooling</option>
+            <option>Christopher Day</option>
+            <option>Louigie De San Jose</option>
+            <option>Anthea Foronda</option>
+            <option>Angelie Gamao</option>
+            <option>Rita Hanley</option>
+            <option>Daisy Hatfield</option>
+            <option>Alexandra Jenkins</option>
+            <option>Katie Lackey</option>
+            <option>Charles Long</option>
+            <option>Katherine Petch</option>
+            <option>Betsy Samuel</option>
+            <option>Carly Smith</option>
+            <option>Isabelle Spiler</option>
+            <option>Eve Soriano</option>
+            <option>Caitlin Tan</option>
+            <option>Cleesa Varghese</option>
+            <option>Catherine White</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="otherENS1" style="display: none;">
+          <label>Other ENS 1</label>
+          <input type="text" name="otherENS1Text">
+        </div>
+        <div class="form-group">
+          <label>ECMO Nurse Specialist 2</label>
+          <select name="ens2" id="ens2">
+            <option value="">Select ENS</option>
+            <option>Rinse Anil</option>
+            <option>Anne Christian</option>
+            <option>Jenna Cooling</option>
+            <option>Christopher Day</option>
+            <option>Louigie De San Jose</option>
+            <option>Anthea Foronda</option>
+            <option>Angelie Gamao</option>
+            <option>Rita Hanley</option>
+            <option>Daisy Hatfield</option>
+            <option>Alexandra Jenkins</option>
+            <option>Katie Lackey</option>
+            <option>Charles Long</option>
+            <option>Katherine Petch</option>
+            <option>Betsy Samuel</option>
+            <option>Carly Smith</option>
+            <option>Isabelle Spiler</option>
+            <option>Eve Soriano</option>
+            <option>Caitlin Tan</option>
+            <option>Cleesa Varghese</option>
+            <option>Catherine White</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="otherENS2" style="display: none;">
+          <label>Other ENS 2</label>
+          <input type="text" name="otherENS2Text">
+        </div>
+        <div class="form-group">
+          <label>Perfusionist</label>
+          <select name="perfusionist" id="perfusionist">
+            <option value="">Select perfusionist</option>
+            <option>Foos Awil</option>
+            <option>Ma Kressle Binas</option>
+            <option>Daniel Bone</option>
+            <option>Kiril Delchev</option>
+            <option>Sean Disney</option>
+            <option>James Downes</option>
+            <option>Sarah Goring</option>
+            <option>Guy Hetherington</option>
+            <option>Bianca Izquierdo</option>
+            <option>Amita Lal</option>
+            <option>Will Lansdowne</option>
+            <option>Rhodnie Manalo</option>
+            <option>Kai Ng</option>
+            <option>Hannah Popper</option>
+            <option>Jorry Poulose</option>
+            <option>Denis Rostov</option>
+            <option>Ryan Sapiandante</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="otherPerfusionist" style="display: none;">
+          <label>Other Perfusionist</label>
+          <input type="text" name="otherPerfusionistText">
+        </div>
+        <div class="form-group">
+          <label>Anaesthetist</label>
+          <input type="text" name="anaesthetist">
+        </div>
+      </div>
+    </div>
+
+    <!-- Cannulation Environment -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">🏥</div>
+        <h2>Cannulation Environment</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Location of Cannulation</label>
+          <select name="cannulationLocation">
+            <option value="">Select location</option>
+            <option>Intensive Care Unit</option>
+            <option>Operating Theatre</option>
+            <option>Cardiac Catheter Laboratory</option>
+            <option>Emergency Department Resuscitation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Imaging Modality <span class="required">*</span></label>
+          <select name="imagingModality" required>
+            <option value="">Select modality</option>
+            <option>Fluoroscopy</option>
+            <option>Transthoracic Echocardiogram (TTE)</option>
+            <option>Transoesophageal Echocardiogram (TOE)</option>
+            <option>Fluoroscopy + TTE</option>
+            <option>Fluoroscopy + TOE</option>
+            <option>TTE + TOE</option>
+            <option>Fluoroscopy + TTE + TOE</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>WHO Checklist Performed <span class="required">*</span></label>
+          <select name="whoChecklist" required>
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No - Emergency Situation</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infection Control & Anaesthesia/Monitoring -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">🧪</div>
+        <h2>Infection Control & Anaesthesia/Monitoring</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Aseptic Technique</label>
+          <select name="fullAsepticTechnique" id="fullAsepticTechnique">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Full AAGBI Monitoring</label>
+          <select name="fullAAGBIMonitoring" id="fullAAGBIMonitoring">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Anaesthesia</label>
+          <select name="anaesthesiaType">
+            <option value="">Select</option>
+            <option>Awake</option>
+            <option>Sedation</option>
+            <option>General Anaesthesia</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="checkbox-item" style="margin-top: 30px;">
+            <input type="checkbox" name="localAnaesthesia" id="localAnaesthesia">
+            <label for="localAnaesthesia">Local Anaesthesia</label>
+          </div>
+        </div>
+      </div>
+      <div id="infectionControlOutput" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- Anticoagulation & Antibiotics -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">💉</div>
+        <h2>Anticoagulation & Antibiotics</h2>
+      </div>
+      
+      <h3 style="margin-bottom: 15px; color: #4a5568;">Anticoagulation</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Initial ACT (seconds)</label>
+          <input type="number" name="initialACT" placeholder="Target >250s">
+        </div>
+        <div class="form-group">
+          <label>Heparin Bolus Dose (units)</label>
+          <input type="number" name="heparinDose" placeholder="Typical 3000-5000 units">
+        </div>
+        <div class="form-group">
+          <label>Post-heparin ACT (seconds)</label>
+          <input type="number" name="postHeparinACT">
+        </div>
+        <div class="form-group">
+          <label>Circuit Heparin Prime (units)</label>
+          <select name="circuitHeparinPrime">
+            <option value="">Select dose</option>
+            <option>5000 units (ACT 200-250s)</option>
+            <option>7500 units (ACT 250-300s)</option>
+            <option>10000 units (ACT >300s)</option>
+          </select>
+        </div>
+      </div>
+      
+      <h3 style="margin-top: 30px; margin-bottom: 15px; color: #4a5568;">Antibiotics</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Teicoplanin Dose</label>
+          <select name="teicoplaninDose">
+            <option value="">Select</option>
+            <option>800mg IV (Standard)</option>
+            <option>Other dose - see notes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Gentamicin Dose (5mg/kg)</label>
+          <input type="text" name="gentamicinDose" placeholder="e.g., 400mg (80kg patient)">
+        </div>
+      </div>
+      <div id="gentamicinCalculator" class="dosage-calculator hidden">
+        <strong>Gentamicin Calculator:</strong> Based on patient weight: <span id="calculatedGentamicin"></span>
+      </div>
+      <div class="form-group full-width" style="margin-top: 15px;">
+        <label>Other Antibiotics</label>
+        <input type="text" name="otherAntibiotics" placeholder="e.g., Co-amoxiclav 1.2g, Meropenem 1g, etc">
+      </div>
+    </div>
+
+    <!-- Access (Drainage) Cannulation -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">🔵</div>
+        <h2>Access (Drainage) Cannulation</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Vessel <span class="required">*</span></label>
+          <select name="accessVessel" required>
+            <option value="">Select vessel</option>
+            <option>Right Femoral Vein</option>
+            <option>Left Femoral Vein</option>
+            <option>Right Internal Jugular Vein</option>
+            <option>Left Internal Jugular Vein</option>
+            <option>Right Subclavian Vein</option>
+            <option>Left Subclavian Vein</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ultrasound-guided Cannulation</label>
+          <select name="accessUltrasoundGuided">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>6F Cordis Sheath</label>
+          <select name="access6FCordisSheath">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Size <span class="required">*</span></label>
+          <select name="accessCannulaSize" required>
+            <option value="">Select size</option>
+            <option>19 Fr</option>
+            <option>21 Fr</option>
+            <option>23 Fr</option>
+            <option>25 Fr</option>
+            <option>27 Fr</option>
+            <option>29 Fr</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Type</label>
+          <select name="accessCannulaType">
+            <option value="">Select type</option>
+            <option>Single-stage</option>
+            <option>Multi-stage</option>
+            <option>Reinforced</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Primary Guidewire</label>
+          <select name="accessWire">
+            <option value="">Select wire</option>
+            <option>Amplatz Super Stiff 145cm (Standard)</option>
+            <option>Amplatz Super Stiff 180cm</option>
+            <option>Amplatz Super Stiff 260cm</option>
+            <option>Lunderquist Extra Stiff 145cm</option>
+            <option>Lunderquist Extra Stiff 260cm</option>
+            <option>Bentson Wire</option>
+            <option>J-Wire Standard</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Secondary Guidewire</label>
+          <select name="accessSecondaryWire">
+            <option value="">Select</option>
+            <option>Not required</option>
+            <option>Soft exchange catheter technique</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Dilator Type</label>
+          <select name="accessDilator">
+            <option value="">Select dilator</option>
+            <option>Standard Sequential Dilators</option>
+            <option>Soft/Flexible Dilators</option>
+            <option>Single-step Dilator</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Wire Visualisation</label>
+          <select name="accessWireVisualised">
+            <option value="">Select</option>
+            <option>Fluoroscopy - IVC/RA</option>
+            <option>Fluoroscopy - SVC/RA</option>
+            <option>Echocardiography (TTE)</option>
+            <option>Echocardiography (TOE)</option>
+            <option>Direct Vision</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Tip Position <span class="required">*</span></label>
+          <select name="accessTipPosition" required>
+            <option value="">Select position</option>
+            <option>IVC (2cm below diaphragm)</option>
+            <option>Low Right Atrium</option>
+            <option>Mid Right Atrium</option>
+            <option>SVC/RA Junction</option>
+            <option>Mid SVC</option>
+            <option>High SVC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Length at Skin (mm)</label>
+          <input type="number" name="accessCannulaLength" placeholder="e.g., 250, 300, 380">
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>Access Complications</label>
+        <textarea name="accessComplications" placeholder="Document any complications during access cannulation..."></textarea>
+      </div>
+    </div>
+
+    <!-- Return Cannulation -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">🔴</div>
+        <h2>Return Cannulation</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Vessel <span class="required">*</span></label>
+          <select name="returnVessel" required>
+            <option value="">Select vessel</option>
+            <!-- VV Options -->
+            <option class="vv-option">Right Femoral Vein</option>
+            <option class="vv-option">Left Femoral Vein</option>
+            <option class="vv-option">Right Internal Jugular Vein</option>
+            <option class="vv-option">Left Internal Jugular Vein</option>
+            <!-- VA Options -->
+            <option class="va-option">Right Femoral Artery</option>
+            <option class="va-option">Left Femoral Artery</option>
+            <option class="va-option">Right Axillary Artery</option>
+            <option class="va-option">Left Axillary Artery</option>
+            <option class="va-option">Right Subclavian Artery</option>
+            <option class="va-option">Ascending Aorta (Central)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ultrasound-guided Cannulation</label>
+          <select name="returnUltrasoundGuided">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>6F Cordis Sheath</label>
+          <select name="return6FCordisSheath">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Size <span class="required">*</span></label>
+          <select name="returnCannulaSize" required>
+            <option value="">Select size</option>
+            <option>13 Fr</option>
+            <option>15 Fr</option>
+            <option>17 Fr</option>
+            <option>19 Fr</option>
+            <option>21 Fr</option>
+            <option>23 Fr</option>
+            <option>25 Fr</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Type</label>
+          <select name="returnCannulaType">
+            <option value="">Select type</option>
+            <option>Single-stage</option>
+            <option>Reinforced</option>
+            <option>Angled tip</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Primary Guidewire</label>
+          <select name="returnWire">
+            <option value="">Select wire</option>
+            <option>Amplatz Super Stiff 145cm (Standard)</option>
+            <option>Amplatz Super Stiff 180cm</option>
+            <option>Amplatz Super Stiff 260cm</option>
+            <option>Lunderquist Extra Stiff 145cm</option>
+            <option>Bentson Wire</option>
+            <option>J-Wire Standard</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Secondary Guidewire</label>
+          <select name="returnSecondaryWire">
+            <option value="">Select</option>
+            <option>Not required</option>
+            <option>Soft exchange catheter technique</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Dilator Type</label>
+          <select name="returnDilator">
+            <option value="">Select dilator</option>
+            <option>Standard Sequential Dilators</option>
+            <option>Soft/Flexible Dilators</option>
+            <option>Single-step Dilator</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Wire Visualisation</label>
+          <select name="returnWireVisualised">
+            <option value="">Select</option>
+            <option>Fluoroscopy - Aortic arch</option>
+            <option>Fluoroscopy - Descending aorta</option>
+            <option>Fluoroscopy - RA</option>
+            <option>Echocardiography (TTE)</option>
+            <option>Echocardiography (TOE)</option>
+            <option>Direct Vision</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Tip Position <span class="required">*</span></label>
+          <select name="returnTipPosition" required>
+            <option value="">Select position</option>
+            <!-- VV positions -->
+            <option class="vv-option">Low Right Atrium (RA)</option>
+            <option class="vv-option">Mid Right Atrium</option>
+            <option class="vv-option">Cavoatrial Junction</option>
+            <!-- VA positions -->
+            <option class="va-option">Distal Common Iliac Artery</option>
+            <option class="va-option">Proximal Common Iliac Artery</option>
+            <option class="va-option">Abdominal Aorta</option>
+            <option class="va-option">Thoracic Descending Aorta</option>
+            <option class="va-option">Aortic Arch</option>
+            <option class="va-option">Ascending Aorta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cannula Length at Skin (mm)</label>
+          <input type="number" name="returnCannulaLength" placeholder="e.g., 150, 180, 230">
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>Return Complications</label>
+        <textarea name="returnComplications" placeholder="Document any complications during return cannulation..."></textarea>
+      </div>
+    </div>
+
+    <!-- VA-ECMO Specific: Distal Perfusion -->
+    <div class="form-container conditional-section" id="vaSpecific">
+      <div class="section-header">
+        <div class="section-icon">🦵</div>
+        <h2>Distal Limb Perfusion (VA-ECMO)</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Distal Perfusion Catheter (DPC) Inserted</label>
+          <select name="dpcInserted">
+            <option value="">Select</option>
+            <option>Yes - Prophylactic</option>
+            <option>Yes - Therapeutic (Clinical ischaemia)</option>
+            <option>No - Good flow clinically</option>
+            <option>No - Surgical cutdown planned</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>DPC Size</label>
+          <select name="dpcSize">
+            <option value="">Select size</option>
+            <option>6 Fr</option>
+            <option>8 Fr</option>
+            <option>10 Fr</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>DPC Insertion Site</label>
+          <select name="dpcSite">
+            <option value="">Select site</option>
+            <option>Ipsilateral Superficial Femoral Artery</option>
+            <option>Ipsilateral Distal Femoral Artery</option>
+            <option>Ipsilateral Dorsalis Pedis Artery</option>
+            <option>Ipsilateral Posterior Tibial Artery</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Post-cannulation Limb Assessment</label>
+          <select name="limbAssessment">
+            <option value="">Select</option>
+            <option>Warm, well perfused</option>
+            <option>Cool but perfused</option>
+            <option>Cool with reduced capillary refill</option>
+            <option>Mottled/poorly perfused</option>
+            <option>Frankly ischaemic</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complications -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">⚠️</div>
+        <h2>Procedural Complications</h2>
+      </div>
+      <div class="checkbox-grid">
+        <div class="checkbox-item">
+          <input type="checkbox" name="compNone" id="compNone">
+          <label for="compNone">No Complications</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compWireComplication" id="compWireComplication">
+          <label for="compWireComplication">Wire/Catheter Complication</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compFailedCannulation" id="compFailedCannulation">
+          <label for="compFailedCannulation">Failed Cannulation</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compMalposition" id="compMalposition">
+          <label for="compMalposition">Cannula Malposition</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compBleeding" id="compBleeding">
+          <label for="compBleeding">Bleeding (Insertion Site)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compRetroperitoneal" id="compRetroperitoneal">
+          <label for="compRetroperitoneal">Bleeding (Retroperitoneal)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compHemothorax" id="compHemothorax">
+          <label for="compHemothorax">Bleeding (Haemothorax)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compAirEmbolism" id="compAirEmbolism">
+          <label for="compAirEmbolism">Air Embolism</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compPneumothorax" id="compPneumothorax">
+          <label for="compPneumothorax">Pneumothorax</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compArrhythmia" id="compArrhythmia">
+          <label for="compArrhythmia">Arrhythmia</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compCardiacPerf" id="compCardiacPerf">
+          <label for="compCardiacPerf">Cardiac Perforation / Tamponade</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compHypoxia" id="compHypoxia">
+          <label for="compHypoxia">Severe Hypoxia</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compCardiacArrest" id="compCardiacArrest">
+          <label for="compCardiacArrest">Cardiac Arrest During Procedure</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compThrombosis" id="compThrombosis">
+          <label for="compThrombosis">Thrombosis</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" name="compLimbIschaemia" id="compLimbIschaemia">
+          <label for="compLimbIschaemia">Limb Ischaemia</label>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>Complication Details</label>
+        <textarea name="complicationDetails" placeholder="Describe complications, management, and outcome..."></textarea>
+      </div>
+    </div>
+
+    <!-- Initiation & Confirmation -->
+    <div class="form-container">
+      <div class="section-header">
+        <div class="section-icon">✓</div>
+        <h2>ECMO Initiation & Confirmation</h2>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Successful Cannulation & ECMO Start</label>
+          <select name="successfulStart" required>
+            <option value="">Select</option>
+            <option>Yes - Uneventful</option>
+            <option>Yes - With complications (see above)</option>
+            <option>Failed cannulation</option>
+            <option>Cannulated but failed to start ECMO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Initial ECMO Flow (L/min)</label>
+          <input type="number" name="initialFlow" step="0.1" placeholder="e.g., 4.5">
+        </div>
+        <div class="form-group">
+          <label>Initial Sweep Gas (L/min)</label>
+          <input type="number" name="initialSweep" step="0.1" placeholder="e.g., 3.0">
+        </div>
+        <div class="form-group">
+          <label>Circuit Type</label>
+          <select name="circuitType">
+            <option value="">Select circuit</option>
+            <option>Getinge CardioHelp</option>
+            <option>Maquet PLS</option>
+            <option>LivaNova</option>
+            <option>Medtronic</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Post-cannulation Imaging</label>
+          <select name="postCannulationImaging">
+            <option value="">Select</option>
+            <option>Chest X-ray - Satisfactory</option>
+            <option>Chest X-ray - Malposition identified</option>
+            <option>Echocardiography - Satisfactory</option>
+            <option>Echocardiography - Issue identified</option>
+            <option>Fluoroscopy - Satisfactory</option>
+            <option>Not performed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full-width">
+        <label>Additional Notes</label>
+        <textarea name="additionalNotes" placeholder="Any additional clinical notes, unexpected findings, or follow-up required..."></textarea>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button type="button" class="btn btn-primary" onclick="exportPlainText()">
+        📄 Download Plain Text
+      </button>
+      <button type="button" class="btn btn-primary" onclick="emailReport()">
+        📧 Email Report
+      </button>
+      <button type="button" class="btn btn-secondary" onclick="printForm()">
+        🖨️ Print
+      </button>
+      <button type="button" class="btn btn-danger" onclick="resetForm()">
+        🔄 Reset Form
+      </button>
+    </div>
+  </form>
+
+  <script>
+    // ============================================
+    // STATE MANAGEMENT & AUTO-SAVE
+    // ============================================
+    let ecmoType = '';
+    const form = document.getElementById('ecmoForm');
+    
+    // Load saved data on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadFormData();
+      updateGentamicinCalculator();
+      calculateTimeIntervals();
+      updateInfectionControlOutput();
+      updateRisksText();
+      calculateAge();
+      // Trigger referring centre other field check
+      const referringCentre = document.getElementById('referringCentre');
+      if (referringCentre.value === 'Other') {
+        document.getElementById('otherReferringCentre').style.display = 'block';
+      }
+      // Trigger personnel other field checks
+      const leadConsultant = document.getElementById('leadConsultant');
+      if (leadConsultant.value === 'Other') {
+        document.getElementById('otherLeadConsultant').style.display = 'block';
+      }
+      const accessCannulator = document.getElementById('accessCannulator');
+      if (accessCannulator.value === 'Other') {
+        document.getElementById('otherAccessCannulator').style.display = 'block';
+      }
+      const returnCannulator = document.getElementById('returnCannulator');
+      if (returnCannulator.value === 'Other') {
+        document.getElementById('otherReturnCannulator').style.display = 'block';
+      }
+      const ens1 = document.getElementById('ens1');
+      if (ens1.value === 'Other') {
+        document.getElementById('otherENS1').style.display = 'block';
+      }
+      const ens2 = document.getElementById('ens2');
+      if (ens2.value === 'Other') {
+        document.getElementById('otherENS2').style.display = 'block';
+      }
+      const perfusionist = document.getElementById('perfusionist');
+      if (perfusionist.value === 'Other') {
+        document.getElementById('otherPerfusionist').style.display = 'block';
+      }
+    });
+    
+    // Auto-save on any input change
+    form.addEventListener('input', () => {
+      saveFormData();
+      updateGentamicinCalculator();
+      calculateTimeIntervals();
+    });
+    
+    form.addEventListener('change', () => {
+      saveFormData();
+      calculateTimeIntervals();
+    });
+    
+    // ============================================
+    // REFERRING CENTRE "OTHER" FIELD
+    // ============================================
+    document.getElementById('referringCentre').addEventListener('change', function() {
+      const otherField = document.getElementById('otherReferringCentre');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    // ============================================
+    // PERSONNEL "OTHER" FIELDS
+    // ============================================
+    document.getElementById('leadConsultant').addEventListener('change', function() {
+      const otherField = document.getElementById('otherLeadConsultant');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('accessCannulator').addEventListener('change', function() {
+      const otherField = document.getElementById('otherAccessCannulator');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('returnCannulator').addEventListener('change', function() {
+      const otherField = document.getElementById('otherReturnCannulator');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('ens1').addEventListener('change', function() {
+      const otherField = document.getElementById('otherENS1');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('ens2').addEventListener('change', function() {
+      const otherField = document.getElementById('otherENS2');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('perfusionist').addEventListener('change', function() {
+      const otherField = document.getElementById('otherPerfusionist');
+      if (this.value === 'Other') {
+        otherField.style.display = 'block';
+      } else {
+        otherField.style.display = 'none';
+      }
+    });
+    
+    // ============================================
+    // AGE AUTO-CALCULATION FROM DOB
+    // ============================================
+    document.getElementById('dob').addEventListener('change', function() {
+      calculateAge();
+    });
+    
+    function calculateAge() {
+      const dobInput = document.getElementById('dob').value;
+      if (!dobInput) {
+        document.getElementById('age').value = '';
+        return;
+      }
+      
+      const dob = new Date(dobInput);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      
+      document.getElementById('age').value = age + ' years';
+    }
+    
+    // ============================================
+    // RISK CHECKBOXES POPULATE TEXTAREA
+    // ============================================
+    const riskCheckboxes = document.querySelectorAll('.risk-checkbox');
+    const risksTextarea = document.getElementById('risksDetails');
+    
+    function updateRisksText() {
+      const selectedRisks = [];
+      
+      if (document.getElementById('riskFailureCannulate').checked) {
+        selectedRisks.push('Failure to cannulate');
+      }
+      if (document.getElementById('riskDamageStructures').checked) {
+        selectedRisks.push('Damage to surrounding structures (insertion site, vessels, heart, etc)');
+      }
+      if (document.getElementById('riskSevereBleeding').checked) {
+        selectedRisks.push('Severe bleeding (10%) - including stroke, retro-peritoneal bleed, insertion site, etc)');
+      }
+      if (document.getElementById('riskInfection').checked) {
+        selectedRisks.push('Infection');
+      }
+      if (document.getElementById('riskFailureWean').checked) {
+        selectedRisks.push('Failure to wean from ECMO');
+      }
+      if (document.getElementById('riskDeath').checked) {
+        selectedRisks.push('Death');
+      }
+      
+      // Get any existing custom text that user may have added
+      const currentText = risksTextarea.value;
+      const standardRisks = selectedRisks.join('\n');
+      
+      // Check if current text contains user additions (text after the standard risks)
+      const lines = currentText.split('\n');
+      const customLines = [];
+      let foundCustom = false;
+      
+      for (let line of lines) {
+        const isStandardRisk = selectedRisks.some(risk => line.trim().startsWith(risk.split('\n')[0]));
+        if (!isStandardRisk && line.trim() !== '') {
+          customLines.push(line);
+          foundCustom = true;
+        }
+      }
+      
+      // Build final text
+      if (foundCustom && customLines.length > 0) {
+        risksTextarea.value = standardRisks + (standardRisks ? '\n' : '') + customLines.join('\n');
+      } else {
+        risksTextarea.value = standardRisks;
+      }
+    }
+    
+    riskCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', updateRisksText);
+    });
+    
+    // ============================================
+    // INFECTION CONTROL & ANAESTHESIA OUTPUT
+    // ============================================
+    function updateInfectionControlOutput() {
+      const aseptic = document.getElementById('fullAsepticTechnique').value;
+      const aagbi = document.getElementById('fullAAGBIMonitoring').value;
+      const localAnaes = document.getElementById('localAnaesthesia').checked;
+      const outputDiv = document.getElementById('infectionControlOutput');
+      
+      let output = [];
+      
+      if (aseptic === 'Yes') {
+        output.push('<div style="background: #f0fff4; border-left: 4px solid #48bb78; padding: 12px; border-radius: 8px; margin-bottom: 10px;"><strong>Full Aseptic Technique:</strong> Hat/Mask/Gown/Gloves, meticulous preparation of site with chlorhexidine umbilicus to knee, sterile drapes</div>');
+      }
+      
+      if (aagbi === 'Yes') {
+        output.push('<div style="background: #f0fff4; border-left: 4px solid #48bb78; padding: 12px; border-radius: 8px; margin-bottom: 10px;"><strong>Full AAGBI Monitoring:</strong> ECG, blood pressure, saturations, EtCO2</div>');
+      }
+      
+      if (localAnaes) {
+        output.push('<div style="background: #f0fff4; border-left: 4px solid #48bb78; padding: 12px; border-radius: 8px;"><strong>Local Anaesthesia:</strong> 1% lidocaine to cannulation site</div>');
+      }
+      
+      outputDiv.innerHTML = output.join('');
+    }
+    
+    document.getElementById('fullAsepticTechnique').addEventListener('change', updateInfectionControlOutput);
+    document.getElementById('fullAAGBIMonitoring').addEventListener('change', updateInfectionControlOutput);
+    document.getElementById('localAnaesthesia').addEventListener('change', updateInfectionControlOutput);
+    
+    function saveFormData() {
+      const formData = new FormData(form);
+      const data = {};
+      for (let [key, value] of formData.entries()) {
+        if (form.elements[key].type === 'checkbox') {
+          data[key] = form.elements[key].checked;
+        } else {
+          data[key] = value;
+        }
+      }
+      data.ecmoType = ecmoType;
+      localStorage.setItem('ecmoFormData', JSON.stringify(data));
+    }
+    
+    function loadFormData() {
+      const savedData = localStorage.getItem('ecmoFormData');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        for (let key in data) {
+          const element = form.elements[key];
+          if (element) {
+            if (element.type === 'checkbox') {
+              element.checked = data[key];
+            } else {
+              element.value = data[key];
+            }
+          }
+        }
+        if (data.ecmoType) {
+          setECMOType(data.ecmoType);
+        }
+      }
+    }
+    
+    function resetForm() {
+      if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
+        localStorage.removeItem('ecmoFormData');
+        form.reset();
+        ecmoType = '';
+        document.querySelectorAll('.ecmo-type-btn').forEach(btn => btn.classList.remove('active'));
+        updateConditionalSections();
+        calculateTimeIntervals();
+        document.getElementById('otherReferringCentre').style.display = 'none';
+        document.getElementById('otherLeadConsultant').style.display = 'none';
+        document.getElementById('otherAccessCannulator').style.display = 'none';
+        document.getElementById('otherReturnCannulator').style.display = 'none';
+        document.getElementById('otherENS1').style.display = 'none';
+        document.getElementById('otherENS2').style.display = 'none';
+        document.getElementById('otherPerfusionist').style.display = 'none';
+        document.getElementById('infectionControlOutput').innerHTML = '';
+        document.getElementById('risksDetails').value = '';
+        document.getElementById('age').value = '';
+      }
+    }
+    
+    // ============================================
+    // ECMO TYPE SELECTION
+    // ============================================
+    document.querySelectorAll('.ecmo-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.type;
+        setECMOType(type);
+      });
+    });
+    
+    function setECMOType(type) {
+      ecmoType = type;
+      document.getElementById('ecmoType').value = type;
+      document.querySelectorAll('.ecmo-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+      });
+      updateConditionalSections();
+      saveFormData();
+    }
+    
+    function updateConditionalSections() {
+      const vaSection = document.getElementById('vaSpecific');
+      const returnVesselOptions = document.querySelectorAll('#ecmoForm select[name="returnVessel"] option');
+      const returnPositionOptions = document.querySelectorAll('#ecmoForm select[name="returnTipPosition"] option');
+      
+      if (ecmoType === 'VA') {
+        vaSection.classList.add('visible');
+        returnVesselOptions.forEach(opt => {
+          if (opt.classList.contains('vv-option')) opt.style.display = 'none';
+          if (opt.classList.contains('va-option')) opt.style.display = '';
+        });
+        returnPositionOptions.forEach(opt => {
+          if (opt.classList.contains('vv-option')) opt.style.display = 'none';
+          if (opt.classList.contains('va-option')) opt.style.display = '';
+        });
+      } else if (ecmoType === 'VV') {
+        vaSection.classList.remove('visible');
+        returnVesselOptions.forEach(opt => {
+          if (opt.classList.contains('va-option')) opt.style.display = 'none';
+          if (opt.classList.contains('vv-option')) opt.style.display = '';
+        });
+        returnPositionOptions.forEach(opt => {
+          if (opt.classList.contains('va-option')) opt.style.display = 'none';
+          if (opt.classList.contains('vv-option')) opt.style.display = '';
+        });
+      }
+    }
+    
+    // ============================================
+    // TIME INTERVAL CALCULATIONS
+    // ============================================
+    function calculateTimeIntervals() {
+      const referralTime = new Date(form.elements.referralDateTime.value);
+      const deployTime = new Date(form.elements.deployDecisionDateTime.value);
+      const arrivalTime = new Date(form.elements.arrivalReferringDateTime.value);
+      const bedsideTime = new Date(form.elements.bedsideDateTime.value);
+      const ecmoDecisionTime = new Date(form.elements.ecmoDecisionDateTime.value);
+      const ecmoStartTime = new Date(form.elements.ecmoInitiationDateTime.value);
+      const leavingTime = new Date(form.elements.leavingReferringDateTime.value);
+      const arrivalBRITime = new Date(form.elements.arrivalBRIDateTime.value);
+      
+      let html = '';
+      
+      if (referralTime && deployTime) {
+        const diff = Math.round((deployTime - referralTime) / 60000);
+        html += `<div class="time-interval">⏱️ Referral to Deploy Decision: ${diff} minutes</div>`;
+      }
+      
+      if (deployTime && arrivalTime) {
+        const diff = Math.round((arrivalTime - deployTime) / 60000);
+        html += `<div class="time-interval">⏱️ Deploy to Arrival at Centre: ${diff} minutes</div>`;
+      }
+      
+      if (bedsideTime && ecmoStartTime) {
+        const diff = Math.round((ecmoStartTime - bedsideTime) / 60000);
+        html += `<div class="time-interval">⏱️ Bedside to ECMO Start (Door-to-ECMO): ${diff} minutes</div>`;
+      }
+      
+      if (referralTime && ecmoStartTime) {
+        const diff = Math.round((ecmoStartTime - referralTime) / 60000);
+        html += `<div class="time-interval">⏱️ Total Referral to ECMO Time: ${diff} minutes (${(diff/60).toFixed(1)} hours)</div>`;
+      }
+      
+      if (ecmoStartTime && arrivalBRITime) {
+        const diff = Math.round((arrivalBRITime - ecmoStartTime) / 60000);
+        html += `<div class="time-interval">⏱️ ECMO Start to BRI Arrival: ${diff} minutes</div>`;
+      }
+      
+      document.getElementById('timeIntervals').innerHTML = html;
+    }
+    
+    // ============================================
+    // GENTAMICIN CALCULATOR
+    // ============================================
+    function updateGentamicinCalculator() {
+      const weight = parseFloat(form.elements.weight.value);
+      const calculator = document.getElementById('gentamicinCalculator');
+      const calculatedSpan = document.getElementById('calculatedGentamicin');
+      
+      if (weight && weight > 0) {
+        const dose = Math.round(weight * 5);
+        calculatedSpan.textContent = `${dose}mg (${weight}kg × 5mg/kg)`;
+        calculator.classList.remove('hidden');
+      } else {
+        calculator.classList.add('hidden');
+      }
+    }
+    
+    // ============================================
+    // EXPORT FUNCTIONS
+    // ============================================
+    function exportPlainText() {
+      const output = generatePlainTextReport();
+      const blob = new Blob([output], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const patientName = form.elements.patientName.value || 'Unknown';
+      const date = new Date().toISOString().split('T')[0];
+      a.download = `ECMO_Cannulation_${patientName.replace(/\s+/g, '_')}_${date}.txt`;
+      a.click();
+    }
+    
+    function emailReport() {
+      const output = generatePlainTextReport();
+      const subject = `ECMO Cannulation Record - ${form.elements.patientName.value || 'Patient'}`;
+      const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(output)}`;
+      window.location.href = mailtoLink;
+    }
+    
+    function printForm() {
+      const output = generatePlainTextReport();
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>ECMO Cannulation Record</title>');
+      printWindow.document.write('<style>body{font-family:monospace;white-space:pre-wrap;padding:20px;}</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(output);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+    }
+    
+    function generatePlainTextReport() {
+      let output = '═══════════════════════════════════════════════════════════\n';
+      output += '         ECMO RETRIEVAL AND CANNULATION RECORD\n';
+      output += '                Bristol ECMO Service\n';
+      output += '═══════════════════════════════════════════════════════════\n\n';
+      
+      // Patient Demographics
+      output += '--- PATIENT DEMOGRAPHICS ---\n';
+      const patientName = form.elements.patientName.value || '[Name not recorded]';
+      const dob = form.elements.dob.value || '[DOB not recorded]';
+      const age = form.elements.age.value || 'Age not calculated';
+      const hospitalNumber = form.elements.hospitalNumber.value || '[Hospital number not recorded]';
+      const weight = form.elements.weight.value ? form.elements.weight.value + 'kg' : 'Weight not recorded';
+      const height = form.elements.height.value ? form.elements.height.value + 'cm' : 'Height not recorded';
+      
+      output += `${patientName}, DOB ${dob} (${age}), Hospital No: ${hospitalNumber}\n`;
+      output += `${weight}, ${height}\n\n`;
+      
+      // Management Decision
+      output += '--- MANAGEMENT DECISION ---\n';
+      output += `Management Decision: ${form.elements.managementDecision.value}\n`;
+      const referringCentre = form.elements.referringCentre.value;
+      if (referringCentre === 'Other') {
+        output += `Referring Centre: ${form.elements.otherReferringCentreText.value}\n\n`;
+      } else {
+        output += `Referring Centre: ${referringCentre}\n\n`;
+      }
+      
+      // ECMO Type
+      output += '--- ECMO CONFIGURATION ---\n';
+      output += `Type: ${ecmoType || 'Not selected'}\n\n`;
+      
+      // Consent
+      output += '--- CONSENT ---\n';
+      output += `Discussed with: ${form.elements.discussedWith.value}\n`;
+      output += `Relationship: ${form.elements.relationship.value}\n`;
+      output += `Procedure Discussed: ${form.elements.procedureDiscussed.checked ? 'Yes' : 'No'}\n`;
+      output += `Risks Discussed: ${form.elements.risksDiscussed.checked ? 'Yes' : 'No'}\n`;
+      if (form.elements.risksDetails.value) {
+        output += `Risks Discussed - Details:\n`;
+        const risks = form.elements.risksDetails.value.split('\n').filter(line => line.trim() !== '');
+        risks.forEach(risk => {
+          output += `  • ${risk.trim()}\n`;
+        });
+      }
+      output += '\n';
+      
+      // Logistics
+      output += '--- LOGISTICS & TIMINGS ---\n\n';
+      output += 'EVENT                          DATE/TIME          INTERVAL\n';
+      output += '────────────────────────────────────────────────────────────\n';
+      
+      // Referral & Deployment
+      if (form.elements.referralDateTime.value) {
+        output += `Referral                       ${formatDateTime(form.elements.referralDateTime.value).padEnd(18)} \n`;
+      }
+      if (form.elements.deployDecisionDateTime.value) {
+        const deployInterval = calculateInterval(form.elements.referralDateTime.value, form.elements.deployDecisionDateTime.value);
+        output += `Decision to Deploy             ${formatDateTime(form.elements.deployDecisionDateTime.value).padEnd(18)} ${deployInterval}\n`;
+      }
+      if (form.elements.leavingBRIDateTime.value) {
+        const leaveInterval = calculateInterval(form.elements.deployDecisionDateTime.value, form.elements.leavingBRIDateTime.value);
+        output += `Leaving BRI                    ${formatDateTime(form.elements.leavingBRIDateTime.value).padEnd(18)} ${leaveInterval}\n`;
+      }
+      output += '\n';
+      
+      // Retrieval
+      if (form.elements.arrivalReferringDateTime.value) {
+        output += `Arrival Referring Centre       ${formatDateTime(form.elements.arrivalReferringDateTime.value).padEnd(18)} \n`;
+      }
+      if (form.elements.arriveICUDateTime.value) {
+        const icuInterval = calculateInterval(form.elements.arrivalReferringDateTime.value, form.elements.arriveICUDateTime.value);
+        output += `Arrive ICU                     ${formatDateTime(form.elements.arriveICUDateTime.value).padEnd(18)} ${icuInterval}\n`;
+      }
+      if (form.elements.bedsideDateTime.value) {
+        const bedsideInterval = calculateInterval(form.elements.arriveICUDateTime.value || form.elements.arrivalReferringDateTime.value, form.elements.bedsideDateTime.value);
+        output += `Patient Bedside                ${formatDateTime(form.elements.bedsideDateTime.value).padEnd(18)} ${bedsideInterval}\n`;
+      }
+      const departBRItoArrival = formatIntervalLong(form.elements.leavingBRIDateTime.value, form.elements.arrivalReferringDateTime.value);
+      if (departBRItoArrival) {
+        output += `  ├─ Depart BRI to Arrival: ${departBRItoArrival}\n`;
+      }
+      const deploymentToPatient = formatIntervalLong(form.elements.deployDecisionDateTime.value, form.elements.bedsideDateTime.value);
+      if (deploymentToPatient) {
+        output += `  └─ Deployment to Patient: ${deploymentToPatient}\n`;
+      }
+      output += '\n';
+      
+      // Cannulation
+      if (form.elements.ecmoDecisionDateTime.value) {
+        output += `Decision for ECMO              ${formatDateTime(form.elements.ecmoDecisionDateTime.value).padEnd(18)} \n`;
+      }
+      if (form.elements.theatreDateTime.value) {
+        const theatreInterval = calculateInterval(form.elements.ecmoDecisionDateTime.value, form.elements.theatreDateTime.value);
+        output += `Theatre/Procedure Area         ${formatDateTime(form.elements.theatreDateTime.value).padEnd(18)} ${theatreInterval}\n`;
+      }
+      if (form.elements.knifeToSkinDateTime.value) {
+        const knifeInterval = calculateInterval(form.elements.theatreDateTime.value, form.elements.knifeToSkinDateTime.value);
+        output += `Knife to Skin                  ${formatDateTime(form.elements.knifeToSkinDateTime.value).padEnd(18)} ${knifeInterval}\n`;
+      }
+      if (form.elements.ecmoInitiationDateTime.value) {
+        const ecmoInterval = calculateInterval(form.elements.knifeToSkinDateTime.value, form.elements.ecmoInitiationDateTime.value);
+        output += `Initiation ECMO                ${formatDateTime(form.elements.ecmoInitiationDateTime.value).padEnd(18)} ${ecmoInterval}\n`;
+        const doorToECMO = formatIntervalLong(form.elements.bedsideDateTime.value || form.elements.arrivalReferringDateTime.value, form.elements.ecmoInitiationDateTime.value);
+        if (doorToECMO) {
+          output += `  └─ Door-to-ECMO: ${doorToECMO}\n`;
+        }
+      }
+      output += '\n';
+      
+      // Return
+      if (form.elements.leavingReferringDateTime.value) {
+        output += `Leaving Referring Centre       ${formatDateTime(form.elements.leavingReferringDateTime.value).padEnd(18)} \n`;
+      }
+      if (form.elements.arrivalBRIDateTime.value) {
+        output += `Arrival back BRI               ${formatDateTime(form.elements.arrivalBRIDateTime.value).padEnd(18)} \n`;
+      }
+      const ecmoToLeave = formatIntervalLong(form.elements.ecmoInitiationDateTime.value, form.elements.leavingReferringDateTime.value);
+      if (ecmoToLeave) {
+        output += `  ├─ ECMO to Leave: ${ecmoToLeave}\n`;
+      }
+      const returnTransport = formatIntervalLong(form.elements.leavingReferringDateTime.value, form.elements.arrivalBRIDateTime.value);
+      if (returnTransport) {
+        output += `  └─ Return Transport: ${returnTransport}\n`;
+      }
+      output += '\n';
+      
+      // Key Metrics Box (Option A - keep boxed format with alignment fix)
+      output += '┌─ KEY METRICS ────────────────────────────────────────────┐\n';
+      const decisionToECMO = formatIntervalLong(form.elements.ecmoDecisionDateTime.value, form.elements.ecmoInitiationDateTime.value);
+      if (decisionToECMO) {
+        output += `│ Decision-to-ECMO Time:           ${decisionToECMO.padEnd(24)} │\n`;
+      }
+      const doorToECMOMetric = formatIntervalLong(form.elements.bedsideDateTime.value || form.elements.arrivalReferringDateTime.value, form.elements.ecmoInitiationDateTime.value);
+      if (doorToECMOMetric) {
+        output += `│ Door-to-ECMO Time:               ${doorToECMOMetric.padEnd(24)} │\n`;
+      }
+      const procedureTime = formatIntervalLong(form.elements.knifeToSkinDateTime.value, form.elements.ecmoInitiationDateTime.value);
+      if (procedureTime) {
+        output += `│ Total Procedure (Knife to ECMO): ${procedureTime.padEnd(24)} │\n`;
+      }
+      const totalReferralToECMO = formatIntervalLong(form.elements.referralDateTime.value, form.elements.ecmoInitiationDateTime.value);
+      if (totalReferralToECMO) {
+        output += `│ Total Referral-to-ECMO Time:     ${totalReferralToECMO.padEnd(24)} │\n`;
+      }
+      const totalDeployment = formatIntervalLong(form.elements.leavingBRIDateTime.value, form.elements.arrivalBRIDateTime.value);
+      if (totalDeployment) {
+        output += `│ Total Deployment Time:           ${totalDeployment.padEnd(24)} │\n`;
+      }
+      output += '└──────────────────────────────────────────────────────────┘\n\n';
+      
+      // Personnel
+      output += '--- PERSONNEL ---\n';
+      const leadConsultant = form.elements.leadConsultant.value === 'Other' ? form.elements.otherLeadConsultantText.value : form.elements.leadConsultant.value;
+      output += `Lead ECMO Consultant: ${leadConsultant}\n`;
+      const accessCannulator = form.elements.accessCannulator.value === 'Other' ? form.elements.otherAccessCannulatorText.value : form.elements.accessCannulator.value;
+      output += `Access Cannulator: ${accessCannulator}\n`;
+      const returnCannulator = form.elements.returnCannulator.value === 'Other' ? form.elements.otherReturnCannulatorText.value : form.elements.returnCannulator.value;
+      output += `Return Cannulator: ${returnCannulator}\n`;
+      const ens1 = form.elements.ens1.value === 'Other' ? form.elements.otherENS1Text.value : form.elements.ens1.value;
+      output += `ENS 1: ${ens1}\n`;
+      const ens2 = form.elements.ens2.value === 'Other' ? form.elements.otherENS2Text.value : form.elements.ens2.value;
+      output += `ENS 2: ${ens2}\n`;
+      const perfusionist = form.elements.perfusionist.value === 'Other' ? form.elements.otherPerfusionistText.value : form.elements.perfusionist.value;
+      output += `Perfusionist: ${perfusionist}\n`;
+      output += `Anaesthetist: ${form.elements.anaesthetist.value}\n\n`;
+      
+      // Environment
+      output += '--- CANNULATION ENVIRONMENT ---\n';
+      output += `Location: ${form.elements.cannulationLocation.value}\n`;
+      output += `Imaging Modality: ${form.elements.imagingModality.value}\n`;
+      output += `WHO Checklist: ${form.elements.whoChecklist.value}\n\n`;
+      
+      // Infection Control & Anaesthesia/Monitoring
+      output += '--- INFECTION CONTROL & ANAESTHESIA/MONITORING ---\n';
+      if (form.elements.fullAsepticTechnique.value === 'Yes') {
+        output += `☑ Full Aseptic Technique (chlorhexidine umbilicus-knee)\n`;
+      } else if (form.elements.fullAsepticTechnique.value === 'No') {
+        output += `☐ Full Aseptic Technique\n`;
+      }
+      if (form.elements.fullAAGBIMonitoring.value === 'Yes') {
+        output += `☑ Full AAGBI Monitoring (ECG/BP/SpO2/EtCO2)\n`;
+      } else if (form.elements.fullAAGBIMonitoring.value === 'No') {
+        output += `☐ Full AAGBI Monitoring\n`;
+      }
+      const anaesthesiaType = form.elements.anaesthesiaType.value || 'Not specified';
+      if (anaesthesiaType === 'General Anaesthesia') {
+        output += `☑ General Anaesthesia\n`;
+      } else if (anaesthesiaType === 'Sedation only') {
+        output += `☑ Sedation only\n`;
+      } else if (anaesthesiaType) {
+        output += `Anaesthesia: ${anaesthesiaType}\n`;
+      }
+      if (form.elements.localAnaesthesia.checked) {
+        output += `☑ Local Anaesthesia (1% lidocaine)\n`;
+      }
+      output += '\n';
+      
+      // Anticoagulation
+      output += '--- ANTICOAGULATION & ANTIBIOTICS ---\n';
+      output += 'Anticoagulation:\n';
+      const initialACT = form.elements.initialACT.value ? form.elements.initialACT.value + ' seconds' : 'Not recorded';
+      output += `  Initial ACT: ${initialACT}\n`;
+      const heparinBolus = form.elements.heparinDose.value ? form.elements.heparinDose.value + ' units' : 'Not recorded';
+      output += `  Heparin Bolus: ${heparinBolus}\n`;
+      const postHeparinACT = form.elements.postHeparinACT.value ? form.elements.postHeparinACT.value + ' seconds' : 'Not recorded';
+      output += `  Post-heparin ACT: ${postHeparinACT}\n`;
+      const circuitPrime = form.elements.circuitHeparinPrime.value || 'Not recorded';
+      output += `  Circuit Prime: ${circuitPrime}\n`;
+      output += '\n';
+      
+      output += 'Antibiotics:\n';
+      const teicoplanin = form.elements.teicoplaninDose.value || 'Not recorded';
+      output += `  Teicoplanin: ${teicoplanin}\n`;
+      const gentamicin = form.elements.gentamicinDose.value || 'Not recorded';
+      output += `  Gentamicin: ${gentamicin}\n`;
+      const otherAntibiotics = form.elements.otherAntibiotics.value || 'None';
+      output += `  Other: ${otherAntibiotics}\n\n`;
+      
+      // Access Cannulation
+      output += '--- ACCESS (DRAINAGE) CANNULATION ---\n';
+      const accessUltrasound = form.elements.accessUltrasoundGuided.value || 'Not specified';
+      const access6FCordis = form.elements.access6FCordisSheath.value || 'Not specified';
+      output += `Technique    │ US-guided: ${accessUltrasound}, 6F Cordis: ${access6FCordis}\n`;
+      
+      const accessVessel = form.elements.accessVessel.value || 'Not specified';
+      output += `Vessel       │ ${accessVessel}\n`;
+      
+      const accessSize = form.elements.accessCannulaSize.value || 'Not specified';
+      const accessType = form.elements.accessCannulaType.value || 'Not specified';
+      output += `Cannula      │ ${accessSize} ${accessType}\n`;
+      
+      const accessWire = form.elements.accessWire.value || 'Not specified';
+      const accessWireVis = form.elements.accessWireVisualised.value || 'Not specified';
+      output += `Wire         │ ${accessWire} → ${accessWireVis}\n`;
+      
+      const accessSecondaryWire = form.elements.accessSecondaryWire.value || 'Not specified';
+      output += `             │ Secondary: ${accessSecondaryWire}\n`;
+      
+      const accessDilator = form.elements.accessDilator.value || 'Not specified';
+      output += `Dilator      │ ${accessDilator}\n`;
+      
+      const accessTipPos = form.elements.accessTipPosition.value || 'Not specified';
+      const accessLength = form.elements.accessCannulaLength.value ? form.elements.accessCannulaLength.value + 'mm' : 'Not recorded';
+      output += `Position     │ Tip: ${accessTipPos}, Skin: ${accessLength}\n`;
+      
+      const accessComplications = form.elements.accessComplications.value || 'Nil';
+      output += `Complications│ ${accessComplications}\n\n`;
+      
+      // Return Cannulation
+      output += '--- RETURN CANNULATION ---\n';
+      const returnUltrasound = form.elements.returnUltrasoundGuided.value || 'Not specified';
+      const return6FCordis = form.elements.return6FCordisSheath.value || 'Not specified';
+      output += `Technique    │ US-guided: ${returnUltrasound}, 6F Cordis: ${return6FCordis}\n`;
+      
+      const returnVessel = form.elements.returnVessel.value || 'Not specified';
+      output += `Vessel       │ ${returnVessel}\n`;
+      
+      const returnSize = form.elements.returnCannulaSize.value || 'Not specified';
+      const returnType = form.elements.returnCannulaType.value || 'Not specified';
+      output += `Cannula      │ ${returnSize} ${returnType}\n`;
+      
+      const returnWire = form.elements.returnWire.value || 'Not specified';
+      const returnWireVis = form.elements.returnWireVisualised.value || 'Not specified';
+      output += `Wire         │ ${returnWire} → ${returnWireVis}\n`;
+      
+      const returnSecondaryWire = form.elements.returnSecondaryWire.value || 'Not specified';
+      output += `             │ Secondary: ${returnSecondaryWire}\n`;
+      
+      const returnDilator = form.elements.returnDilator.value || 'Not specified';
+      output += `Dilator      │ ${returnDilator}\n`;
+      
+      const returnTipPos = form.elements.returnTipPosition.value || 'Not specified';
+      const returnLength = form.elements.returnCannulaLength.value ? form.elements.returnCannulaLength.value + 'mm' : 'Not recorded';
+      output += `Position     │ Tip: ${returnTipPos}, Skin: ${returnLength}\n`;
+      
+      const returnComplications = form.elements.returnComplications.value || 'Nil';
+      output += `Complications│ ${returnComplications}\n\n`;
+      
+      // VA-specific
+      if (ecmoType === 'VA') {
+        output += '--- DISTAL LIMB PERFUSION (VA-ECMO) ---\n';
+        output += `DPC Inserted: ${form.elements.dpcInserted.value}\n`;
+        output += `DPC Size: ${form.elements.dpcSize.value}\n`;
+        output += `DPC Site: ${form.elements.dpcSite.value}\n`;
+        output += `Limb Assessment: ${form.elements.limbAssessment.value}\n\n`;
+      }
+      
+      // Complications
+      output += '--- PROCEDURAL COMPLICATIONS ---\n';
+      const complications = [];
+      if (form.elements.compNone.checked) complications.push('No complications');
+      if (form.elements.compWireComplication.checked) complications.push('Wire/catheter complication');
+      if (form.elements.compFailedCannulation.checked) complications.push('Failed cannulation');
+      if (form.elements.compMalposition.checked) complications.push('Cannula malposition');
+      if (form.elements.compBleeding.checked) complications.push('Bleeding (insertion site)');
+      if (form.elements.compRetroperitoneal.checked) complications.push('Bleeding (retroperitoneal)');
+      if (form.elements.compHemothorax.checked) complications.push('Bleeding (haemothorax)');
+      if (form.elements.compAirEmbolism.checked) complications.push('Air embolism');
+      if (form.elements.compPneumothorax.checked) complications.push('Pneumothorax');
+      if (form.elements.compArrhythmia.checked) complications.push('Arrhythmia');
+      if (form.elements.compCardiacPerf.checked) complications.push('Cardiac perforation / tamponade');
+      if (form.elements.compHypoxia.checked) complications.push('Severe hypoxia');
+      if (form.elements.compCardiacArrest.checked) complications.push('Cardiac arrest during procedure');
+      if (form.elements.compThrombosis.checked) complications.push('Thrombosis');
+      if (form.elements.compLimbIschaemia.checked) complications.push('Limb ischaemia');
+      output += complications.length > 0 ? complications.join(', ') : 'None recorded';
+      output += '\n';
+      output += `Details: ${form.elements.complicationDetails.value}\n\n`;
+      
+      // Initiation
+      output += '--- ECMO INITIATION & CONFIRMATION ---\n';
+      output += `Successful Start: ${form.elements.successfulStart.value}\n`;
+      output += `Initial ECMO Flow: ${form.elements.initialFlow.value ? form.elements.initialFlow.value + ' L/min' : 'Not recorded'}\n`;
+      output += `Initial Sweep Gas: ${form.elements.initialSweep.value ? form.elements.initialSweep.value + ' L/min' : 'Not recorded'}\n`;
+      output += `Circuit Type: ${form.elements.circuitType.value}\n`;
+      output += `Post-cannulation Imaging: ${form.elements.postCannulationImaging.value}\n`;
+      output += `Additional Notes: ${form.elements.additionalNotes.value}\n\n`;
+      
+      output += '═══════════════════════════════════════════════════════════\n';
+      output += `Report Generated: ${new Date().toLocaleString('en-GB')}\n`;
+      output += '═══════════════════════════════════════════════════════════\n';
+      
+      return output;
+    }
+    
+    function formatDateTime(value) {
+      if (!value) return 'Not recorded';
+      const date = new Date(value);
+      return date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    
+    function calculateInterval(startTime, endTime) {
+      if (!startTime || !endTime) return '';
+      
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      const diffMinutes = Math.round((end - start) / 60000);
+      
+      if (diffMinutes < 0) return '';
+      
+      const hours = Math.floor(diffMinutes / 60);
+      const minutes = diffMinutes % 60;
+      
+      if (hours === 0) {
+        return `(+${minutes} min)`;
+      } else if (minutes === 0) {
+        return `(+${hours}h)`;
+      } else {
+        return `(+${hours}h ${minutes}min)`;
+      }
+    }
+    
+    function formatIntervalLong(startTime, endTime) {
+      if (!startTime || !endTime) return '';
+      
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      const diffMinutes = Math.round((end - start) / 60000);
+      
+      if (diffMinutes < 0) return '';
+      
+      const hours = Math.floor(diffMinutes / 60);
+      const minutes = diffMinutes % 60;
+      
+      if (hours === 0) {
+        return `${minutes} minutes`;
+      } else if (minutes === 0) {
+        return `${hours} hour${hours > 1 ? 's' : ''}`;
+      } else {
+        return `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minutes`;
+      }
+    }
+    
+    function calculateTimeIntervalsText() {
+      const referralTime = new Date(form.elements.referralDateTime.value);
+      const deployTime = new Date(form.elements.deployDecisionDateTime.value);
+      const arrivalTime = new Date(form.elements.arrivalReferringDateTime.value);
+      const bedsideTime = new Date(form.elements.bedsideDateTime.value);
+      const ecmoStartTime = new Date(form.elements.ecmoInitiationDateTime.value);
+      const arrivalBRITime = new Date(form.elements.arrivalBRIDateTime.value);
+      
+      let text = '';
+      
+      if (referralTime && deployTime) {
+        const diff = Math.round((deployTime - referralTime) / 60000);
+        text += `Referral to Deploy Decision: ${diff} minutes\n`;
+      }
+      
+      if (deployTime && arrivalTime) {
+        const diff = Math.round((arrivalTime - deployTime) / 60000);
+        text += `Deploy to Arrival at Centre: ${diff} minutes\n`;
+      }
+      
+      if (bedsideTime && ecmoStartTime) {
+        const diff = Math.round((ecmoStartTime - bedsideTime) / 60000);
+        text += `Bedside to ECMO Start (Door-to-ECMO): ${diff} minutes\n`;
+      }
+      
+      if (referralTime && ecmoStartTime) {
+        const diff = Math.round((ecmoStartTime - referralTime) / 60000);
+        text += `Total Referral to ECMO Time: ${diff} minutes (${(diff/60).toFixed(1)} hours)\n`;
+      }
+      
+      if (ecmoStartTime && arrivalBRITime) {
+        const diff = Math.round((arrivalBRITime - ecmoStartTime) / 60000);
+        text += `ECMO Start to BRI Arrival: ${diff} minutes\n`;
+      }
+      
+      return text || 'Insufficient data for time calculations\n';
+    }
+  </script>
+</body>
+</html>
