@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-CPR Activation Algorithm | Emergency VA-ECMO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #8b0000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '🚨';
+            font-size: 3rem;
+            position: absolute;
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+            50% { opacity: 0.7; transform: translateY(-50%) scale(1.1); }
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .emergency-banner {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .emergency-banner h2 {
+            color: #856404;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .emergency-banner p {
+            color: #856404;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .call-box {
+            background: linear-gradient(135deg, #dc3545 0%, #8b0000 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .call-box h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .call-number {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin: 15px 0;
+        }
+
+        .call-script {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .call-script p {
+            margin: 8px 0;
+            font-size: 1.05rem;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #dc3545 0%, #8b0000 100%);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .section-content {
+            padding: 25px;
+        }
+
+        .indication-box {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .indication-box h3 {
+            color: #0c5460;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .indication-box p {
+            color: #0c5460;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .criteria-box {
+            border: 3px solid;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .criteria-box h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .criteria-clinical {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .criteria-clinical h3 {
+            color: #dc3545;
+        }
+
+        .criteria-physiological {
+            border-color: #0d6efd;
+            background: #f5f8ff;
+        }
+
+        .criteria-physiological h3 {
+            color: #0d6efd;
+        }
+
+        .criteria-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .criteria-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .criteria-clinical .criteria-list li {
+            border-left-color: #dc3545;
+        }
+
+        .criteria-physiological .criteria-list li {
+            border-left-color: #0d6efd;
+        }
+
+        .decision-box {
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border: 3px solid;
+            text-align: center;
+        }
+
+        .decision-proceed {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .decision-proceed h3 {
+            color: #155724;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .decision-stop {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .decision-stop h3 {
+            color: #721c24;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .workflow-steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .workflow-steps h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .workflow-steps ol {
+            padding-left: 25px;
+        }
+
+        .workflow-steps li {
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .workflow-steps li strong {
+            color: #dc3545;
+        }
+
+        .als-modifications {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .als-modifications h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .als-modifications ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .als-modifications li {
+            padding: 10px 10px 10px 35px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 6px;
+            position: relative;
+            font-size: 1.05rem;
+        }
+
+        .als-modifications li::before {
+            content: '⚠️';
+            position: absolute;
+            left: 10px;
+            font-size: 1.2rem;
+        }
+
+        .assessment-form {
+            margin: 25px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1.05rem;
+        }
+
+        input[type="text"],
+        input[type="time"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #dc3545;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .result-display {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-display.active {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc3545 0%, #8b0000 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .button-group {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .call-number {
+                font-size: 2rem;
+            }
+
+            .criteria-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 E-CPR Activation Algorithm</h1>
+            <p>Emergency VA-ECMO for Refractory Cardiac Arrest</p>
+        </div>
+
+        <div class="content">
+            <!-- Emergency Contact -->
+            <div class="call-box">
+                <h3>⚡ EMERGENCY CONTACT</h3>
+                <div class="call-number">2222</div>
+                <p style="font-size: 1.2rem; margin: 15px 0;">Call Switchboard → Request Bristol Adult ECMO Consultant</p>
+                <div class="call-script">
+                    <p><strong>State clearly:</strong></p>
+                    <p>"This is an E-CPR call"</p>
+                    <p>[Brief patient summary]</p>
+                    <p>[Current location]</p>
+                </div>
+            </div>
+
+            <!-- Indication -->
+            <div class="section">
+                <div class="section-header">✓ Indication</div>
+                <div class="section-content">
+                    <div class="indication-box">
+                        <h3>Inclusion Criteria for E-CPR</h3>
+                        <p><strong>Refractory cardiac arrest with failure to achieve ROSC after 3 cycles of ALS</strong></p>
+                        <p style="margin-top: 10px;">Initial rhythm: VF, VT, or PEA (NOT asystole)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STOP Criteria -->
+            <div class="section">
+                <div class="section-header">🛑 Rapid STOP Criteria</div>
+                <div class="section-content">
+                    <div class="emergency-banner">
+                        <h2>DO NOT PROCEED IF CRITERIA MET</h2>
+                        <p>Screen rapidly during ongoing CPR</p>
+                    </div>
+
+                    <div class="criteria-grid">
+                        <!-- Clinical STOP -->
+                        <div class="criteria-box criteria-clinical">
+                            <h3>CLINICAL<br>Any of the below:</h3>
+                            <ul class="criteria-list">
+                                <li><strong>Unwitnessed arrest</strong></li>
+                                <li><strong>First rhythm asystole</strong></li>
+                                <li><strong>No flow time >10 mins</strong> (no CPR)</li>
+                                <li><strong>Low flow time predicted >60 mins</strong> (arrest to ECLS)</li>
+                                <li><strong>Terminal illness</strong></li>
+                                <li><strong>Severe neurological impairment</strong></li>
+                                <li><strong>Non-cardiac/pulmonary cause</strong> of arrest</li>
+                                <li><strong>Severe co-morbidities</strong></li>
+                            </ul>
+                        </div>
+
+                        <!-- Physiological STOP -->
+                        <div class="criteria-box criteria-physiological">
+                            <h3>PHYSIOLOGICAL<br>2 or more of the below:</h3>
+                            <ul class="criteria-list">
+                                <li><strong>Lactate >18</strong> mmol/L</li>
+                                <li><strong>SpO₂ <85%</strong> or <strong>PaO₂ <6.6 kPa</strong></li>
+                                <li><strong>EtCO₂ <1.3 kPa</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="workflow-steps">
+                        <h4>📋 Activation Workflow:</h4>
+                        <ol>
+                            <li><strong>Continue ALS protocol</strong> while gathering clinical information from notes</li>
+                            <li><strong>If NO clinical STOP criteria:</strong> Call 2222 → "This is an E-CPR call"</li>
+                            <li><strong>ECMO consultant assesses</strong> and decides whether to proceed</li>
+                            <li><strong>If proceeding:</strong> Take ABG for physiological criteria</li>
+                            <li><strong>If <2 physiological criteria:</strong> Activate full E-CPR team</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALS Modifications -->
+            <div class="als-modifications">
+                <h3>⚠️ ALS Algorithm Modifications When E-CPR Confirmed</h3>
+                <ul>
+                    <li><strong>STOP adrenaline boluses</strong></li>
+                    <li><strong>STOP all defibrillation</strong></li>
+                    <li><strong>STOP all other vascular access attempts</strong></li>
+                    <li><strong>Use LUCAS device</strong> for high-quality compressions</li>
+                    <li><strong>Pause compressions only</strong> for ECMO needle insertion if absolutely necessary</li>
+                    <li><strong>STOP all chest compressions</strong> once ECMO flows established</li>
+                </ul>
+            </div>
+
+            <!-- Assessment Form -->
+            <div class="section">
+                <div class="section-header">📋 E-CPR Assessment Form</div>
+                <div class="section-content">
+                    <div class="assessment-form">
+                        <div class="form-group">
+                            <label>Patient Location</label>
+                            <input type="text" id="location" placeholder="Enter exact location (e.g., BRI Ward 35, BHI Cath Lab 2)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Time of Arrest</label>
+                            <input type="time" id="arrest-time">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Initial Rhythm</label>
+                            <select id="rhythm" style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 6px; font-size: 1rem;">
+                                <option value="">Select initial rhythm</option>
+                                <option value="VF">VF - Ventricular Fibrillation</option>
+                                <option value="VT">VT - Ventricular Tachycardia</option>
+                                <option value="PEA">PEA - Pulseless Electrical Activity</option>
+                                <option value="Asystole">Asystole (STOP CRITERION)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Clinical STOP Criteria (Check if present)</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-1">
+                                    <label for="clinical-1">Unwitnessed arrest</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-2">
+                                    <label for="clinical-2">First rhythm asystole</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-3">
+                                    <label for="clinical-3">No flow time >10 minutes</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-4">
+                                    <label for="clinical-4">Low flow time predicted >60 minutes</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-5">
+                                    <label for="clinical-5">Terminal illness</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-6">
+                                    <label for="clinical-6">Severe neurological impairment</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-7">
+                                    <label for="clinical-7">Non-cardiac/pulmonary cause of arrest</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clinical-8">
+                                    <label for="clinical-8">Severe co-morbidities</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Physiological Parameters (From ABG)</label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+                                <div>
+                                    <label style="font-size: 0.9rem; margin-bottom: 5px;">Lactate (mmol/L)</label>
+                                    <input type="number" id="lactate" step="0.1" placeholder="e.g., 12.5">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9rem; margin-bottom: 5px;">SpO₂ (%)</label>
+                                    <input type="number" id="spo2" placeholder="e.g., 82">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9rem; margin-bottom: 5px;">PaO₂ (kPa)</label>
+                                    <input type="number" id="pao2" step="0.1" placeholder="e.g., 6.0">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9rem; margin-bottom: 5px;">EtCO₂ (kPa)</label>
+                                    <input type="number" id="etco2" step="0.1" placeholder="e.g., 1.1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Brief Clinical Summary</label>
+                            <textarea id="summary" rows="4" placeholder="Age, witnessed/unwitnessed, bystander CPR, suspected cause, relevant PMHx..."></textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn-primary" id="assess-btn">⚡ Assess E-CPR Suitability</button>
+                        </div>
+
+                        <!-- Decision Result -->
+                        <div id="result-proceed" class="result-display decision-proceed">
+                            <h3>✅ PROCEED WITH E-CPR</h3>
+                            <p style="font-size: 1.1rem; color: #155724; margin-top: 15px; line-height: 1.6;">
+                                <strong>Patient meets criteria for E-CPR activation.</strong><br>
+                                Continue CPR while ECMO team mobilizes.<br>
+                                Apply ALS modifications as listed above.
+                            </p>
+                        </div>
+
+                        <div id="result-clinical" class="result-display decision-stop">
+                            <h3>🛑 STOP - Clinical Contraindication</h3>
+                            <p style="font-size: 1.1rem; color: #721c24; margin-top: 15px; line-height: 1.6;">
+                                <strong>Clinical STOP criteria met.</strong><br>
+                                E-CPR is not appropriate.<br>
+                                Continue standard ALS or consider termination of resuscitation as per guidelines.
+                            </p>
+                        </div>
+
+                        <div id="result-physiological" class="result-display decision-stop">
+                            <h3>🛑 STOP - Poor Physiological Viability</h3>
+                            <p style="font-size: 1.1rem; color: #721c24; margin-top: 15px; line-height: 1.6;">
+                                <strong>≥2 physiological STOP criteria met.</strong><br>
+                                Predicted poor outcome with E-CPR.<br>
+                                Discuss with ECMO consultant regarding cessation of resuscitation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn-success" id="export-btn">📄 Export Assessment</button>
+                <button class="btn-secondary" id="print-btn">🖨️ Print Protocol</button>
+                <button class="btn-danger" id="reset-btn">🔄 Reset Form</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current time as default
+        document.getElementById('arrest-time').value = new Date().toTimeString().substring(0, 5);
+
+        // Assessment function
+        document.getElementById('assess-btn').addEventListener('click', function() {
+            // Check clinical criteria
+            const clinicalChecked = document.querySelectorAll('[id^="clinical-"]:checked').length;
+            
+            // Check physiological criteria
+            let physioCount = 0;
+            const lactate = parseFloat(document.getElementById('lactate').value);
+            const spo2 = parseFloat(document.getElementById('spo2').value);
+            const pao2 = parseFloat(document.getElementById('pao2').value);
+            const etco2 = parseFloat(document.getElementById('etco2').value);
+
+            if (lactate > 18) physioCount++;
+            if (spo2 < 85 || pao2 < 6.6) physioCount++;
+            if (etco2 < 1.3) physioCount++;
+
+            // Hide all results
+            document.querySelectorAll('.result-display').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Determine outcome
+            if (clinicalChecked > 0) {
+                document.getElementById('result-clinical').classList.add('active');
+            } else if (physioCount >= 2) {
+                document.getElementById('result-physiological').classList.add('active');
+            } else {
+                document.getElementById('result-proceed').classList.add('active');
+            }
+
+            // Scroll to result
+            setTimeout(() => {
+                const activeResult = document.querySelector('.result-display.active');
+                if (activeResult) {
+                    activeResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        });
+
+        // Export
+        document.getElementById('export-btn').addEventListener('click', function() {
+            const data = generateECPRReport();
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `E-CPR-Assessment-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+
+        // Print
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Reset
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            if (confirm('Reset all E-CPR assessment data?')) {
+                document.querySelectorAll('input[type="text"], input[type="number"], input[type="time"], textarea, select').forEach(el => {
+                    el.value = '';
+                });
+                document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+                    el.checked = false;
+                });
+                document.querySelectorAll('.result-display').forEach(el => {
+                    el.classList.remove('active');
+                });
+                document.getElementById('arrest-time').value = new Date().toTimeString().substring(0, 5);
+            }
+        });
+
+        function generateECPRReport() {
+            let text = '═══════════════════════════════════════════════════════\n';
+            text += '   E-CPR ACTIVATION ASSESSMENT\n';
+            text += '   Emergency VA-ECMO for Refractory Cardiac Arrest\n';
+            text += '   University Hospitals Bristol and Weston NHS Trust\n';
+            text += '═══════════════════════════════════════════════════════\n\n';
+            
+            text += 'ASSESSMENT TIMESTAMP: ' + new Date().toLocaleString() + '\n\n';
+            
+            text += 'PATIENT INFORMATION\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Location: ${document.getElementById('location').value}\n`;
+            text += `Time of Arrest: ${document.getElementById('arrest-time').value}\n`;
+            text += `Initial Rhythm: ${document.getElementById('rhythm').value}\n\n`;
+            
+            text += 'CLINICAL STOP CRITERIA\n';
+            text += '─────────────────────────────────────────────────────\n';
+            const clinicalChecked = document.querySelectorAll('[id^="clinical-"]:checked').length;
+            text += `Criteria Met: ${clinicalChecked > 0 ? 'YES - E-CPR CONTRAINDICATED' : 'None'}\n\n`;
+            
+            text += 'PHYSIOLOGICAL PARAMETERS\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Lactate: ${document.getElementById('lactate').value || 'Not recorded'} mmol/L\n`;
+            text += `SpO₂: ${document.getElementById('spo2').value || 'Not recorded'}%\n`;
+            text += `PaO₂: ${document.getElementById('pao2').value || 'Not recorded'} kPa\n`;
+            text += `EtCO₂: ${document.getElementById('etco2').value || 'Not recorded'} kPa\n\n`;
+            
+            text += 'CLINICAL SUMMARY\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += document.getElementById('summary').value + '\n\n';
+            
+            text += '═══════════════════════════════════════════════════════\n';
+            text += 'EMERGENCY CONTACT: 2222 → Bristol Adult ECMO Consultant\n';
+            
+            return text;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCRTO Assessment | VA-ECMO Weaning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '🔄';
+            font-size: 3rem;
+            position: absolute;
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .alert {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 6px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+
+        .alert h3 {
+            color: #0d47a1;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .alert-warning h3 {
+            color: #856404;
+        }
+
+        .alert-info h3 {
+            color: #0c5460;
+        }
+
+        .alert p {
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 30px;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="time"],
+        select,
+        textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2193b0;
+            box-shadow: 0 0 0 3px rgba(33, 147, 176, 0.1);
+        }
+
+        .protocol-checklist {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            border-color: #2193b0;
+            box-shadow: 0 2px 8px rgba(33, 147, 176, 0.1);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .safety-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .safety-warning h4 {
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .safety-warning h4::before {
+            content: '⚠️';
+            font-size: 1.5rem;
+        }
+
+        .safety-warning ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .safety-warning li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #856404;
+        }
+
+        .safety-warning li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .timer-display {
+            background: #2193b0;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .timer-display h3 {
+            font-size: 2.5rem;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(33, 147, 176, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .button-group {
+                display: none;
+            }
+
+            .header {
+                background: #0f2027;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Pump-Controlled Retrograde Trial Off (PCRTO)</h1>
+            <p>Advanced VA-ECMO Weaning Assessment Protocol</p>
+        </div>
+
+        <div class="content">
+            <!-- Clinical Context -->
+            <div class="alert alert-info">
+                <h3>📋 Clinical Indication</h3>
+                <p>PCRTO is performed when conventional weaning to minimum ECMO flows (1 L/min) yields <strong>borderline results</strong>. This protocol allows fuller cardiovascular loading by creating controlled retrograde flow while preventing circuit thrombosis.</p>
+            </div>
+
+            <div class="alert alert-warning">
+                <h3>⚠️ Important Safety Note</h3>
+                <p><strong>Patient will be OFF ECMO during this assessment.</strong> Ensure full team readiness, emergency equipment available, and clear abort criteria established before proceeding.</p>
+            </div>
+
+            <!-- Patient Information -->
+            <div class="section">
+                <div class="section-title">Patient Information</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="patient-id">Patient ID / Hospital Number</label>
+                        <input type="text" id="patient-id" placeholder="Enter patient ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="assessment-date">Assessment Date</label>
+                        <input type="date" id="assessment-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="assessment-time">Time Started</label>
+                        <input type="time" id="assessment-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="clinician">Performing Clinician</label>
+                        <input type="text" id="clinician" placeholder="Enter clinician name">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pre-PCRTO Checklist -->
+            <div class="section">
+                <div class="section-title">Pre-PCRTO Safety Checklist</div>
+                <div class="protocol-checklist">
+                    <h4 style="margin-bottom: 15px; color: #333;">✓ Verify ALL items before proceeding:</h4>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check-1">
+                        <label for="check-1">Conventional wean to 1 L/min completed with borderline results</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check-2">
+                        <label for="check-2">Full team present (ECMO consultant, echo operator, ENS, perfusion)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check-3">
+                        <label for="check-3">Emergency resuscitation equipment checked and ready</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check-4">
+                        <label for="check-4">Patient haemodynamically stable at current ECMO flows</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check-5">
+                        <label for="check-5">Echocardiography equipment ready (TTE or TOE)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check-6">
+                        <label for="check-6">Abort criteria clearly defined and communicated to team</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PCRTO Protocol Steps -->
+            <div class="section">
+                <div class="section-title">PCRTO Protocol Steps</div>
+                
+                <div class="safety-warning">
+                    <h4>Critical Setup Requirements</h4>
+                    <ul>
+                        <li><strong>Sweep gas flow:</strong> Switch OFF completely</li>
+                        <li><strong>Flow probe:</strong> Reverse direction to measure retrograde flow</li>
+                        <li><strong>Pump RPM:</strong> Reduce to create controlled passive retrograde flow</li>
+                        <li><strong>Target retrograde flow:</strong> 1.0-1.5 L/min (pump acts as brake)</li>
+                        <li><strong>Maximum time at minimal flows:</strong> Avoid extended periods (thrombosis risk)</li>
+                    </ul>
+                </div>
+
+                <div class="protocol-checklist">
+                    <h4 style="margin-bottom: 15px; color: #333;">Sequential Protocol Steps:</h4>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="step-1">
+                        <label for="step-1"><strong>Step 1:</strong> Switch sweep gas flow OFF on ECMO console</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="step-2">
+                        <label for="step-2"><strong>Step 2:</strong> Reverse flow probe direction</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="step-3">
+                        <label for="step-3"><strong>Step 3:</strong> Reduce console RPM initially to 1000 RPM</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="step-4">
+                        <label for="step-4"><strong>Step 4:</strong> Titrate RPM to achieve 1.0-1.5 L/min retrograde flow</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="step-5">
+                        <label for="step-5"><strong>Step 5:</strong> Monitor haemodynamics continuously</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="step-6">
+                        <label for="step-6"><strong>Step 6:</strong> Perform comprehensive echocardiographic assessment</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div class="timer-display">
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">PCRTO Duration</p>
+                <h3 id="timer-display">00:00</h3>
+                <div class="button-group" style="justify-content: center; margin-top: 15px;">
+                    <button class="btn-success" id="start-timer">▶️ Start Timer</button>
+                    <button class="btn-danger" id="stop-timer">⏹️ Stop Timer</button>
+                    <button class="btn-secondary" id="reset-timer">🔄 Reset Timer</button>
+                </div>
+            </div>
+
+            <!-- PCRTO Measurements -->
+            <div class="section">
+                <div class="section-title">PCRTO-Specific Measurements</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="retrograde-flow">Retrograde Flow (L/min) <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="retrograde-flow" step="0.1" placeholder="Target: 1.0-1.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="pump-rpm">Pump RPM</label>
+                        <input type="number" id="pump-rpm" placeholder="Titrated RPM">
+                    </div>
+                    <div class="form-group">
+                        <label for="flow-direction">Flow Probe Direction</label>
+                        <select id="flow-direction">
+                            <option value="">Select direction</option>
+                            <option value="Reversed">Reversed (measuring retrograde)</option>
+                            <option value="Normal">Normal (antegrade)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration (minutes)</label>
+                        <input type="number" id="duration" step="1" placeholder="Total time in PCRTO">
+                    </div>
+                </div>
+
+                <div class="safety-warning">
+                    <h4>⚠️ Excessive Retrograde Flow Warning</h4>
+                    <ul>
+                        <li><strong>If retrograde flow >2.0 L/min:</strong> Risk of RV/pulmonary circulation overload</li>
+                        <li><strong>Action:</strong> Increase pump RPM to reduce retrograde flow</li>
+                        <li><strong>Remember:</strong> Pump head acts as resistor to prevent excessive passive flow</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Haemodynamic Assessment -->
+            <div class="section">
+                <div class="section-title">Haemodynamic Assessment During PCRTO</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="hr-pcrto">Heart Rate (bpm)</label>
+                        <input type="number" id="hr-pcrto" placeholder="Enter HR">
+                    </div>
+                    <div class="form-group">
+                        <label for="rhythm-pcrto">Rhythm</label>
+                        <select id="rhythm-pcrto">
+                            <option value="">Select rhythm</option>
+                            <option value="SR">Sinus Rhythm</option>
+                            <option value="AF">Atrial Fibrillation</option>
+                            <option value="VT">Ventricular Tachycardia</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="map-pcrto">MAP (mmHg)</label>
+                        <input type="number" id="map-pcrto" placeholder="Mean arterial pressure">
+                    </div>
+                    <div class="form-group">
+                        <label for="sbp-pcrto">SBP/DBP (mmHg)</label>
+                        <input type="text" id="sbp-pcrto" placeholder="e.g., 110/70">
+                    </div>
+                    <div class="form-group">
+                        <label for="cvp-pcrto">CVP (mmHg)</label>
+                        <input type="number" id="cvp-pcrto" placeholder="Central venous pressure">
+                    </div>
+                    <div class="form-group">
+                        <label for="mpap-pcrto">MPAP (mmHg)</label>
+                        <input type="number" id="mpap-pcrto" placeholder="Mean PA pressure">
+                    </div>
+                    <div class="form-group">
+                        <label for="pcwp-pcrto">PCWP (mmHg)</label>
+                        <input type="number" id="pcwp-pcrto" placeholder="If PA catheter present">
+                    </div>
+                    <div class="form-group">
+                        <label for="svo2-pcrto">SvO₂ (%)</label>
+                        <input type="number" id="svo2-pcrto" placeholder="Mixed venous saturation">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Echocardiographic Assessment -->
+            <div class="section">
+                <div class="section-title">Echocardiographic Assessment During PCRTO</div>
+                <p style="margin-bottom: 20px; color: #666;"><em>Only assess LVEF, LVOT VTi, and MV S' (lateral) at minimum flows as per protocol</em></p>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="lvef-pcrto">LVEF (%) <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="lvef-pcrto" placeholder="Target: >20-25%">
+                    </div>
+                    <div class="form-group">
+                        <label for="lvot-vti-pcrto">LVOT VTi (cm) <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="lvot-vti-pcrto" step="0.1" placeholder="Target: ≥10 cm">
+                    </div>
+                    <div class="form-group">
+                        <label for="mv-s-pcrto">MV S' Lateral (cm/s) <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="mv-s-pcrto" step="0.1" placeholder="Target: ≥6 cm/s">
+                    </div>
+                    <div class="form-group">
+                        <label for="lvidd-pcrto">LVIDd (cm)</label>
+                        <input type="number" id="lvidd-pcrto" step="0.1" placeholder="Optional">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="lv-function">LV Function Qualitative Assessment</label>
+                    <select id="lv-function">
+                        <option value="">Select assessment</option>
+                        <option value="Recruitment">Recruitment of LV function observed</option>
+                        <option value="Maintained">Function maintained</option>
+                        <option value="Deteriorated">Function deteriorated</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="rv-function">RV Function Assessment</label>
+                    <select id="rv-function">
+                        <option value="">Select assessment</option>
+                        <option value="Normal">Normal RV function</option>
+                        <option value="Mild dysfunction">Mild RV dysfunction</option>
+                        <option value="Moderate dysfunction">Moderate RV dysfunction</option>
+                        <option value="Severe dysfunction">Severe RV dysfunction/failure</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="lv-distention">LV Distention</label>
+                    <select id="lv-distention">
+                        <option value="">Select assessment</option>
+                        <option value="None">No significant LV distention</option>
+                        <option value="Mild">Mild LV distention</option>
+                        <option value="Moderate">Moderate LV distention</option>
+                        <option value="Severe">Severe LV distention</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="tamponade">Cardiac Tamponade</label>
+                    <select id="tamponade">
+                        <option value="">Select finding</option>
+                        <option value="No">No tamponade</option>
+                        <option value="Suspected">Suspected tamponade</option>
+                        <option value="Confirmed">Confirmed tamponade</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Clinical Observations -->
+            <div class="section">
+                <div class="section-title">Clinical Observations & Complications</div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="arrhythmia"> New arrhythmias observed during PCRTO
+                    </label>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>
+                        <input type="checkbox" id="hypotension"> Significant hypotension (MAP <55 mmHg or drop >20 mmHg)
+                    </label>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>
+                        <input type="checkbox" id="desaturation"> Oxygen desaturation
+                    </label>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>
+                        <input type="checkbox" id="metabolic"> Metabolic deterioration (rising lactate, acidosis)
+                    </label>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="other-observations">Other Observations / Complications</label>
+                    <textarea id="other-observations" rows="4" placeholder="Document any other clinical observations during PCRTO..."></textarea>
+                </div>
+            </div>
+
+            <!-- Assessment Outcome -->
+            <div class="section">
+                <div class="section-title">PCRTO Outcome Assessment</div>
+                
+                <div class="alert">
+                    <h3>📊 Weaning Success Criteria with PCRTO</h3>
+                    <p><strong>Patient likely weanable if ALL of the following are met:</strong></p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>LVEF >20-25%</li>
+                        <li>LVOT VTi ≥10 cm</li>
+                        <li>MV S' (lateral) ≥6 cm/s</li>
+                        <li>Recruitment of LV/RV function (qualitative or quantitative)</li>
+                        <li>No significant LV distention</li>
+                        <li>No RV failure</li>
+                        <li>No cardiac tamponade</li>
+                        <li>Stable haemodynamics maintained</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="pcrto-outcome">PCRTO Outcome Decision</label>
+                    <select id="pcrto-outcome" style="font-size: 1.1rem; font-weight: 600; padding: 15px;">
+                        <option value="">Select outcome...</option>
+                        <option value="Pass">✅ PASS - Patient weanable from VA-ECMO</option>
+                        <option value="Borderline">⚠️ BORDERLINE - Discuss with senior team / RBH-HH</option>
+                        <option value="Fail">❌ FAIL - Not weanable, continue VA-ECMO support</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="clinical-conclusion">Clinical Conclusion & Plan</label>
+                    <textarea id="clinical-conclusion" rows="6" placeholder="Detailed clinical interpretation of PCRTO findings, weaning decision rationale, and onward management plan..."></textarea>
+                </div>
+
+                <div class="form-grid" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="assessed-by">Assessed By (Name & Role)</label>
+                        <input type="text" id="assessed-by" placeholder="e.g., Dr Smith (ECMO Consultant)">
+                    </div>
+                    <div class="form-group">
+                        <label for="signature-date">Date Completed</label>
+                        <input type="date" id="signature-date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button type="button" class="btn-success" id="export-btn">📄 Export PCRTO Report</button>
+                <button type="button" class="btn-primary" id="print-btn">🖨️ Print Assessment</button>
+                <button type="button" class="btn-danger" id="clear-btn">🗑️ Clear Form</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timer functionality
+        let timerInterval;
+        let seconds = 0;
+
+        document.getElementById('start-timer').addEventListener('click', function() {
+            if (!timerInterval) {
+                timerInterval = setInterval(function() {
+                    seconds++;
+                    updateTimerDisplay();
+                }, 1000);
+                this.disabled = true;
+                document.getElementById('stop-timer').disabled = false;
+            }
+        });
+
+        document.getElementById('stop-timer').addEventListener('click', function() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                document.getElementById('start-timer').disabled = false;
+                this.disabled = true;
+                
+                // Auto-fill duration field
+                const minutes = Math.floor(seconds / 60);
+                document.getElementById('duration').value = minutes;
+            }
+        });
+
+        document.getElementById('reset-timer').addEventListener('click', function() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            seconds = 0;
+            updateTimerDisplay();
+            document.getElementById('start-timer').disabled = false;
+            document.getElementById('stop-timer').disabled = false;
+        });
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('timer-display').textContent = 
+                String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        }
+
+        // Auto-set current date
+        const now = new Date();
+        document.getElementById('assessment-date').valueAsDate = now;
+        document.getElementById('assessment-time').value = now.toTimeString().substring(0, 5);
+        document.getElementById('signature-date').valueAsDate = now;
+
+        // Warning for retrograde flow
+        document.getElementById('retrograde-flow').addEventListener('input', function() {
+            const flow = parseFloat(this.value);
+            if (flow > 2.0) {
+                alert('⚠️ WARNING: Retrograde flow >2.0 L/min detected!\n\nRisk of RV/pulmonary circulation overload.\nIncrease pump RPM to reduce retrograde flow.');
+                this.style.borderColor = '#dc3545';
+                this.style.background = '#fff5f5';
+            } else {
+                this.style.borderColor = '#e0e0e0';
+                this.style.background = 'white';
+            }
+        });
+
+        // Export functionality
+        document.getElementById('export-btn').addEventListener('click', function() {
+            const data = collectPCRTOData();
+            const text = formatPCRTOReport(data);
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `PCRTO-Assessment-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+
+        // Print
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Clear form
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all PCRTO data? This cannot be undone.')) {
+                document.querySelectorAll('input[type="text"], input[type="number"], input[type="time"], textarea, select').forEach(el => {
+                    el.value = '';
+                });
+                document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+                    el.checked = false;
+                });
+                
+                // Reset dates
+                const now = new Date();
+                document.getElementById('assessment-date').valueAsDate = now;
+                document.getElementById('assessment-time').value = now.toTimeString().substring(0, 5);
+                document.getElementById('signature-date').valueAsDate = now;
+                
+                // Reset timer
+                clearInterval(timerInterval);
+                timerInterval = null;
+                seconds = 0;
+                updateTimerDisplay();
+            }
+        });
+
+        function collectPCRTOData() {
+            return {
+                patient: {
+                    id: document.getElementById('patient-id').value,
+                    date: document.getElementById('assessment-date').value,
+                    time: document.getElementById('assessment-time').value,
+                    clinician: document.getElementById('clinician').value
+                },
+                protocol: {
+                    retrogradeFlow: document.getElementById('retrograde-flow').value,
+                    pumpRPM: document.getElementById('pump-rpm').value,
+                    flowDirection: document.getElementById('flow-direction').value,
+                    duration: document.getElementById('duration').value
+                },
+                haemodynamics: {
+                    hr: document.getElementById('hr-pcrto').value,
+                    rhythm: document.getElementById('rhythm-pcrto').value,
+                    map: document.getElementById('map-pcrto').value,
+                    bp: document.getElementById('sbp-pcrto').value,
+                    cvp: document.getElementById('cvp-pcrto').value,
+                    mpap: document.getElementById('mpap-pcrto').value,
+                    pcwp: document.getElementById('pcwp-pcrto').value,
+                    svo2: document.getElementById('svo2-pcrto').value
+                },
+                echo: {
+                    lvef: document.getElementById('lvef-pcrto').value,
+                    lvotVti: document.getElementById('lvot-vti-pcrto').value,
+                    mvS: document.getElementById('mv-s-pcrto').value,
+                    lvidd: document.getElementById('lvidd-pcrto').value,
+                    lvFunction: document.getElementById('lv-function').value,
+                    rvFunction: document.getElementById('rv-function').value,
+                    lvDistention: document.getElementById('lv-distention').value,
+                    tamponade: document.getElementById('tamponade').value
+                },
+                complications: {
+                    arrhythmia: document.getElementById('arrhythmia').checked,
+                    hypotension: document.getElementById('hypotension').checked,
+                    desaturation: document.getElementById('desaturation').checked,
+                    metabolic: document.getElementById('metabolic').checked,
+                    other: document.getElementById('other-observations').value
+                },
+                outcome: {
+                    decision: document.getElementById('pcrto-outcome').value,
+                    conclusion: document.getElementById('clinical-conclusion').value,
+                    assessedBy: document.getElementById('assessed-by').value,
+                    signatureDate: document.getElementById('signature-date').value
+                }
+            };
+        }
+
+        function formatPCRTOReport(data) {
+            let text = '═══════════════════════════════════════════════════════\n';
+            text += '   PUMP-CONTROLLED RETROGRADE TRIAL OFF (PCRTO)\n';
+            text += '   VA-ECMO Advanced Weaning Assessment Report\n';
+            text += '   University Hospitals Bristol and Weston NHS Trust\n';
+            text += '═══════════════════════════════════════════════════════\n\n';
+            
+            text += 'PATIENT INFORMATION\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Patient ID: ${data.patient.id}\n`;
+            text += `Assessment Date: ${data.patient.date}\n`;
+            text += `Time Started: ${data.patient.time}\n`;
+            text += `Performing Clinician: ${data.patient.clinician}\n\n`;
+            
+            text += 'PCRTO PROTOCOL PARAMETERS\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Retrograde Flow: ${data.protocol.retrogradeFlow} L/min\n`;
+            text += `Pump RPM: ${data.protocol.pumpRPM}\n`;
+            text += `Flow Probe Direction: ${data.protocol.flowDirection}\n`;
+            text += `Duration: ${data.protocol.duration} minutes\n\n`;
+            
+            text += 'HAEMODYNAMIC ASSESSMENT\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Heart Rate: ${data.haemodynamics.hr} bpm\n`;
+            text += `Rhythm: ${data.haemodynamics.rhythm}\n`;
+            text += `MAP: ${data.haemodynamics.map} mmHg\n`;
+            text += `BP: ${data.haemodynamics.bp} mmHg\n`;
+            text += `CVP: ${data.haemodynamics.cvp} mmHg\n`;
+            text += `MPAP: ${data.haemodynamics.mpap} mmHg\n`;
+            text += `PCWP: ${data.haemodynamics.pcwp} mmHg\n`;
+            text += `SvO₂: ${data.haemodynamics.svo2}%\n\n`;
+            
+            text += 'ECHOCARDIOGRAPHIC ASSESSMENT\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `LVEF: ${data.echo.lvef}% (Target: >20-25%)\n`;
+            text += `LVOT VTi: ${data.echo.lvotVti} cm (Target: ≥10 cm)\n`;
+            text += `MV S' (Lateral): ${data.echo.mvS} cm/s (Target: ≥6 cm/s)\n`;
+            text += `LVIDd: ${data.echo.lvidd} cm\n`;
+            text += `LV Function: ${data.echo.lvFunction}\n`;
+            text += `RV Function: ${data.echo.rvFunction}\n`;
+            text += `LV Distention: ${data.echo.lvDistention}\n`;
+            text += `Cardiac Tamponade: ${data.echo.tamponade}\n\n`;
+            
+            text += 'COMPLICATIONS DURING PCRTO\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `New Arrhythmias: ${data.complications.arrhythmia ? 'Yes' : 'No'}\n`;
+            text += `Significant Hypotension: ${data.complications.hypotension ? 'Yes' : 'No'}\n`;
+            text += `Oxygen Desaturation: ${data.complications.desaturation ? 'Yes' : 'No'}\n`;
+            text += `Metabolic Deterioration: ${data.complications.metabolic ? 'Yes' : 'No'}\n`;
+            if (data.complications.other) {
+                text += `\nOther Observations:\n${data.complications.other}\n`;
+            }
+            text += '\n';
+            
+            text += 'PCRTO OUTCOME\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Decision: ${data.outcome.decision}\n\n`;
+            text += `Clinical Conclusion:\n${data.outcome.conclusion}\n\n`;
+            text += `Assessed By: ${data.outcome.assessedBy}\n`;
+            text += `Date: ${data.outcome.signatureDate}\n`;
+            text += '═══════════════════════════════════════════════════════\n';
+            text += `Report Generated: ${new Date().toLocaleString()}\n`;
+            
+            return text;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA-ECMO Weaning Study Form | UHBW</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 30px;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .subsection-title {
+            background: #f5f5f5;
+            padding: 10px 15px;
+            border-left: 4px solid #667eea;
+            font-size: 1.1rem;
+            margin: 20px 0 15px 0;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .readonly {
+            background: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        /* Assessment columns */
+        .assessments-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .assessments-grid {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1px;
+            background: #e0e0e0;
+            border: 1px solid #e0e0e0;
+            min-width: 100%;
+        }
+
+        .assessment-header,
+        .assessment-cell {
+            background: white;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .assessment-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .assessment-label {
+            background: #f5f5f5;
+            font-weight: 600;
+            justify-content: flex-start;
+            text-align: left;
+            color: #333;
+        }
+
+        .assessment-cell input,
+        .assessment-cell select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .baseline-col {
+            background: #fff9e6 !important;
+        }
+
+        .pcrto-col {
+            background: #e6f3ff !important;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Outcome section */
+        .outcome-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .repeat-days-input {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .repeat-days-input.active {
+            display: block;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .button-group {
+                display: none;
+            }
+
+            .header {
+                background: #1e3c72;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .section-title {
+                background: #667eea;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .assessment-header {
+                background: #667eea;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .outcome-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 VA-ECMO Standardised Weaning Study Form</h1>
+            <p>University Hospitals Bristol and Weston NHS Foundation Trust</p>
+        </div>
+
+        <div class="form-content">
+            <!-- Trial Settings -->
+            <div class="section">
+                <div class="section-title">Trial Settings</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="trial-date">Date</label>
+                        <input type="date" id="trial-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="trial-time">Time</label>
+                        <input type="time" id="trial-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="anti-xa">Anti-Xa Level</label>
+                        <input type="text" id="anti-xa" placeholder="Enter Anti-Xa level">
+                    </div>
+                    <div class="form-group">
+                        <label for="imaging">Imaging</label>
+                        <select id="imaging">
+                            <option value="">Select imaging type</option>
+                            <option value="TTE">TTE</option>
+                            <option value="TOE">TOE</option>
+                            <option value="No imaging">No imaging</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="personnel">Personnel</label>
+                        <input type="text" id="personnel" placeholder="Enter personnel name">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Demographics -->
+            <div class="section">
+                <div class="section-title">Patient Demographics</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="patient-id">Patient ID / Hospital Number</label>
+                        <input type="text" id="patient-id" placeholder="Enter patient ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob">
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">Sex</label>
+                        <select id="sex">
+                            <option value="">Select sex</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" placeholder="Enter height" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="Enter weight" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="bmi">BMI (kg/m²)</label>
+                        <input type="text" id="bmi" readonly class="readonly" placeholder="Auto-calculated">
+                    </div>
+                    <div class="form-group">
+                        <label for="bsa">BSA (m²)</label>
+                        <input type="text" id="bsa" readonly class="readonly" placeholder="Auto-calculated">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mechanical Support -->
+            <div class="section">
+                <div class="section-title">Mechanical Support</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="iabp"> IABP
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="impella"> Impella
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pacing"> Pacing
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assessment Grid -->
+            <div class="section">
+                <div class="section-title">Assessments</div>
+                <div class="button-group">
+                    <button type="button" class="btn-primary" id="add-assessment">➕ Add Assessment</button>
+                    <button type="button" class="btn-secondary" id="add-pcrto">🔄 Add PCRTO Assessment</button>
+                </div>
+                
+                <div class="assessments-container">
+                    <div class="assessments-grid" id="assessments-grid">
+                        <!-- Headers -->
+                        <div class="assessment-header assessment-label">Parameter</div>
+                        <div class="assessment-header baseline-col" id="baseline-header">Baseline</div>
+                        
+                        <!-- Time -->
+                        <div class="assessment-label">Time</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="time" class="assessment-time" data-col="baseline">
+                        </div>
+
+                        <!-- ECMO Parameters -->
+                        <div class="assessment-label" style="grid-column: 1; background: #667eea; color: white; font-weight: bold;">ECMO</div>
+                        <div class="assessment-cell baseline-col"></div>
+                        
+                        <div class="assessment-label">ECMO Flow (L/min)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="ecmo-flow" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Pump Speed (RPM)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" class="pump-speed" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Direction</div>
+                        <div class="assessment-cell baseline-col">
+                            <select class="direction" data-col="baseline">
+                                <option value="">Select</option>
+                                <option value="Antegrade">Antegrade</option>
+                                <option value="Retrograde">Retrograde</option>
+                            </select>
+                        </div>
+                        
+                        <div class="assessment-label">FiO₂ (%)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="1" class="fio2" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Sweep Gas (L/min)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="sweep-gas" data-col="baseline">
+                        </div>
+
+                        <!-- Haemodynamics -->
+                        <div class="assessment-label" style="grid-column: 1; background: #667eea; color: white; font-weight: bold;">Haemodynamics</div>
+                        <div class="assessment-cell baseline-col"></div>
+                        
+                        <div class="assessment-label">Heart Rate (bpm)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" class="hr" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Rhythm</div>
+                        <div class="assessment-cell baseline-col">
+                            <select class="rhythm" data-col="baseline">
+                                <option value="">Select</option>
+                                <option value="SR">Sinus Rhythm</option>
+                                <option value="AF">Atrial Fibrillation</option>
+                                <option value="HB">Heart Block</option>
+                                <option value="Ectopics">Ectopics</option>
+                                <option value="Paced">Paced</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="assessment-label">MAP (mmHg)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" class="map" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">SBP/DBP (mmHg)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="text" placeholder="120/80" class="bp" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">CVP (mmHg)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" class="cvp" data-col="baseline">
+                        </div>
+
+                        <!-- Vasoactives -->
+                        <div class="assessment-label" style="grid-column: 1; background: #667eea; color: white; font-weight: bold;">Vasoactives</div>
+                        <div class="assessment-cell baseline-col"></div>
+                        
+                        <div class="assessment-label">Noradrenaline (mcg/kg/min)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.01" class="norad" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Vasopressin (units/min)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.01" class="vasopressin" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Dobutamine (mcg/kg/min)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="dobutamine" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">Milrinone (mcg/kg/min)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.01" class="milrinone" data-col="baseline">
+                        </div>
+
+                        <!-- Echo - LV -->
+                        <div class="assessment-label" style="grid-column: 1; background: #667eea; color: white; font-weight: bold;">Echo - Left Ventricle</div>
+                        <div class="assessment-cell baseline-col"></div>
+                        
+                        <div class="assessment-label">LVIDd (cm)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="lvidd" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">LVEF (%)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" class="lvef" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">LVOT VTi (cm)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="lvot-vti" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">MV S' Lat (cm/s)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="mv-s" data-col="baseline">
+                        </div>
+
+                        <!-- Echo - RV -->
+                        <div class="assessment-label" style="grid-column: 1; background: #667eea; color: white; font-weight: bold;">Echo - Right Ventricle</div>
+                        <div class="assessment-cell baseline-col"></div>
+                        
+                        <div class="assessment-label">RVD1/RVD2 (cm)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="text" placeholder="3.5/4.0" class="rvd" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">TAPSE (cm)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="tapse" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">RV S' (cm/s)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" step="0.1" class="rv-s" data-col="baseline">
+                        </div>
+                        
+                        <div class="assessment-label">FAC (%)</div>
+                        <div class="assessment-cell baseline-col">
+                            <input type="number" class="fac" data-col="baseline">
+                        </div>
+
+                        <!-- Valves -->
+                        <div class="assessment-label" style="grid-column: 1; background: #667eea; color: white; font-weight: bold;">Valves</div>
+                        <div class="assessment-cell baseline-col"></div>
+                        
+                        <div class="assessment-label">Aortic Valve</div>
+                        <div class="assessment-cell baseline-col">
+                            <select class="aov" data-col="baseline">
+                                <option value="">Select</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Trivial">Trivial</option>
+                                <option value="Mild">Mild</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Severe">Severe</option>
+                            </select>
+                        </div>
+                        
+                        <div class="assessment-label">Mitral Valve</div>
+                        <div class="assessment-cell baseline-col">
+                            <select class="mv" data-col="baseline">
+                                <option value="">Select</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Trivial">Trivial</option>
+                                <option value="Mild">Mild</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Severe">Severe</option>
+                            </select>
+                        </div>
+                        
+                        <div class="assessment-label">Tricuspid Valve</div>
+                        <div class="assessment-cell baseline-col">
+                            <select class="tv" data-col="baseline">
+                                <option value="">Select</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Trivial">Trivial</option>
+                                <option value="Mild">Mild</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Severe">Severe</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outcome -->
+            <div class="section">
+                <div class="section-title">Outcome & Conclusion</div>
+                <div class="outcome-grid">
+                    <div class="form-group">
+                        <label>Outcome</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="outcome" value="weanable" id="outcome-weanable">
+                                <label for="outcome-weanable">✅ Weanable</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="outcome" value="not-weanable" id="outcome-not-weanable">
+                                <label for="outcome-not-weanable">❌ Not Weanable</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="outcome" value="repeat" id="outcome-repeat">
+                                <label for="outcome-repeat">🔄 Repeat Weaning Study</label>
+                            </div>
+                        </div>
+                        <div class="repeat-days-input" id="repeat-days-container">
+                            <label for="repeat-days">Days until next study:</label>
+                            <input type="number" id="repeat-days" min="1" placeholder="Enter number of days">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="conclusion">Conclusion</label>
+                        <textarea id="conclusion" placeholder="Enter clinical conclusion and recommendations..."></textarea>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="signed-by">Signed by (Name)</label>
+                        <input type="text" id="signed-by" placeholder="Enter clinician name">
+                    </div>
+                    <div class="form-group">
+                        <label for="signature-date">Date</label>
+                        <input type="date" id="signature-date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button type="button" class="btn-success" id="export-btn">📄 Export Data</button>
+                <button type="button" class="btn-primary" id="print-btn">🖨️ Print Form</button>
+                <button type="button" class="btn-danger" id="clear-btn">🗑️ Clear Form</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-calculate BMI and BSA
+        function calculateMetrics() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (height && weight) {
+                // BMI = weight(kg) / height(m)²
+                const heightM = height / 100;
+                const bmi = (weight / (heightM * heightM)).toFixed(2);
+                document.getElementById('bmi').value = bmi;
+                
+                // BSA (Du Bois formula) = 0.007184 × height(cm)^0.725 × weight(kg)^0.425
+                const bsa = (0.007184 * Math.pow(height, 0.725) * Math.pow(weight, 0.425)).toFixed(2);
+                document.getElementById('bsa').value = bsa;
+            }
+        }
+
+        document.getElementById('height').addEventListener('input', calculateMetrics);
+        document.getElementById('weight').addEventListener('input', calculateMetrics);
+
+        // Auto-set current date and time
+        const now = new Date();
+        document.getElementById('trial-date').valueAsDate = now;
+        document.getElementById('trial-time').value = now.toTimeString().substring(0, 5);
+        document.getElementById('signature-date').valueAsDate = now;
+
+        // Assessment counter
+        let assessmentCount = 0;
+
+        // Add assessment column
+        document.getElementById('add-assessment').addEventListener('click', function() {
+            assessmentCount++;
+            addAssessmentColumn(`Assessment ${assessmentCount}`, false);
+        });
+
+        // Add PCRTO assessment
+        document.getElementById('add-pcrto').addEventListener('click', function() {
+            addAssessmentColumn('PCRTO Assessment', true);
+        });
+
+        function addAssessmentColumn(label, isPCRTO) {
+            const grid = document.getElementById('assessments-grid');
+            const colClass = isPCRTO ? 'pcrto-col' : '';
+            const colId = isPCRTO ? 'pcrto' : `assess-${assessmentCount}`;
+            
+            // Get all rows
+            const rows = grid.children;
+            const totalCols = grid.style.gridTemplateColumns.split(' ').length;
+            
+            // Update grid template
+            grid.style.gridTemplateColumns = `200px repeat(${totalCols}, minmax(180px, 1fr))`;
+            
+            // Add header after baseline
+            const baselineHeader = document.getElementById('baseline-header');
+            const newHeader = document.createElement('div');
+            newHeader.className = `assessment-header ${colClass}`;
+            newHeader.textContent = label;
+            baselineHeader.after(newHeader);
+            
+            // Add cells for each parameter
+            const parameters = [
+                'assessment-time', 'ecmo-flow', 'pump-speed', 'direction', 'fio2', 'sweep-gas',
+                'hr', 'rhythm', 'map', 'bp', 'cvp',
+                'norad', 'vasopressin', 'dobutamine', 'milrinone',
+                'lvidd', 'lvef', 'lvot-vti', 'mv-s',
+                'rvd', 'tapse', 'rv-s', 'fac',
+                'aov', 'mv', 'tv'
+            ];
+            
+            // Find the baseline column cells and add new cells after them
+            const baselineCells = document.querySelectorAll('.baseline-col');
+            baselineCells.forEach((baselineCell, index) => {
+                if (baselineCell.classList.contains('assessment-cell')) {
+                    const newCell = document.createElement('div');
+                    newCell.className = `assessment-cell ${colClass}`;
+                    
+                    // Clone the input from baseline
+                    const baselineInput = baselineCell.querySelector('input, select');
+                    if (baselineInput) {
+                        const newInput = baselineInput.cloneNode(true);
+                        newInput.value = '';
+                        newInput.setAttribute('data-col', colId);
+                        newCell.appendChild(newInput);
+                    }
+                    
+                    baselineCell.after(newCell);
+                }
+            });
+        }
+
+        // Show/hide repeat days input
+        document.querySelectorAll('input[name="outcome"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const repeatContainer = document.getElementById('repeat-days-container');
+                if (this.value === 'repeat') {
+                    repeatContainer.classList.add('active');
+                } else {
+                    repeatContainer.classList.remove('active');
+                }
+            });
+        });
+
+        // Export data
+        document.getElementById('export-btn').addEventListener('click', function() {
+            const data = collectFormData();
+            const text = formatDataForExport(data);
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `VA-ECMO-Weaning-Study-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+
+        // Print form
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Clear form
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="time"], textarea, select').forEach(el => {
+                    if (!el.classList.contains('readonly')) {
+                        el.value = '';
+                    }
+                });
+                document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => {
+                    el.checked = false;
+                });
+                
+                // Reset date/time to current
+                const now = new Date();
+                document.getElementById('trial-date').valueAsDate = now;
+                document.getElementById('trial-time').value = now.toTimeString().substring(0, 5);
+                document.getElementById('signature-date').valueAsDate = now;
+                
+                // Remove extra assessment columns
+                assessmentCount = 0;
+                // Keep only baseline column - would need more complex logic to fully implement
+                alert('Form cleared successfully. Page will reload to reset assessment columns.');
+                location.reload();
+            }
+        });
+
+        function collectFormData() {
+            // Collect all form data
+            const data = {
+                trialSettings: {
+                    date: document.getElementById('trial-date').value,
+                    time: document.getElementById('trial-time').value,
+                    antiXa: document.getElementById('anti-xa').value,
+                    imaging: document.getElementById('imaging').value,
+                    personnel: document.getElementById('personnel').value
+                },
+                demographics: {
+                    patientId: document.getElementById('patient-id').value,
+                    dob: document.getElementById('dob').value,
+                    sex: document.getElementById('sex').value,
+                    height: document.getElementById('height').value,
+                    weight: document.getElementById('weight').value,
+                    bmi: document.getElementById('bmi').value,
+                    bsa: document.getElementById('bsa').value
+                },
+                mechanicalSupport: {
+                    iabp: document.getElementById('iabp').checked,
+                    impella: document.getElementById('impella').checked,
+                    pacing: document.getElementById('pacing').checked
+                },
+                outcome: {
+                    decision: document.querySelector('input[name="outcome"]:checked')?.value || '',
+                    repeatDays: document.getElementById('repeat-days').value,
+                    conclusion: document.getElementById('conclusion').value,
+                    signedBy: document.getElementById('signed-by').value,
+                    signatureDate: document.getElementById('signature-date').value
+                }
+            };
+            
+            return data;
+        }
+
+        function formatDataForExport(data) {
+            let text = '═══════════════════════════════════════════════════════\n';
+            text += '   VA-ECMO WEANING STUDY FORM - CLINICAL REPORT\n';
+            text += '   University Hospitals Bristol and Weston NHS Trust\n';
+            text += '═══════════════════════════════════════════════════════\n\n';
+            
+            text += 'TRIAL SETTINGS\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Date: ${data.trialSettings.date}\n`;
+            text += `Time: ${data.trialSettings.time}\n`;
+            text += `Anti-Xa Level: ${data.trialSettings.antiXa}\n`;
+            text += `Imaging: ${data.trialSettings.imaging}\n`;
+            text += `Personnel: ${data.trialSettings.personnel}\n\n`;
+            
+            text += 'PATIENT DEMOGRAPHICS\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Patient ID: ${data.demographics.patientId}\n`;
+            text += `Date of Birth: ${data.demographics.dob}\n`;
+            text += `Sex: ${data.demographics.sex}\n`;
+            text += `Height: ${data.demographics.height} cm\n`;
+            text += `Weight: ${data.demographics.weight} kg\n`;
+            text += `BMI: ${data.demographics.bmi} kg/m²\n`;
+            text += `BSA: ${data.demographics.bsa} m²\n\n`;
+            
+            text += 'MECHANICAL SUPPORT\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `IABP: ${data.mechanicalSupport.iabp ? 'Yes' : 'No'}\n`;
+            text += `Impella: ${data.mechanicalSupport.impella ? 'Yes' : 'No'}\n`;
+            text += `Pacing: ${data.mechanicalSupport.pacing ? 'Yes' : 'No'}\n\n`;
+            
+            text += 'OUTCOME\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Decision: ${data.outcome.decision}\n`;
+            if (data.outcome.decision === 'repeat') {
+                text += `Repeat in: ${data.outcome.repeatDays} days\n`;
+            }
+            text += `\nConclusion:\n${data.outcome.conclusion}\n\n`;
+            text += `Signed by: ${data.outcome.signedBy}\n`;
+            text += `Date: ${data.outcome.signatureDate}\n`;
+            text += '═══════════════════════════════════════════════════════\n';
+            text += `Generated: ${new Date().toLocaleString()}\n`;
+            
+            return text;
+        }
+    </script>
+</body>
+</html>

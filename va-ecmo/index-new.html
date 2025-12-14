@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bristol VA-ECMO Clinical Guidelines & Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0066cc 0%, #1b69b8 100%);
+            color: #222;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #fff;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #0066cc;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #0066cc;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #0066cc;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .tool-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #0066cc;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,102,204,0.2);
+        }
+
+        .tool-card h3 {
+            color: #0066cc;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-card p {
+            color: #555;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .tool-card .features {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .tool-card .features li {
+            color: #666;
+            font-size: 0.9rem;
+            padding: 0.25rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .tool-card .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0052a3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .guidelines-list {
+            list-style: none;
+        }
+
+        .guidelines-list li {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .guidelines-list li:last-child {
+            border-bottom: none;
+        }
+
+        .guideline-info h4 {
+            color: #0066cc;
+            margin-bottom: 0.25rem;
+        }
+
+        .guideline-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            background: #fff;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .footer p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .disclaimer strong {
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🫀 Bristol VA-ECMO Clinical Guidelines & Interactive Tools</h1>
+        <p>University Hospitals Bristol and Weston NHS Foundation Trust</p>
+    </div>
+
+    <div class="container">
+        <!-- Interactive Clinical Tools Section -->
+        <div class="section">
+            <h2>📱 Interactive Clinical Decision Support Tools</h2>
+            <p>Evidence-based tools with real-time calculations and protocol guidance for bedside clinical decision-making.</p>
+            
+            <div class="tools-grid">
+                <!-- Weaning Study Form -->
+                <div class="tool-card">
+                    <h3>📋 Weaning Study Form</h3>
+                    <p>Structured VA-ECMO weaning assessment with automated calculations and multi-timepoint data capture.</p>
+                    <ul class="features">
+                        <li>Auto-calculate BMI and BSA</li>
+                        <li>Multiple assessment timepoints</li>
+                        <li>Echo parameter tracking</li>
+                        <li>Export formatted reports</li>
+                    </ul>
+                    <a href="tools/weaning-form.html" class="btn">Launch Tool →</a>
+                </div>
+
+                <!-- PCRTO Assessment -->
+                <div class="tool-card">
+                    <h3>🔄 PCRTO Assessment</h3>
+                    <p>Pump-Controlled Retrograde Trial Off protocol with step-by-step guidance for borderline weaning studies.</p>
+                    <ul class="features">
+                        <li>Protocol workflow guidance</li>
+                        <li>Retrograde flow monitoring</li>
+                        <li>Safety parameter alerts</li>
+                        <li>Haemodynamic tracking</li>
+                    </ul>
+                    <a href="tools/pcrto-assessment.html" class="btn">Launch Tool →</a>
+                </div>
+
+                <!-- Risk Stratification -->
+                <div class="tool-card">
+                    <h3>📊 Risk Stratification Matrix</h3>
+                    <p>Interactive SCAI E cardiogenic shock risk assessment with real-time scoring and transfer recommendations.</p>
+                    <ul class="features">
+                        <li>STOP criteria screening</li>
+                        <li>Automated risk scoring</li>
+                        <li>Visual risk matrix</li>
+                        <li>Clinical recommendations</li>
+                    </ul>
+                    <a href="tools/risk-stratification.html" class="btn">Launch Tool →</a>
+                </div>
+
+                <!-- E-CPR Algorithm -->
+                <div class="tool-card">
+                    <h3>🚨 E-CPR Decision Support</h3>
+                    <p>Emergency CPR activation algorithm with rapid decision-making support during refractory cardiac arrest.</p>
+                    <ul class="features">
+                        <li>Clinical STOP criteria</li>
+                        <li>Physiological screening</li>
+                        <li>Real-time decision logic</li>
+                        <li>Activation workflow guidance</li>
+                    </ul>
+                    <a href="tools/ecpr-algorithm.html" class="btn">Launch Tool →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Original Guidelines Section -->
+        <div class="section">
+            <h2>📄 Complete Clinical Guidelines</h2>
+            <p>Full VA-ECMO clinical guideline documentation with comprehensive protocols and reference materials.</p>
+            
+            <ul class="guidelines-list">
+                <li>
+                    <div class="guideline-info">
+                        <h4>VA-ECMO Clinical Guideline V1.8</h4>
+                        <p>Complete 43-page guideline covering indications, procedures, complications, and weaning protocols (December 2024 - December 2026)</p>
+                    </div>
+                    <a href="guidelines/VA_ECMO_UHBW_V1_8.pdf" class="btn btn-secondary" target="_blank">View PDF →</a>
+                </li>
+                <li>
+                    <div class="guideline-info">
+                        <h4>Standardised Weaning Protocol</h4>
+                        <p>Detailed weaning protocol specifications and assessment criteria</p>
+                    </div>
+                    <a href="guidelines/Standardised_VA-ECMO_Weaning_Protocol.rtf" class="btn btn-secondary" download>Download RTF →</a>
+                </li>
+                <li>
+                    <div class="guideline-info">
+                        <h4>Interactive HTML Guideline</h4>
+                        <p>Full guideline with search, navigation, and interactive features (previous version)</p>
+                    </div>
+                    <a href="archive/index.html" class="btn btn-secondary">View Archive →</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <strong>⚠️ Clinical Disclaimer:</strong> These tools are designed to support, not replace, clinical judgment. Always follow local protocols and seek senior advice when needed. All tools should be used in conjunction with comprehensive clinical assessment and multidisciplinary team decision-making.
+        </div>
+
+        <!-- About Section -->
+        <div class="section">
+            <h2>ℹ️ About</h2>
+            <p><strong>Authors:</strong> Matt Govier, Stefan Gurney, James Doyle, Alex Rosenberg (ICU/ECMO Consultants), D. Machin (Perfusion Lead)</p>
+            <p><strong>Version:</strong> 1.8 (Valid from December 2024 to December 2026)</p>
+            <p><strong>Setting:</strong> Bristol site critical care, cardiac anaesthesia, cardiology, cardiac surgery, perfusion and ECMO team</p>
+            <p><strong>For:</strong> All medical, nursing, perfusion and AHP groups</p>
+            <p><strong>Contact:</strong> For clinical queries or feedback, please contact the Bristol ECMO team</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 University Hospitals Bristol and Weston NHS Foundation Trust</p>
+        <p>Bristol SARF & ECMO Service</p>
+    </div>
+</body>
+</html>

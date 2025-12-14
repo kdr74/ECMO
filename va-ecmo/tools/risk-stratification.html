@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA-ECMO Risk Stratification | SCAI E Cardiogenic Shock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert h3 {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-container {
+            margin-bottom: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .step-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .step-number {
+            background: white;
+            color: #667eea;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .step-content {
+            padding: 25px;
+        }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .check-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .check-item.selected {
+            background: #fff5f5;
+            border-color: #dc3545;
+        }
+
+        .check-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .check-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .score-section {
+            margin-top: 25px;
+        }
+
+        .score-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .score-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .score-option:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .score-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .score-option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .score-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-left: 8px;
+        }
+
+        .matrix-container {
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: 150px repeat(3, 1fr);
+            gap: 2px;
+            background: #dee2e6;
+            border: 2px solid #dee2e6;
+            min-width: 600px;
+        }
+
+        .matrix-cell {
+            background: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            min-height: 80px;
+        }
+
+        .matrix-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+        }
+
+        .matrix-row-header {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .risk-green {
+            background: #d4edda !important;
+            color: #155724;
+        }
+
+        .risk-yellow {
+            background: #fff3cd !important;
+            color: #856404;
+        }
+
+        .risk-red {
+            background: #f8d7da !important;
+            color: #721c24;
+        }
+
+        .risk-blue {
+            background: #cfe2ff !important;
+            color: #084298;
+        }
+
+        .active-cell {
+            border: 4px solid #000;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            border: 3px solid;
+            display: none;
+        }
+
+        .result-box.active {
+            display: block;
+        }
+
+        .result-box h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .result-box ul {
+            margin-top: 15px;
+            padding-left: 25px;
+        }
+
+        .result-box li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .progress-tracker {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .progress-step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background: #dee2e6;
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .progress-step.completed::after {
+            background: #28a745;
+        }
+
+        .progress-icon {
+            width: 30px;
+            height: 30px;
+            background: #dee2e6;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .progress-step.completed .progress-icon {
+            background: #28a745;
+            color: white;
+        }
+
+        .progress-step.active .progress-icon {
+            background: #667eea;
+            color: white;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .button-group {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .score-options {
+                grid-template-columns: 1fr;
+            }
+
+            .matrix {
+                font-size: 0.85rem;
+            }
+
+            .matrix-cell {
+                padding: 10px;
+                min-height: 60px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 VA-ECMO Risk Stratification Matrix</h1>
+            <p>SCAI E Cardiogenic Shock Assessment Tool</p>
+        </div>
+
+        <div class="content">
+            <!-- Progress Tracker -->
+            <div class="progress-tracker">
+                <div class="progress-step active" id="progress-1">
+                    <div class="progress-icon">1</div>
+                    <div>Echo</div>
+                </div>
+                <div class="progress-step" id="progress-2">
+                    <div class="progress-icon">2</div>
+                    <div>STOP</div>
+                </div>
+                <div class="progress-step" id="progress-3">
+                    <div class="progress-icon">3</div>
+                    <div>Aetiology</div>
+                </div>
+                <div class="progress-step" id="progress-4">
+                    <div class="progress-icon">4</div>
+                    <div>Duration</div>
+                </div>
+                <div class="progress-step" id="progress-5">
+                    <div class="progress-icon">5</div>
+                    <div>Comorbidity</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Echo Confirmation -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div>CONFIRMATION</div>
+                </div>
+                <div class="step-content">
+                    <div class="alert alert-info">
+                        <h3>📊 Echocardiographic Confirmation Required</h3>
+                        <p><strong>CHECK ECHO:</strong> Confirm cardiogenic cause of shock. Exclude non-cardiac pathology.</p>
+                    </div>
+                    <div class="check-item">
+                        <input type="checkbox" id="echo-confirmed">
+                        <label for="echo-confirmed">
+                            <strong>Echo confirms cardiogenic cause of shock</strong> (excludes non-cardiac pathology such as tamponade from other causes, PE, etc.)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: STOP Criteria -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div>HALT - CHECK STOP CRITERIA</div>
+                </div>
+                <div class="step-content">
+                    <div class="alert alert-danger">
+                        <h3>🛑 DO NOT PROCEED IF ANY ARE PRESENT</h3>
+                        <p><strong>Absolute contraindications to VA-ECMO:</strong></p>
+                    </div>
+                    <div class="checklist">
+                        <div class="check-item" onclick="toggleStop(this, 'stop-1')">
+                            <input type="checkbox" id="stop-1">
+                            <label for="stop-1">
+                                <strong>Severe life limiting disease</strong> (e.g., irreversible CNS injury, end-stage COPD, non-treatable malignancy, liver cirrhosis Child-Pugh B-C)
+                            </label>
+                        </div>
+                        <div class="check-item" onclick="toggleStop(this, 'stop-2')">
+                            <input type="checkbox" id="stop-2">
+                            <label for="stop-2">
+                                <strong>Advanced shock with severe mottling/microcirculatory failure</strong>
+                            </label>
+                        </div>
+                        <div class="check-item" onclick="toggleStop(this, 'stop-3')">
+                            <input type="checkbox" id="stop-3">
+                            <label for="stop-3">
+                                <strong>Perceived clinical frailty</strong>
+                            </label>
+                        </div>
+                        <div class="check-item" onclick="toggleStop(this, 'stop-4')">
+                            <input type="checkbox" id="stop-4">
+                            <label for="stop-4">
+                                <strong>Inability to safely cannulate for ECMO</strong> (vascular disease, vascular injury, body habitus)
+                            </label>
+                        </div>
+                    </div>
+                    <div id="stop-warning" style="display: none; margin-top: 20px;" class="alert alert-danger">
+                        <h3>⛔ STOP CRITERIA MET</h3>
+                        <p><strong>VA-ECMO is contraindicated.</strong> Patient not suitable for mechanical circulatory support. Discuss with senior team regarding palliative care options.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Aetiology Score -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div>AETIOLOGY SCORE (0-3 points)</div>
+                </div>
+                <div class="step-content">
+                    <div class="alert alert-info">
+                        <h3>🔍 Select the Aetiology Category</h3>
+                        <p>Choose the category that best describes the cause of cardiogenic shock</p>
+                    </div>
+                    
+                    <div class="score-section">
+                        <h3>Favourable (Score 1)</h3>
+                        <div class="score-options">
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-1">
+                                <label for="aet-1">Fulminant myocarditis <span class="score-badge">1 pt</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-2">
+                                <label for="aet-2">Pulmonary embolism <span class="score-badge">1 pt</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-3">
+                                <label for="aet-3">First presentation cardiomyopathy <span class="score-badge">1 pt</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-4">
+                                <label for="aet-4">Drug overdose <span class="score-badge">1 pt</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-5">
+                                <label for="aet-5">Heart transplant PGD <span class="score-badge">1 pt</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-6">
+                                <label for="aet-6">Reversible valvular conditions <span class="score-badge">1 pt</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 1)">
+                                <input type="radio" name="aetiology" value="1" id="aet-7">
+                                <label for="aet-7">Septic cardiomyopathy <span class="score-badge">1 pt</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="score-section" style="margin-top: 25px;">
+                        <h3>Unfavourable (Score 2)</h3>
+                        <div class="score-options">
+                            <div class="score-option" onclick="selectAetiology(this, 2)">
+                                <input type="radio" name="aetiology" value="2" id="aet-8">
+                                <label for="aet-8">Myocardial infarction with full & early revascularisation <span class="score-badge">2 pts</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 2)">
+                                <input type="radio" name="aetiology" value="2" id="aet-9">
+                                <label for="aet-9">Acute mitral regurgitation <span class="score-badge">2 pts</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 2)">
+                                <input type="radio" name="aetiology" value="2" id="aet-10">
+                                <label for="aet-10">Acute rejection of heart transplant <span class="score-badge">2 pts</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="score-section" style="margin-top: 25px;">
+                        <h3>Very Unfavourable (Score 3)</h3>
+                        <div class="score-options">
+                            <div class="score-option" onclick="selectAetiology(this, 3)">
+                                <input type="radio" name="aetiology" value="3" id="aet-11">
+                                <label for="aet-11">Ischaemic VSD after acute myocardial infarction <span class="score-badge">3 pts</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 3)">
+                                <input type="radio" name="aetiology" value="3" id="aet-12">
+                                <label for="aet-12">Post cardiotomy <span class="score-badge">3 pts</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 3)">
+                                <input type="radio" name="aetiology" value="3" id="aet-13">
+                                <label for="aet-13">Chronic rejection of heart transplant <span class="score-badge">3 pts</span></label>
+                            </div>
+                            <div class="score-option" onclick="selectAetiology(this, 3)">
+                                <input type="radio" name="aetiology" value="3" id="aet-14">
+                                <label for="aet-14">Chronic cardiomyopathy without VAD / transplant candidacy <span class="score-badge">3 pts</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <strong>Aetiology Score:</strong> <span id="aetiology-score" style="font-size: 1.3rem; color: #667eea; font-weight: bold;">0</span> points
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Shock Duration Score -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div>ONSET - SHOCK DURATION SCORE (0-2 points)</div>
+                </div>
+                <div class="step-content">
+                    <div class="alert alert-info">
+                        <h3>⏱️ SCAI E Cardiogenic Shock Duration Before ECMO</h3>
+                        <p>Select the time duration the patient has been in SCAI E shock</p>
+                    </div>
+
+                    <div class="score-options">
+                        <div class="score-option" onclick="selectOnset(this, 0)">
+                            <input type="radio" name="onset" value="0" id="onset-1">
+                            <label for="onset-1"><strong>Score E:</strong> <6 hours to start ECMO <span class="score-badge">0 pts</span></label>
+                        </div>
+                        <div class="score-option" onclick="selectOnset(this, 1)">
+                            <input type="radio" name="onset" value="1" id="onset-2">
+                            <label for="onset-2"><strong>Score C:</strong> 6-12 hours to start ECMO <span class="score-badge">1 pt</span></label>
+                        </div>
+                        <div class="score-option" onclick="selectOnset(this, 2)">
+                            <input type="radio" name="onset" value="2" id="onset-3">
+                            <label for="onset-3"><strong>Score E:</strong> >12 hours to start ECMO <span class="score-badge">2 pts</span></label>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <strong>Onset Score:</strong> <span id="onset-score" style="font-size: 1.3rem; color: #667eea; font-weight: bold;">0</span> points
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Comorbidity Score -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div>SIGNIFICANT COMORBIDITY SCORE (0-4+ points)</div>
+                </div>
+                <div class="step-content">
+                    <div class="alert alert-info">
+                        <h3>🏥 Score 1 if ANY of the Following are Present</h3>
+                        <p>Maximum 7 conditions can be selected</p>
+                    </div>
+
+                    <div class="checklist">
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-1')">
+                            <input type="checkbox" id="comorb-1">
+                            <label for="comorb-1">Peripheral vascular disease</label>
+                        </div>
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-2')">
+                            <input type="checkbox" id="comorb-2">
+                            <label for="comorb-2">Previous ischaemic heart disease or prior revascularisation</label>
+                        </div>
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-3')">
+                            <input type="checkbox" id="comorb-3">
+                            <label for="comorb-3">Prior cardiac, aortic or thoracic surgery</label>
+                        </div>
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-4')">
+                            <input type="checkbox" id="comorb-4">
+                            <label for="comorb-4">LVEF <20% (or BMI >30)</label>
+                        </div>
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-5')">
+                            <input type="checkbox" id="comorb-5">
+                            <label for="comorb-5">Chronic renal failure (eGFR 15-60)</label>
+                        </div>
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-6')">
+                            <input type="checkbox" id="comorb-6">
+                            <label for="comorb-6">Chronic liver disease</label>
+                        </div>
+                        <div class="check-item" onclick="toggleComorbidity(this, 'comorb-7')">
+                            <input type="checkbox" id="comorb-7">
+                            <label for="comorb-7">Long-term immunosuppression</label>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <strong>Comorbidity Score:</strong> <span id="comorbidity-score" style="font-size: 1.3rem; color: #667eea; font-weight: bold;">0</span> points (max 4+)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Matrix Display -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">📊</div>
+                    <div>RISK STRATIFICATION MATRIX</div>
+                </div>
+                <div class="step-content">
+                    <div class="alert alert-info">
+                        <h3>🎯 Add Score to Stratify Risk on VA-ECMO</h3>
+                        <p><strong>Total Score = Aetiology + Onset + Comorbidity</strong></p>
+                    </div>
+
+                    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 10px;">Current Scores:</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div>
+                                <strong>Aetiology:</strong> <span id="display-aetiology" style="color: #667eea; font-weight: bold;">0</span>
+                            </div>
+                            <div>
+                                <strong>Onset:</strong> <span id="display-onset" style="color: #667eea; font-weight: bold;">0</span>
+                            </div>
+                            <div>
+                                <strong>Comorbidity:</strong> <span id="display-comorbidity" style="color: #667eea; font-weight: bold;">0</span>
+                            </div>
+                            <div>
+                                <strong>TOTAL:</strong> <span id="total-score" style="font-size: 1.5rem; color: #c31432; font-weight: bold;">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="matrix-container">
+                        <div class="matrix">
+                            <!-- Headers -->
+                            <div class="matrix-cell matrix-header"></div>
+                            <div class="matrix-cell matrix-header"><40</div>
+                            <div class="matrix-cell matrix-header">40-64</div>
+                            <div class="matrix-cell matrix-header">>65</div>
+                            
+                            <!-- Row: Score 5-6 -->
+                            <div class="matrix-cell matrix-row-header">5-6</div>
+                            <div class="matrix-cell risk-red" id="cell-5-1">HIGH RISK</div>
+                            <div class="matrix-cell risk-blue" id="cell-5-2">INAPPROPRIATE</div>
+                            <div class="matrix-cell risk-blue" id="cell-5-3">INAPPROPRIATE</div>
+                            
+                            <!-- Row: Score 4 -->
+                            <div class="matrix-cell matrix-row-header">4</div>
+                            <div class="matrix-cell risk-yellow" id="cell-4-1">INTERMEDIATE RISK</div>
+                            <div class="matrix-cell risk-red" id="cell-4-2">HIGH RISK</div>
+                            <div class="matrix-cell risk-blue" id="cell-4-3">INAPPROPRIATE</div>
+                            
+                            <!-- Row: Score 3 -->
+                            <div class="matrix-cell matrix-row-header">3</div>
+                            <div class="matrix-cell risk-green" id="cell-3-1">HIGHLY FAVOURABLE</div>
+                            <div class="matrix-cell risk-yellow" id="cell-3-2">INTERMEDIATE RISK</div>
+                            <div class="matrix-cell risk-red" id="cell-3-3">HIGH RISK</div>
+                            
+                            <!-- Row: Score 1-2 -->
+                            <div class="matrix-cell matrix-row-header">1-2</div>
+                            <div class="matrix-cell risk-green" id="cell-1-1">HIGHLY FAVOURABLE</div>
+                            <div class="matrix-cell risk-green" id="cell-1-2">HIGHLY FAVOURABLE</div>
+                            <div class="matrix-cell risk-yellow" id="cell-1-3">INTERMEDIATE RISK</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Box - Highly Favourable -->
+            <div id="result-favourable" class="result-box" style="border-color: #28a745; background: #d4edda;">
+                <h2 style="color: #155724;">✅ HIGHLY FAVOURABLE - Proceed with VA-ECMO in Bristol</h2>
+                <p style="color: #155724;"><strong>Patient suitable for VA-ECMO initiation on Bristol site.</strong></p>
+                <ul style="color: #155724;">
+                    <li>Proceed with cannulation as per protocol</li>
+                    <li>Notify RBH/HH ECMO team as per standard pathway</li>
+                    <li>Plan for weaning assessment at 5-7 days</li>
+                    <li>Consider transfer to advanced heart failure centre only if not weaning by day 5-7</li>
+                </ul>
+            </div>
+
+            <!-- Results Box - Intermediate -->
+            <div id="result-intermediate" class="result-box" style="border-color: #ffc107; background: #fff3cd;">
+                <h2 style="color: #856404;">⚠️ INTERMEDIATE RISK - Case-by-case discussion required</h2>
+                <p style="color: #856404;"><strong>Proceed with caution. MDT discussion with RBH/HH ECMO team strongly recommended.</strong></p>
+                <ul style="color: #856404;">
+                    <li>Immediate "shock call" with RBH/HH ECMO consultant</li>
+                    <li>Consider additional risk factors (SAVE score class III-V)</li>
+                    <li>If proceeding: Plan for rapid transfer to RBH/HH if not improving in 48-72 hours</li>
+                    <li>Consider bridging strategy to destination therapy</li>
+                </ul>
+            </div>
+
+            <!-- Results Box - High Risk -->
+            <div id="result-high" class="result-box" style="border-color: #dc3545; background: #f8d7da;">
+                <h2 style="color: #721c24;">🔴 HIGH RISK - Rapid transfer to advanced heart failure centre</h2>
+                <p style="color: #721c24;"><strong>High mortality risk. Should NOT remain on Bristol site.</strong></p>
+                <ul style="color: #721c24;">
+                    <li>Contact RBH/HH ECMO team immediately via "shock call"</li>
+                    <li>If cannulating in Bristol: Plan immediate transfer post-cannulation</li>
+                    <li>Consider direct transfer to RBH/HH for cannulation if patient stable enough</li>
+                    <li>Ensure SAVE score calculated (Class III-V patients need advanced centre)</li>
+                    <li>High likelihood of requiring destination therapy (VAD/transplant)</li>
+                </ul>
+            </div>
+
+            <!-- Results Box - Inappropriate -->
+            <div id="result-inappropriate" class="result-box" style="border-color: #0d6efd; background: #cfe2ff;">
+                <h2 style="color: #084298;">🔵 INAPPROPRIATE - VA-ECMO generally not suitable</h2>
+                <p style="color: #084298;"><strong>Very high mortality risk with poor outcomes expected.</strong></p>
+                <ul style="color: #084298;">
+                    <li>VA-ECMO contraindicated unless exceptional circumstances</li>
+                    <li>Mandatory discussion with RBH/HH ECMO consultant before proceeding</li>
+                    <li>Consider alternative management strategies</li>
+                    <li>If proceeding despite high risk: Immediate transfer to RBH/HH essential</li>
+                    <li>Early palliative care involvement recommended</li>
+                </ul>
+            </div>
+
+            <!-- Additional Considerations -->
+            <div class="alert alert-warning" style="margin-top: 30px;">
+                <h3>📋 Additional Assessment Required</h3>
+                <p><strong>SAVE Score Calculation:</strong> All patients should also have a SAVE score calculated. Patients with SAVE score Class III-V should be discussed with RBH/HH regardless of risk stratification result.</p>
+                <p style="margin-top: 10px;"><strong>Reference:</strong> <a href="https://www.mdcalc.com/calc/10144/save-survival-venoarterial-ecmo-score" target="_blank">SAVE Score Calculator</a></p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn-primary" id="calculate-btn">🎯 Calculate Risk</button>
+                <button class="btn-success" id="export-btn">📄 Export Assessment</button>
+                <button class="btn-secondary" id="print-btn">🖨️ Print</button>
+                <button class="btn-danger" id="reset-btn">🔄 Reset Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scores = {
+            aetiology: 0,
+            onset: 0,
+            comorbidity: 0
+        };
+
+        let stopCriteriaMet = false;
+
+        // Progress tracking
+        function updateProgress(step) {
+            for (let i = 1; i <= 5; i++) {
+                const elem = document.getElementById(`progress-${i}`);
+                if (i < step) {
+                    elem.classList.add('completed');
+                    elem.classList.remove('active');
+                } else if (i === step) {
+                    elem.classList.add('active');
+                    elem.classList.remove('completed');
+                } else {
+                    elem.classList.remove('completed', 'active');
+                }
+            }
+        }
+
+        // STOP criteria
+        function toggleStop(element, id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('selected');
+            } else {
+                element.classList.remove('selected');
+            }
+            
+            // Check if any STOP criteria met
+            const anyChecked = document.querySelectorAll('[id^="stop-"]:checked').length > 0;
+            document.getElementById('stop-warning').style.display = anyChecked ? 'block' : 'none';
+            stopCriteriaMet = anyChecked;
+            
+            updateProgress(anyChecked ? 2 : 3);
+        }
+
+        // Aetiology selection
+        function selectAetiology(element, score) {
+            document.querySelectorAll('.score-option').forEach(el => {
+                if (el.querySelector('input[name="aetiology"]')) {
+                    el.classList.remove('selected');
+                }
+            });
+            element.classList.add('selected');
+            scores.aetiology = score;
+            document.getElementById('aetiology-score').textContent = score;
+            updateProgress(4);
+            updateTotalScore();
+        }
+
+        // Onset selection
+        function selectOnset(element, score) {
+            document.querySelectorAll('.score-option').forEach(el => {
+                if (el.querySelector('input[name="onset"]')) {
+                    el.classList.remove('selected');
+                }
+            });
+            element.classList.add('selected');
+            scores.onset = score;
+            document.getElementById('onset-score').textContent = score;
+            updateProgress(5);
+            updateTotalScore();
+        }
+
+        // Comorbidity selection
+        function toggleComorbidity(element, id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('selected');
+            } else {
+                element.classList.remove('selected');
+            }
+            
+            const checkedCount = document.querySelectorAll('[id^="comorb-"]:checked').length;
+            scores.comorbidity = Math.min(checkedCount, 4);
+            const displayScore = checkedCount > 4 ? '4+' : checkedCount;
+            document.getElementById('comorbidity-score').textContent = displayScore;
+            updateTotalScore();
+        }
+
+        // Update total score display
+        function updateTotalScore() {
+            const total = scores.aetiology + scores.onset + Math.min(scores.comorbidity, 4);
+            document.getElementById('display-aetiology').textContent = scores.aetiology;
+            document.getElementById('display-onset').textContent = scores.onset;
+            document.getElementById('display-comorbidity').textContent = scores.comorbidity > 4 ? '4+' : scores.comorbidity;
+            document.getElementById('total-score').textContent = total;
+        }
+
+        // Calculate risk and highlight matrix
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            if (stopCriteriaMet) {
+                alert('⛔ STOP CRITERIA MET\n\nVA-ECMO is contraindicated. Please review stop criteria section.');
+                return;
+            }
+
+            if (!document.getElementById('echo-confirmed').checked) {
+                alert('⚠️ Please confirm echocardiographic assessment (Step 1) before calculating risk.');
+                return;
+            }
+
+            if (scores.aetiology === 0) {
+                alert('⚠️ Please select an aetiology (Step 3) before calculating risk.');
+                return;
+            }
+
+            // Calculate total
+            const total = scores.aetiology + scores.onset + Math.min(scores.comorbidity, 4);
+            
+            // Determine age group (for this demo, using middle age as default)
+            // In production, you'd have an age input field
+            const ageGroup = 2; // 40-64 (middle column)
+            
+            // Clear previous highlights
+            document.querySelectorAll('.matrix-cell').forEach(cell => {
+                cell.classList.remove('active-cell');
+            });
+
+            // Hide all result boxes
+            document.querySelectorAll('.result-box').forEach(box => {
+                box.classList.remove('active');
+            });
+
+            // Determine cell and result
+            let cellId, resultId;
+            
+            if (total >= 5) {
+                cellId = `cell-5-${ageGroup}`;
+                resultId = ageGroup === 1 ? 'result-high' : 'result-inappropriate';
+            } else if (total === 4) {
+                cellId = `cell-4-${ageGroup}`;
+                resultId = ageGroup === 1 ? 'result-intermediate' : (ageGroup === 2 ? 'result-high' : 'result-inappropriate');
+            } else if (total === 3) {
+                cellId = `cell-3-${ageGroup}`;
+                resultId = ageGroup === 1 ? 'result-favourable' : (ageGroup === 2 ? 'result-intermediate' : 'result-high');
+            } else {
+                cellId = `cell-1-${ageGroup}`;
+                resultId = ageGroup <= 2 ? 'result-favourable' : 'result-intermediate';
+            }
+
+            // Highlight cell
+            document.getElementById(cellId).classList.add('active-cell');
+            
+            // Show result
+            document.getElementById(resultId).classList.add('active');
+            
+            // Scroll to result
+            document.getElementById(resultId).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // Export
+        document.getElementById('export-btn').addEventListener('click', function() {
+            const data = generateReport();
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `VA-ECMO-Risk-Assessment-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+
+        // Print
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Reset
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            if (confirm('Reset all selections? This cannot be undone.')) {
+                location.reload();
+            }
+        });
+
+        function generateReport() {
+            const total = scores.aetiology + scores.onset + Math.min(scores.comorbidity, 4);
+            
+            let text = '═══════════════════════════════════════════════════════\n';
+            text += '   VA-ECMO RISK STRATIFICATION ASSESSMENT\n';
+            text += '   SCAI E Cardiogenic Shock Protocol\n';
+            text += '   University Hospitals Bristol and Weston NHS Trust\n';
+            text += '═══════════════════════════════════════════════════════\n\n';
+            
+            text += 'ASSESSMENT DATE: ' + new Date().toLocaleDateString() + '\n';
+            text += 'ASSESSMENT TIME: ' + new Date().toLocaleTimeString() + '\n\n';
+            
+            text += 'STOP CRITERIA\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += stopCriteriaMet ? '❌ STOP CRITERIA MET - VA-ECMO CONTRAINDICATED\n' : '✅ No stop criteria identified\n';
+            text += '\n';
+            
+            text += 'RISK SCORES\n';
+            text += '─────────────────────────────────────────────────────\n';
+            text += `Aetiology Score: ${scores.aetiology}\n`;
+            text += `Onset Score: ${scores.onset}\n`;
+            text += `Comorbidity Score: ${scores.comorbidity > 4 ? '4+' : scores.comorbidity}\n`;
+            text += `TOTAL SCORE: ${total}\n\n`;
+            
+            text += '═══════════════════════════════════════════════════════\n';
+            text += 'Generated: ' + new Date().toLocaleString() + '\n';
+            
+            return text;
+        }
+
+        // Initialize
+        updateProgress(1);
+    </script>
+</body>
+</html>
