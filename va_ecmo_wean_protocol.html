@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA-ECMO Standardised Weaning Protocol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #e8e8e8;
+            padding: 30px;
+            line-height: 1.5;
+            color: #1a1a1a;
+        }
+
+        .page {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            padding: 25mm;
+            min-height: 297mm;
+        }
+
+        .header {
+            border-bottom: 3px solid #1a1a1a;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+        }
+
+        .header .subtitle {
+            font-size: 12px;
+            color: #4a4a4a;
+            font-style: italic;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            background: #1a1a1a;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            border-left: 4px solid #4a4a4a;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-item label {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-item input,
+        .form-item select {
+            padding: 6px 8px;
+            border: 1px solid #4a4a4a;
+            background: white;
+            font-size: 12px;
+            font-family: 'Arial', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .form-item input:focus,
+        .form-item select:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.1);
+        }
+
+        .form-item input[readonly] {
+            background: #f5f5f5;
+            color: #4a4a4a;
+        }
+
+        /* Mechanical Support Conditional Sections */
+        .support-details {
+            background: #f9f9f9;
+            border: 1px solid #d0d0d0;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 2px;
+        }
+
+        .support-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        /* Assessment Table */
+        .assessment-container {
+            margin: 15px 0;
+            border: 2px solid #1a1a1a;
+        }
+
+        .assessment-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            background: white;
+        }
+
+        .assessment-table thead {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .assessment-table th {
+            padding: 8px 4px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 10px;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            position: relative;
+        }
+
+        .assessment-table th:first-child {
+            text-align: left;
+            padding-left: 10px;
+            min-width: 140px;
+            background: #2a2a2a;
+        }
+
+        .assessment-table th:last-child {
+            border-right: none;
+        }
+
+        .assessment-table tbody tr {
+            border-bottom: 1px solid #d0d0d0;
+        }
+
+        .assessment-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .assessment-table td {
+            padding: 4px 3px;
+            border-right: 1px solid #d0d0d0;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .assessment-table td:first-child {
+            text-align: left;
+            padding-left: 12px;
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 10px;
+            background: #fafafa;
+        }
+
+        .assessment-table td:last-child {
+            border-right: none;
+        }
+
+        .category-header {
+            background: #4a4a4a !important;
+            color: white !important;
+            font-weight: 700 !important;
+            padding: 6px 12px !important;
+            text-align: left !important;
+            font-size: 10px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .assessment-table input,
+        .assessment-table select {
+            width: 100%;
+            padding: 3px;
+            border: 1px solid #b0b0b0;
+            font-size: 9px;
+            text-align: center;
+            background: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .assessment-table input:focus,
+        .assessment-table select:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            background: #fffef0;
+        }
+
+        .baseline-col {
+            background: #fff9e6 !important;
+            width: 70px;
+        }
+
+        .assessment-col {
+            background: #e6f4ff !important;
+            width: 70px;
+        }
+
+        .pcrto-col {
+            background: #ffe6f0 !important;
+            width: 70px;
+        }
+
+        .col-controls {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+        }
+
+        .remove-col-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 2px 5px;
+            font-size: 9px;
+            cursor: pointer;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+
+        .remove-col-btn:hover {
+            background: #b91c1c;
+        }
+
+        .add-assessment-btn {
+            background: #1a1a1a;
+            color: white;
+            border: 2px solid #1a1a1a;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 10px 0;
+        }
+
+        .add-assessment-btn:hover {
+            background: white;
+            color: #1a1a1a;
+        }
+
+        /* Valve Conditional Sections */
+        .valve-conditional {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .valve-conditional select {
+            font-size: 9px;
+        }
+
+        /* Outcome Section */
+        .outcome-section {
+            background: #f5f5f5;
+            border: 2px solid #1a1a1a;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .conclusion-box textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #4a4a4a;
+            font-family: 'Arial', sans-serif;
+            font-size: 11px;
+            resize: vertical;
+            margin-top: 8px;
+        }
+
+        .signature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .signature-item input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #4a4a4a;
+            font-size: 11px;
+        }
+
+        .info-box {
+            background: #f0f0f0;
+            border-left: 4px solid #4a4a4a;
+            padding: 10px 12px;
+            margin: 12px 0;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #d0d0d0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: 2px solid #1a1a1a;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            color: #1a1a1a;
+        }
+
+        .btn:hover {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: white;
+            color: #1a1a1a;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #summary-output {
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            white-space: pre-wrap;
+            margin: 15px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #4a4a4a;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .page {
+                box-shadow: none;
+                padding: 15mm;
+            }
+            
+            .action-buttons, .add-assessment-btn, .remove-col-btn {
+                display: none !important;
+            }
+            
+            .assessment-table {
+                font-size: 8px;
+            }
+            
+            .assessment-table th,
+            .assessment-table td {
+                padding: 3px 2px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 15px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>VA-ECMO Standardised Weaning Protocol</h1>
+            <div class="subtitle">Bristol ECMO Service | University Hospitals Bristol and Weston NHS Foundation Trust | Appendix 5</div>
+        </div>
+
+        <!-- Trial Settings -->
+        <div class="section">
+            <div class="section-title">Trial Settings</div>
+            <div class="form-grid">
+                <div class="form-item">
+                    <label>Date & Time</label>
+                    <input type="datetime-local" id="trial-datetime">
+                </div>
+                <div class="form-item">
+                    <label>Anti-Xa Level</label>
+                    <input type="text" id="anti-xa" placeholder="Enter Anti-Xa">
+                </div>
+                <div class="form-item">
+                    <label>Imaging</label>
+                    <select id="imaging-type">
+                        <option value="">Select imaging</option>
+                        <option value="tte">TTE</option>
+                        <option value="toe">TOE</option>
+                        <option value="none">No imaging</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>Cardiac Output Monitoring</label>
+                    <div style="display: flex; gap: 12px; margin-top: 5px;">
+                        <label style="display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 400; text-transform: none;">
+                            <input type="checkbox" id="pa-catheter"> PA Catheter
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 400; text-transform: none;">
+                            <input type="checkbox" id="picco"> PICCO
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 400; text-transform: none;">
+                            <input type="checkbox"> Other
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Demographics -->
+        <div class="section">
+            <div class="section-title">Patient Demographics</div>
+            <div class="form-grid">
+                <div class="form-item">
+                    <label>Patient ID / Hospital Number</label>
+                    <input type="text" id="patient-id" placeholder="Enter ID">
+                </div>
+                <div class="form-item">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob">
+                </div>
+                <div class="form-item">
+                    <label>Sex</label>
+                    <select id="sex">
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>Height (cm)</label>
+                    <input type="number" id="height" placeholder="cm">
+                </div>
+                <div class="form-item">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" placeholder="kg">
+                </div>
+                <div class="form-item">
+                    <label>BMI (auto)</label>
+                    <input type="text" id="bmi" readonly>
+                </div>
+                <div class="form-item">
+                    <label>BSA (m², auto)</label>
+                    <input type="text" id="bsa" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mechanical Support -->
+        <div class="section">
+            <div class="section-title">Mechanical Support</div>
+            <div style="display: flex; gap: 20px; padding: 5px 0;">
+                <label style="display: flex; align-items: center; gap: 5px; font-size: 11px;">
+                    <input type="checkbox" id="iabp"> IABP
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; font-size: 11px;">
+                    <input type="checkbox" id="impella"> Impella
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; font-size: 11px;">
+                    <input type="checkbox" id="pacing"> Pacing
+                </label>
+            </div>
+
+            <!-- IABP Conditional -->
+            <div id="iabp-details" class="hidden support-details">
+                <div class="support-details-grid">
+                    <div class="form-item">
+                        <label>IABP Ratio</label>
+                        <input type="text" id="iabp-ratio" placeholder="e.g., 1:1, 1:2">
+                    </div>
+                    <div class="form-item">
+                        <label>Augmentation (mmHg)</label>
+                        <input type="number" id="iabp-augmentation" placeholder="mmHg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impella Conditional -->
+            <div id="impella-details" class="hidden support-details">
+                <div class="support-details-grid">
+                    <div class="form-item">
+                        <label>P Level</label>
+                        <select id="impella-p">
+                            <option value="">Select P level</option>
+                            <option value="P0">P0</option>
+                            <option value="P1">P1</option>
+                            <option value="P2">P2</option>
+                            <option value="P3">P3</option>
+                            <option value="P4">P4</option>
+                            <option value="P5">P5</option>
+                            <option value="P6">P6</option>
+                            <option value="P7">P7</option>
+                            <option value="P8">P8</option>
+                            <option value="P9">P9</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>CO (L/min)</label>
+                        <input type="number" id="impella-co" step="0.1" placeholder="L/min">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pacing Conditional -->
+            <div id="pacing-details" class="hidden support-details">
+                <div class="support-details-grid">
+                    <div class="form-item">
+                        <label>Pacing Mode</label>
+                        <input type="text" id="pacing-mode" placeholder="e.g., AAI, VVI, DDD">
+                    </div>
+                    <div class="form-item">
+                        <label>Rate (bpm)</label>
+                        <input type="number" id="pacing-rate" placeholder="bpm">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessments -->
+        <div class="section">
+            <div class="section-title">Assessments</div>
+            
+            <div class="info-box">
+                <strong>Weaning Protocol Instructions:</strong>
+                Document baseline values, then record measurements at each ECMO flow reduction (typically 3L → 2L → 1L/min). If Retrograde direction is selected, that assessment will be labelled "PCRTO Assessment". Echo and monitoring parameters appear based on selections above.
+            </div>
+
+            <div class="assessment-container">
+                <table class="assessment-table" id="assessment-table">
+                    <thead>
+                        <tr id="header-row">
+                            <th>Parameter</th>
+                            <th class="baseline-col">Baseline</th>
+                            <th class="assessment-col" data-col-index="1">
+                                Assessment 1
+                                <span class="col-controls">
+                                    <button class="remove-col-btn" onclick="removeAssessmentColumn(1)">×</button>
+                                </span>
+                            </th>
+                            <th class="assessment-col" data-col-index="2">
+                                Assessment 2
+                                <span class="col-controls">
+                                    <button class="remove-col-btn" onclick="removeAssessmentColumn(2)">×</button>
+                                </span>
+                            </th>
+                            <th class="assessment-col" data-col-index="3">
+                                Assessment 3
+                                <span class="col-controls">
+                                    <button class="remove-col-btn" onclick="removeAssessmentColumn(3)">×</button>
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Dynamic rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <button class="add-assessment-btn" onclick="addAssessmentColumn()">+ Add Assessment Column</button>
+        </div>
+
+        <!-- Outcome -->
+        <div class="outcome-section">
+            <div class="section-title" style="margin-bottom: 10px;">Outcome</div>
+            
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" name="outcome" id="weanable" value="weanable">
+                    <label for="weanable">Weanable</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="outcome" id="not-weanable" value="not-weanable">
+                    <label for="not-weanable">Not Weanable</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="outcome" id="repeat-study" value="repeat-study">
+                    <label for="repeat-study">Repeat Weaning Study</label>
+                </div>
+            </div>
+
+            <div id="repeat-days" class="hidden" style="margin: 10px 0;">
+                <label style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">
+                    Days until next study:
+                </label>
+                <input type="number" id="repeat-days-input" min="1" placeholder="Enter days" style="padding: 6px; border: 1px solid #4a4a4a; width: 150px; font-size: 11px;">
+            </div>
+
+            <div class="conclusion-box">
+                <label style="font-weight: 600; display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase;">
+                    Conclusion:
+                </label>
+                <textarea id="conclusion" placeholder="Enter clinical conclusion and recommendations..."></textarea>
+            </div>
+
+            <div class="signature-row">
+                <div class="signature-item">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">
+                        Signed (Name):
+                    </label>
+                    <input type="text" id="signed-name" placeholder="Enter name">
+                </div>
+                <div class="signature-item">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">
+                        Personnel/Role:
+                    </label>
+                    <input type="text" id="personnel-role" placeholder="e.g., ECMO Consultant">
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Output -->
+        <div id="summary-section" class="hidden" style="margin-top: 20px;">
+            <div class="section-title">Plain Text Summary</div>
+            <div id="summary-output"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="generateSummary()">Generate Summary</button>
+            <button class="btn btn-primary" onclick="emailSummary()">Email Summary</button>
+            <button class="btn" onclick="saveForm()">Save Form</button>
+            <button class="btn" onclick="window.print()">Print</button>
+            <button class="btn" onclick="clearForm()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        let assessmentCount = 3;
+        let nextAssessmentId = 4;
+        let columnMapping = { 1: 1, 2: 2, 3: 3 };
+
+        // Store row definitions
+        const baseRows = [
+            { category: "Time & ECMO Settings" },
+            { label: "Time", type: "time" },
+            { label: "ECMO Flow (LPM)", type: "number", step: "0.1", baseline: "3.0", assess1: "2.0", assess2: "1.0" },
+            { label: "Pump Speed (RPM)", type: "number" },
+            { label: "Direction", type: "select", options: ["Antegrade", "Retrograde"], trackDirection: true },
+            { label: "FiO₂ (%)", type: "number", min: "21", max: "100" },
+            { label: "Sweep Gas (L/min)", type: "number", step: "0.1" },
+            
+            { category: "Haemodynamics" },
+            { label: "Heart Rate (bpm)", type: "number" },
+            { label: "Rhythm", type: "text", placeholder: "SR/AF/HB/Paced" },
+            { label: "SBP (mmHg)", type: "number" },
+            { label: "DBP (mmHg)", type: "number" },
+            { label: "MAP (mmHg)", type: "number" },
+            { label: "CVP (mmHg)", type: "number" },
+            
+            { category: "Vasoactives" },
+            { label: "Noradrenaline (mcg/kg/min)", type: "number", step: "0.01" },
+            { label: "Vasopressin (units/min)", type: "number", step: "0.01" },
+            { label: "Dobutamine (mcg/kg/min)", type: "number", step: "0.1" },
+            { label: "Milrinone (mcg/kg/min)", type: "number", step: "0.01" }
+        ];
+
+        const paCatheterRows = [
+            { category: "PA Catheter" },
+            { label: "PASP (mmHg)", type: "number" },
+            { label: "PADP (mmHg)", type: "number" },
+            { label: "Mean PA (mmHg)", type: "number" },
+            { label: "PCWP (mmHg)", type: "number" },
+            { label: "CO (L/min)", type: "number", step: "0.1" }
+        ];
+
+        const piccoRows = [
+            { category: "PICCO" },
+            { label: "CO (L/min)", type: "number", step: "0.1" },
+            { label: "SVRI", type: "number" }
+        ];
+
+        const echoRows = [
+            { category: "Echocardiography - LEFT Ventricle" },
+            { label: "LVIDd (cm)", type: "number", step: "0.1" },
+            { label: "LVEF (%)", type: "number", min: "0", max: "100" },
+            { label: "LVOT VTi (cm)", type: "number", step: "0.1" },
+            { label: "MV S' Lateral (cm/s)", type: "number", step: "0.1" },
+            { label: "Others", type: "text" },
+            
+            { category: "Echocardiography - RIGHT Ventricle" },
+            { label: "RVD1 (cm)", type: "number", step: "0.1" },
+            { label: "RVD2 (cm)", type: "number", step: "0.1" },
+            { label: "TAPSE (cm)", type: "number", step: "0.1" },
+            { label: "RV S' (cm/s)", type: "number", step: "0.1" },
+            { label: "FAC (%)", type: "number", min: "0", max: "100" },
+            { label: "Others", type: "text" },
+            
+            { category: "Valves" },
+            { label: "Aortic Valve", type: "valve", hasOpening: true },
+            { label: "Mitral Valve", type: "valve" },
+            { label: "Tricuspid Valve", type: "valve" },
+            { label: "Pulmonary Valve", type: "valve" },
+            
+            { category: "Pericardium & Other" },
+            { label: "Pericardial Collection", type: "select", options: ["", "Yes", "No"] },
+            { label: "Other Findings", type: "text" }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('trial-datetime').value = now.toISOString().slice(0, 16);
+            
+            setupEventListeners();
+            setupCalculations();
+            rebuildTable();
+        });
+
+        function setupEventListeners() {
+            // Outcome radio buttons
+            const radios = document.querySelectorAll('input[name="outcome"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('repeat-days').classList.toggle('hidden', this.value !== 'repeat-study');
+                });
+            });
+
+            // Imaging
+            document.getElementById('imaging-type').addEventListener('change', rebuildTable);
+            
+            // Monitoring
+            document.getElementById('pa-catheter').addEventListener('change', rebuildTable);
+            document.getElementById('picco').addEventListener('change', rebuildTable);
+
+            // Mechanical support conditionals
+            document.getElementById('iabp').addEventListener('change', function() {
+                document.getElementById('iabp-details').classList.toggle('hidden', !this.checked);
+            });
+            
+            document.getElementById('impella').addEventListener('change', function() {
+                document.getElementById('impella-details').classList.toggle('hidden', !this.checked);
+            });
+            
+            document.getElementById('pacing').addEventListener('change', function() {
+                document.getElementById('pacing-details').classList.toggle('hidden', !this.checked);
+            });
+        }
+
+        function setupCalculations() {
+            const heightInput = document.getElementById('height');
+            const weightInput = document.getElementById('weight');
+            const bmiOutput = document.getElementById('bmi');
+            const bsaOutput = document.getElementById('bsa');
+
+            function calculate() {
+                const height = parseFloat(heightInput.value);
+                const weight = parseFloat(weightInput.value);
+
+                if (height && weight) {
+                    const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+                    bmiOutput.value = bmi;
+                    const bsa = (0.007184 * (height ** 0.725) * (weight ** 0.425)).toFixed(2);
+                    bsaOutput.value = bsa;
+                } else {
+                    bmiOutput.value = '';
+                    bsaOutput.value = '';
+                }
+            }
+
+            heightInput.addEventListener('input', calculate);
+            weightInput.addEventListener('input', calculate);
+        }
+
+        function rebuildTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let allRows = [...baseRows];
+
+            // Add conditional sections
+            if (document.getElementById('pa-catheter').checked) {
+                allRows = allRows.concat(paCatheterRows);
+            }
+            if (document.getElementById('picco').checked) {
+                allRows = allRows.concat(piccoRows);
+            }
+            const imaging = document.getElementById('imaging-type').value;
+            if (imaging === 'tte' || imaging === 'toe') {
+                allRows = allRows.concat(echoRows);
+            }
+
+            allRows.forEach(rowDef => {
+                tbody.appendChild(createRow(rowDef));
+            });
+        }
+
+        function createRow(rowDef) {
+            const tr = document.createElement('tr');
+
+            if (rowDef.category) {
+                const td = document.createElement('td');
+                td.colSpan = assessmentCount + 2;
+                td.className = 'category-header';
+                td.textContent = rowDef.category;
+                tr.appendChild(td);
+                return tr;
+            }
+
+            // Label cell
+            const labelTd = document.createElement('td');
+            labelTd.textContent = rowDef.label;
+            tr.appendChild(labelTd);
+
+            // Baseline cell
+            tr.appendChild(createDataCell(rowDef, 'baseline', rowDef.baseline));
+
+            // Assessment cells
+            Object.keys(columnMapping).sort((a, b) => a - b).forEach((key, idx) => {
+                const placeholder = idx === 0 ? rowDef.assess1 : (idx === 1 ? rowDef.assess2 : '');
+                tr.appendChild(createDataCell(rowDef, columnMapping[key], placeholder));
+            });
+
+            return tr;
+        }
+
+        function createDataCell(rowDef, colId, placeholder) {
+            const td = document.createElement('td');
+            td.className = colId === 'baseline' ? 'baseline-col' : 'assessment-col';
+            td.setAttribute('data-col-id', colId);
+
+            if (rowDef.type === 'valve') {
+                const container = document.createElement('div');
+                
+                const mainSelect = document.createElement('select');
+                mainSelect.innerHTML = `
+                    <option value="">Select</option>
+                    <option value="normal">Normal</option>
+                    <option value="stenosis">Stenosis</option>
+                    <option value="regurgitation">Regurgitation</option>
+                `;
+                mainSelect.className = 'valve-main-select';
+                mainSelect.setAttribute('data-valve', rowDef.label);
+                mainSelect.setAttribute('data-col', colId);
+                
+                const conditionalDiv = document.createElement('div');
+                conditionalDiv.className = 'valve-conditional hidden';
+                conditionalDiv.setAttribute('data-valve-conditional', `${rowDef.label}-${colId}`);
+                
+                const severitySelect = document.createElement('select');
+                severitySelect.innerHTML = `
+                    <option value="">Severity</option>
+                    <option value="trivial">Trivial</option>
+                    <option value="mild">Mild</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                `;
+                conditionalDiv.appendChild(severitySelect);
+                
+                if (rowDef.hasOpening) {
+                    const openingSelect = document.createElement('select');
+                    openingSelect.innerHTML = `
+                        <option value="">Opening</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    `;
+                    conditionalDiv.appendChild(openingSelect);
+                }
+                
+                mainSelect.addEventListener('change', function() {
+                    const val = this.value;
+                    if (val === 'stenosis' || val === 'regurgitation') {
+                        conditionalDiv.classList.remove('hidden');
+                    } else {
+                        conditionalDiv.classList.add('hidden');
+                    }
+                });
+                
+                container.appendChild(mainSelect);
+                container.appendChild(conditionalDiv);
+                td.appendChild(container);
+                
+            } else if (rowDef.type === 'select') {
+                const select = document.createElement('select');
+                if (rowDef.trackDirection) {
+                    select.className = 'direction-select';
+                    select.setAttribute('data-col-id', colId);
+                    select.addEventListener('change', updateColumnHeader);
+                }
+                rowDef.options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.toLowerCase();
+                    option.textContent = opt;
+                    select.appendChild(option);
+                });
+                td.appendChild(select);
+                
+            } else {
+                const input = document.createElement('input');
+                input.type = rowDef.type;
+                if (rowDef.step) input.step = rowDef.step;
+                if (rowDef.min) input.min = rowDef.min;
+                if (rowDef.max) input.max = rowDef.max;
+                if (rowDef.placeholder) input.placeholder = rowDef.placeholder;
+                if (placeholder) input.placeholder = placeholder;
+                td.appendChild(input);
+            }
+
+            return td;
+        }
+
+        function updateColumnHeader() {
+            const colId = this.getAttribute('data-col-id');
+            const direction = this.value;
+            
+            const header = document.querySelector(`th[data-col-index="${colId}"]`);
+            if (!header) return;
+            
+            const colNum = Object.keys(columnMapping).find(key => columnMapping[key] == colId);
+            const baseText = `Assessment ${colNum}`;
+            
+            if (direction === 'retrograde') {
+                header.innerHTML = `PCRTO Assessment<span class="col-controls"><button class="remove-col-btn" onclick="removeAssessmentColumn(${colId})">×</button></span>`;
+                header.className = 'pcrto-col';
+                
+                // Update all cells in this column
+                document.querySelectorAll(`td[data-col-id="${colId}"]`).forEach(cell => {
+                    cell.className = 'pcrto-col';
+                });
+            } else {
+                header.innerHTML = `${baseText}<span class="col-controls"><button class="remove-col-btn" onclick="removeAssessmentColumn(${colId})">×</button></span>`;
+                header.className = 'assessment-col';
+                
+                document.querySelectorAll(`td[data-col-id="${colId}"]`).forEach(cell => {
+                    cell.className = 'assessment-col';
+                });
+            }
+        }
+
+        function addAssessmentColumn() {
+            assessmentCount++;
+            const colId = nextAssessmentId++;
+            columnMapping[assessmentCount] = colId;
+            
+            const headerRow = document.getElementById('header-row');
+            const th = document.createElement('th');
+            th.className = 'assessment-col';
+            th.setAttribute('data-col-index', colId);
+            th.innerHTML = `Assessment ${assessmentCount}<span class="col-controls"><button class="remove-col-btn" onclick="removeAssessmentColumn(${colId})">×</button></span>`;
+            headerRow.appendChild(th);
+
+            // Add cells to existing rows
+            document.querySelectorAll('#table-body tr').forEach(row => {
+                if (row.querySelector('.category-header')) {
+                    const header = row.querySelector('.category-header');
+                    const currentColspan = parseInt(header.getAttribute('colspan'));
+                    header.setAttribute('colspan', currentColspan + 1);
+                } else {
+                    const firstCell = row.querySelector('td:first-child');
+                    const label = firstCell.textContent;
+                    
+                    // Find the row definition
+                    let rowDef = [...baseRows, ...paCatheterRows, ...piccoRows, ...echoRows]
+                        .find(r => r.label === label);
+                    
+                    if (rowDef) {
+                        row.appendChild(createDataCell(rowDef, colId, ''));
+                    }
+                }
+            });
+        }
+
+        function removeAssessmentColumn(colId) {
+            if (assessmentCount <= 1) {
+                alert('Cannot remove the last assessment column.');
+                return;
+            }
+
+            if (!confirm('Remove this assessment column?')) return;
+
+            // Remove from header
+            const header = document.querySelector(`th[data-col-index="${colId}"]`);
+            if (header) header.remove();
+
+            // Remove from all rows
+            document.querySelectorAll('#table-body tr').forEach(row => {
+                if (row.querySelector('.category-header')) {
+                    const header = row.querySelector('.category-header');
+                    const currentColspan = parseInt(header.getAttribute('colspan'));
+                    header.setAttribute('colspan', currentColspan - 1);
+                } else {
+                    const cell = row.querySelector(`td[data-col-id="${colId}"]`);
+                    if (cell) cell.remove();
+                }
+            });
+
+            // Update mapping
+            for (let key in columnMapping) {
+                if (columnMapping[key] == colId) {
+                    delete columnMapping[key];
+                    break;
+                }
+            }
+            
+            // Renumber remaining columns
+            const sortedKeys = Object.keys(columnMapping).sort((a, b) => a - b);
+            const newMapping = {};
+            sortedKeys.forEach((key, idx) => {
+                newMapping[idx + 1] = columnMapping[key];
+            });
+            columnMapping = newMapping;
+            assessmentCount = Object.keys(columnMapping).length;
+
+            // Update header labels
+            sortedKeys.forEach((key, idx) => {
+                const colIdToUpdate = columnMapping[idx + 1];
+                const header = document.querySelector(`th[data-col-index="${colIdToUpdate}"]`);
+                if (header) {
+                    const currentText = header.textContent.replace('×', '').trim();
+                    if (currentText.includes('PCRTO')) {
+                        header.innerHTML = `PCRTO Assessment<span class="col-controls"><button class="remove-col-btn" onclick="removeAssessmentColumn(${colIdToUpdate})">×</button></span>`;
+                    } else {
+                        header.innerHTML = `Assessment ${idx + 1}<span class="col-controls"><button class="remove-col-btn" onclick="removeAssessmentColumn(${colIdToUpdate})">×</button></span>`;
+                    }
+                }
+            });
+        }
+
+        function generateSummary() {
+            const summary = buildPlainTextSummary();
+            document.getElementById('summary-output').textContent = summary;
+            document.getElementById('summary-section').classList.remove('hidden');
+            document.getElementById('summary-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function buildPlainTextSummary() {
+            let text = '';
+            text += '═'.repeat(80) + '\n';
+            text += 'VA-ECMO STANDARDISED WEANING PROTOCOL - SUMMARY\n';
+            text += 'Bristol ECMO Service | UHBW NHS Foundation Trust\n';
+            text += '═'.repeat(80) + '\n\n';
+
+            text += '─── TRIAL SETTINGS ───\n';
+            text += `Date/Time: ${document.getElementById('trial-datetime').value || 'Not recorded'}\n`;
+            text += `Anti-Xa: ${document.getElementById('anti-xa').value || 'Not recorded'}\n`;
+            text += `Imaging: ${document.getElementById('imaging-type').value.toUpperCase() || 'None'}\n`;
+            text += `PA Catheter: ${document.getElementById('pa-catheter').checked ? 'Yes' : 'No'}\n`;
+            text += `PICCO: ${document.getElementById('picco').checked ? 'Yes' : 'No'}\n\n`;
+
+            text += '─── PATIENT DEMOGRAPHICS ───\n';
+            text += `Patient ID: ${document.getElementById('patient-id').value || 'Not recorded'}\n`;
+            text += `DOB: ${document.getElementById('dob').value || 'Not recorded'}\n`;
+            text += `Sex: ${document.getElementById('sex').value || 'Not recorded'}\n`;
+            text += `Height: ${document.getElementById('height').value || '—'} cm\n`;
+            text += `Weight: ${document.getElementById('weight').value || '—'} kg\n`;
+            text += `BMI: ${document.getElementById('bmi').value || '—'}\n`;
+            text += `BSA: ${document.getElementById('bsa').value || '—'} m²\n\n`;
+
+            text += '─── MECHANICAL SUPPORT ───\n';
+            text += `IABP: ${document.getElementById('iabp').checked ? 'Yes' : 'No'}`;
+            if (document.getElementById('iabp').checked) {
+                text += ` (Ratio: ${document.getElementById('iabp-ratio').value || '—'}, Aug: ${document.getElementById('iabp-augmentation').value || '—'} mmHg)`;
+            }
+            text += '\n';
+            text += `Impella: ${document.getElementById('impella').checked ? 'Yes' : 'No'}`;
+            if (document.getElementById('impella').checked) {
+                text += ` (P: ${document.getElementById('impella-p').value || '—'}, CO: ${document.getElementById('impella-co').value || '—'} L/min)`;
+            }
+            text += '\n';
+            text += `Pacing: ${document.getElementById('pacing').checked ? 'Yes' : 'No'}`;
+            if (document.getElementById('pacing').checked) {
+                text += ` (Mode: ${document.getElementById('pacing-mode').value || '—'}, Rate: ${document.getElementById('pacing-rate').value || '—'} bpm)`;
+            }
+            text += '\n\n';
+
+            text += '─── OUTCOME ───\n';
+            const outcome = document.querySelector('input[name="outcome"]:checked');
+            text += `Result: ${outcome ? outcome.value.toUpperCase() : 'Not recorded'}\n`;
+            if (outcome && outcome.value === 'repeat-study') {
+                text += `Repeat in: ${document.getElementById('repeat-days-input').value || '—'} days\n`;
+            }
+            text += `\nConclusion:\n${document.getElementById('conclusion').value || 'No conclusion recorded'}\n\n`;
+
+            text += '─── AUTHORISATION ───\n';
+            text += `Signed: ${document.getElementById('signed-name').value || 'Not signed'}\n`;
+            text += `Role: ${document.getElementById('personnel-role').value || 'Not recorded'}\n\n`;
+
+            text += '═'.repeat(80) + '\n';
+            text += `Generated: ${new Date().toLocaleString('en-GB')}\n`;
+            text += '═'.repeat(80);
+
+            return text;
+        }
+
+        function emailSummary() {
+            const summary = buildPlainTextSummary();
+            const subject = encodeURIComponent('VA-ECMO Weaning Study Summary');
+            const body = encodeURIComponent(summary);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function saveForm() {
+            const formData = {
+                timestamp: new Date().toISOString(),
+                trialSettings: {
+                    datetime: document.getElementById('trial-datetime').value,
+                    antiXa: document.getElementById('anti-xa').value,
+                    imaging: document.getElementById('imaging-type').value
+                },
+                patientDemographics: {
+                    patientId: document.getElementById('patient-id').value,
+                    dob: document.getElementById('dob').value,
+                    sex: document.getElementById('sex').value,
+                    height: document.getElementById('height').value,
+                    weight: document.getElementById('weight').value,
+                    bmi: document.getElementById('bmi').value,
+                    bsa: document.getElementById('bsa').value
+                }
+            };
+
+            const dataStr = JSON.stringify(formData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `va-ecmo-weaning-${new Date().toISOString().slice(0,10)}.json`;
+            link.click();
+            
+            alert('Form data saved successfully.');
+        }
+
+        function clearForm() {
+            if (confirm('Clear all form data? This cannot be undone.')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.type === 'checkbox' || element.type === 'radio') {
+                        element.checked = false;
+                    } else if (!element.readOnly) {
+                        element.value = '';
+                    }
+                });
+                
+                const now = new Date();
+                document.getElementById('trial-datetime').value = now.toISOString().slice(0, 16);
+                document.getElementById('summary-section').classList.add('hidden');
+                document.getElementById('repeat-days').classList.add('hidden');
+                document.getElementById('iabp-details').classList.add('hidden');
+                document.getElementById('impella-details').classList.add('hidden');
+                document.getElementById('pacing-details').classList.add('hidden');
+                
+                rebuildTable();
+                
+                alert('Form cleared successfully.');
+            }
+        }
+    </script>
+</body>
+</html>
