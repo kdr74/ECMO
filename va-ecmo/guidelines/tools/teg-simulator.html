@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEG Clinical Decision Support</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --c1: #3b82f6; --c2: #10b981; --c3: #ef4444; --c-warn: #f59e0b;
+            --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; --border: #334155;
+            --input: #0f172a;
+        }
+        .light-mode {
+            --bg: #f1f5f9; --panel: #ffffff; --text: #1e293b; --border: #cbd5e1;
+            --input: #ffffff;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; font-size: 13px; height: 100vh; overflow: hidden; }
+        
+        .header { display:flex; justify-content:space-between; align-items:center; height: 50px; padding: 0 5px; margin-bottom: 5px; }
+        .mode-toggle { display: flex; background: var(--panel); border: 1px solid var(--border); border-radius: 25px; padding: 4px; gap: 5px; }
+        .mode-btn { padding: 6px 15px; border-radius: 20px; border: none; background: none; color: #94a3b8; cursor: pointer; font-size: 11px; font-weight: 700; }
+        .mode-btn.active { background: var(--c1); color: white; }
+
+        .main-grid { display: grid; grid-template-columns: 360px 1fr; gap: 15px; height: calc(100vh - 80px); }
+        .sidebar { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        
+        .channel-card { background: var(--panel); border-radius: 10px; padding: 12px; border: 1px solid var(--border); margin-bottom: 5px;}
+        .card-1 { border-left: 6px solid var(--c1); }
+        .card-2 { border-left: 6px solid var(--c2); }
+        .card-3 { border-left: 6px solid var(--c3); }
+        
+        .label-group { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 8px; background: var(--input); color: var(--text); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
+
+        .info-container { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .tab-bar { display: flex; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.1); }
+        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: 700; font-size: 10px; text-transform: uppercase; color: #94a3b8; }
+        .tab.active { color: var(--text); border-bottom: 2px solid var(--c1); background: var(--panel); }
+        .tab-content { padding: 15px; font-size: 11px; overflow-y: auto; height: 100%; }
+
+        .edu-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .edu-tag { font-weight: 700; font-size: 9px; padding: 2px 5px; border-radius: 3px; margin-right: 5px; color: white; vertical-align: middle;}
+        .assay-title { color: var(--c1); font-weight: 700; font-size: 12px; display: block; margin-bottom: 3px; }
+
+        .viz-box { position: relative; background: #000; border-radius: 10px; flex: 1.5; border: 1px solid var(--border); overflow: hidden; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        .assay-overlay {
+            position: absolute; top: 10px; right: 10px; background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(4px); padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            width: 220px; z-index: 10; font-size: 11px;
+        }
+        .assay-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; cursor: pointer; }
+        .assay-row input { width: auto; margin: 0; }
+
+        table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 10px; border: 1px solid var(--border); margin-top: 10px; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 11px; }
+        .val-cell { font-weight: 700; text-align: center; }
+        .sev-1 { color: var(--c-warn); } .sev-2 { color: #f97316; } .sev-3 { color: var(--c3); font-weight: 900; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="display:flex; align-items:center; gap: 20px;">
+        <h1 style="margin:0; font-size: 1.2rem; letter-spacing: -0.5px;">TEG Support Tool</h1>
+        <div class="mode-toggle">
+            <button id="btnModelling" class="mode-btn active" onclick="setMode('modelling')">Modelling</button>
+            <button id="btnManagement" class="mode-btn" onclick="setMode('management')">Management</button>
+        </div>
+    </div>
+    <div>
+        <button class="btn btn-gen" style="padding: 6px 15px; background: var(--c1); color:white; border:none; border-radius:20px; cursor:pointer;" onclick="generateScenario()">🎲 Random Case</button>
+        <button class="btn" style="margin-left:5px; padding: 6px 12px; border-radius:20px; cursor:pointer; background:var(--panel); color:var(--text); border:1px solid var(--border);" onclick="document.body.classList.toggle('light-mode'); init();">🌓 Theme</button>
+    </div>
+</div>
+
+<div class="main-grid">
+    <div class="sidebar">
+        <div id="modellingInputs"></div>
+        <div id="managementInputs" style="display:none;">
+            <div class="channel-card card-1">
+                <div class="label-group">Patient Data Input</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div><label class="label-group">R-Time</label><input type="number" id="mR" value="6" oninput="init()"></div>
+                    <div><label class="label-group">K-Time</label><input type="number" id="mK" value="2" oninput="init()"></div>
+                    <div><label class="label-group">Alpha</label><input type="number" id="mA" value="60" oninput="init()"></div>
+                    <div><label class="label-group">MA</label><input type="number" id="mMA" value="60" oninput="init()"></div>
+                    <div style="grid-column: span 2;"><label class="label-group">LY30 %</label><input type="number" id="mLY" value="1" oninput="init()"></div>
+                </div>
+                <hr style="border:0; border-top:1px solid var(--border); margin:8px 0;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div><label class="label-group">Hep-R</label><input type="number" id="mhR" placeholder="6" oninput="init()"></div>
+                    <div><label class="label-group">Fib-MA</label><input type="number" id="mfMA" placeholder="12" oninput="init()"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-container">
+            <div class="tab-bar">
+                <div id="tab1" class="tab active" onclick="switchTab(1)">Insights</div>
+                <div id="tab2" class="tab" onclick="switchTab(2)">Assay Guide</div>
+            </div>
+            <div id="tabContent1" class="tab-content"></div>
+            <div id="tabContent2" class="tab-content" style="display:none;">
+                <div class="edu-item"><span class="assay-title">Kaolin (Standard)</span>Baseline tracing assessing the intrinsic pathway and global clot strength.</div>
+                <div class="edu-item"><span class="assay-title">RapidTEG (RT)</span>Uses Tissue Factor + Kaolin for faster results. Bypasses enzymatic lag in trauma.</div>
+                <div class="edu-item"><span class="assay-title">Heparinase</span>Contains heparinase to neutralize heparin. Compare to Standard to identify heparin effect.</div>
+                <div class="edu-item"><span class="assay-title">Functional Fibrinogen</span>Uses a GPIIb/IIIa inhibitor to remove platelet contribution, isolating the fibrin clot.</div>
+                <div class="edu-item"><span class="assay-title">PlateletMapping</span>Measures inhibition of AA or ADP pathways (aspirin/clopidogrel effect).</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content" style="display:flex; flex-direction:column; height:100%;">
+        <div class="viz-box">
+            <canvas id="gridCanvas"></canvas>
+            <canvas id="tegCanvas"></canvas>
+            <div class="assay-overlay">
+                <div class="label-group">Overlay Toggles</div>
+                <label class="assay-row"><input type="checkbox" id="chk_std" checked onchange="init()"> Kaolin</label>
+                <label class="assay-row"><input type="checkbox" id="chk_rt" onchange="init()"> RapidTEG</label>
+                <label class="assay-row"><input type="checkbox" id="chk_hep" onchange="init()"> Heparinase</label>
+                <label class="assay-row"><input type="checkbox" id="chk_fib" onchange="init()"> Func. Fib</label>
+                <label class="assay-row"><input type="checkbox" id="chk_map" onchange="init()"> Plt Mapping</label>
+                <select id="assayChannel" onchange="init()" style="margin-top:8px;">
+                    <option value="1">Focus: Channel 1</option>
+                    <option value="2">Focus: Channel 2</option>
+                    <option value="3">Focus: Channel 3</option>
+                </select>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th><th>Ref Range</th>
+                    <th id="h1" style="color:var(--c1)">Channel 1</th>
+                    <th id="h2" class="mod-only" style="color:var(--c2)">Channel 2</th>
+                    <th id="h3" class="mod-only" style="color:var(--c3)">Channel 3</th>
+                </tr>
+            </thead>
+            <tbody id="statBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'modelling';
+    const scenarios = {
+        normal: { R: 6, K: 2, a: 60, MA: 60, LY: 1, n: "Normal", insight: "Normal hemostasis.", rx: "None needed." },
+        thrombo: { R: 7, K: 5, a: 35, MA: 30, LY: 1, n: "Thrombocytopenia", insight: "Low count reduces clot strength.", rx: "Platelet Transfusion." },
+        plt_dys: { R: 6, K: 2, a: 58, MA: 38, LY: 1, n: "Platelet Dysfunction", insight: "Qualitative aggregation defect.", rx: "Platelets or DDAVP." },
+        fib: { R: 7, K: 6, a: 22, MA: 32, LY: 1, n: "Hypofibrinogenaemia", insight: "Low fibrin substrate reduces Alpha.", rx: "Cryoprecipitate." },
+        hypotherm: { R: 12, K: 4, a: 40, MA: 50, LY: 1, n: "Hypothermia", insight: "Cold-induced kinetic delay.", rx: "Aggressive Rewarming." },
+        haemo: { R: 14, K: 7, a: 28, MA: 35, LY: 1, n: "Haemodilution", insight: "Global factor/platelet dilution.", rx: "Fresh Frozen Plasma + Platelets + Cryo." },
+        massive: { R: 18, K: 6, a: 28, MA: 35, LY: 10, n: "Massive Transfusion", insight: "Dilution with secondary lysis.", rx: "MTP Activation + Tranexamic Acid." },
+        hyper: { R: 3, K: 1, a: 80, MA: 78, LY: 1, n: "Hypercoagulable", insight: "Pro-thrombotic state.", rx: "Anticoagulation." },
+        early_dic: { R: 3.5, K: 1, a: 80, MA: 75, LY: 1, n: "Early DIC", insight: "Consumptive hypercoagulability.", rx: "Treat underlying cause; Anticoagulation?" },
+        late_dic: { R: 22, K: 8, a: 20, MA: 28, LY: 20, n: "Late DIC", insight: "Consumption with severe lysis.", rx: "Multimodal replacement." },
+        heparin: { R: 30, K: 8, a: 22, MA: 42, LY: 1, n: "Heparin Effect", insight: "Prolonged initiation.", rx: "Protamine Sulfate." },
+        warfarin: { R: 25, K: 7, a: 25, MA: 58, LY: 1, n: "Warfarin Effect", insight: "Vitamin-K factor deficiency.", rx: "Prothrombin Complex Concentrate + Vitamin K." },
+        apixaban: { R: 18, K: 5, a: 35, MA: 55, LY: 1, n: "Apixaban Effect", insight: "Direct Factor Xa inhibition.", rx: "Andexanet Alfa or Prothrombin Complex Concentrate." },
+        dabigatran: { R: 28, K: 8, a: 22, MA: 55, LY: 1, n: "Dabigatran Effect", insight: "Direct Thrombin Inhibition.", rx: "Idarucizumab." },
+        aspirin: { R: 6, K: 2, a: 60, MA: 55, LY: 1, n: "Aspirin Effect", insight: "COX-1 inhibition reducing AA pathway.", rx: "Platelets or DDAVP." },
+        clopidogrel: { R: 6, K: 2, a: 60, MA: 52, LY: 1, n: "Clopidogrel Effect", insight: "P2Y12 ADP receptor inhibition.", rx: "Platelets." },
+        tirofiban: { R: 6, K: 2, a: 60, MA: 50, LY: 1, n: "Tirofiban Effect", insight: "GPIIb/IIIa receptor blockade.", rx: "Wait for clearance/Platelets." }
+    };
+
+    const treatments = {
+        none: {n:"None", fx:""}, 
+        txa: {n:"Tranexamic Acid", fx:"Inhibits plasminogen activation; halts fibrinolysis."},
+        ffp: {n:"Fresh Frozen Plasma", fx:"Replaces all clotting factors; normalizes R-time."}, 
+        cryo: {n:"Cryoprecipitate", fx:"Highly concentrated Fibrinogen; improves Alpha and MA."},
+        plt: {n:"Platelets", fx:"Increases cellular scaffolding; increases MA."}, 
+        pcc: {n:"Prothrombin Complex Concentrate", fx:"Rapidly replaces Vit-K factors (II, VII, IX, X)."},
+        prot: {n:"Protamine", fx:"Binds and neutralizes Heparin molecules."}, 
+        andx: {n:"Andexanet", fx:"Decoy receptor for Xa inhibitors."},
+        idar: {n:"Idarucizumab", fx:"Monoclonal antibody neutralizing Dabigatran."}
+    };
+
+    function switchTab(idx) {
+        document.getElementById('tab1').classList.toggle('active', idx===1);
+        document.getElementById('tab2').classList.toggle('active', idx===2);
+        document.getElementById('tabContent1').style.display = idx===1 ? 'block' : 'none';
+        document.getElementById('tabContent2').style.display = idx===2 ? 'block' : 'none';
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modellingInputs').style.display = mode === 'modelling' ? 'block' : 'none';
+        document.getElementById('managementInputs').style.display = mode === 'management' ? 'block' : 'none';
+        document.getElementById('btnModelling').classList.toggle('active', mode === 'modelling');
+        document.getElementById('btnManagement').classList.toggle('active', mode === 'management');
+        document.querySelectorAll('.mod-only').forEach(el => el.style.display = mode === 'modelling' ? 'table-cell' : 'none');
+        init();
+    }
+
+    function build() {
+        const ctrls = document.getElementById('modellingInputs');
+        const groups = { 
+            "Common": ["normal","thrombo","plt_dys","fib","hypotherm"], 
+            "Complex": ["haemo","massive","early_dic","late_dic"], 
+            "Drugs": ["heparin","warfarin","apixaban","dabigatran","aspirin","clopidogrel","tirofiban"] 
+        };
+        for(let i=1; i<=3; i++) {
+            let optHTML = `<option value="none">-- Select Pathology --</option>`;
+            for (let g in groups) { optHTML += `<optgroup label="${g}">`; groups[g].forEach(k => optHTML += `<option value="${k}">${scenarios[k].n}</option>`); optHTML += `</optgroup>`; }
+            ctrls.innerHTML += `<div class="channel-card card-${i}"><div class="label-group">Channel ${i} Pathology</div><select id="s${i}" onchange="init()">${optHTML}</select><div class="label-group">Intervention</div><select id="c${i}" onchange="init()">${Object.keys(treatments).map(k=>`<option value="${k}">${treatments[k].n}</option>`).join('')}</select></div>`;
+        }
+    }
+
+    const canvas = document.getElementById('tegCanvas'), ctx = canvas.getContext('2d');
+    const gCanvas = document.getElementById('gridCanvas'), gCtx = gCanvas.getContext('2d');
+
+    function init() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
+        gCanvas.width = canvas.width; gCanvas.height = canvas.height;
+        gCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border');
+        gCtx.beginPath(); gCtx.moveTo(0, canvas.height/2); gCtx.lineTo(canvas.width, canvas.height/2); gCtx.stroke();
+        updateUI(); start();
+    }
+
+    function getD(i, assayType = 'std') {
+        if (currentMode === 'management') {
+            let b = { R: parseFloat(document.getElementById('mR').value)||6, K: parseFloat(document.getElementById('mK').value)||2, a: parseFloat(document.getElementById('mA').value)||60, MA: parseFloat(document.getElementById('mMA').value)||60, LY: parseFloat(document.getElementById('mLY').value)||1 };
+            if (assayType === 'rt') { b.R = 1.2; b.a = 78; }
+            if (assayType === 'hep') { b.R = parseFloat(document.getElementById('mhR').value) || b.R; }
+            if (assayType === 'fib') { b.MA = parseFloat(document.getElementById('mfMA').value) || (b.MA * 0.2); b.a = 15; }
+            return b;
+        }
+        const k = document.getElementById('s'+i).value, t = document.getElementById('c'+i).value;
+        if (k === 'none') return null;
+        let d = JSON.parse(JSON.stringify(scenarios[k]));
+
+        if (assayType === 'rt') { d.R = 1.2; d.a = 78; } 
+        if (assayType === 'hep' && k === 'heparin') { d.R = 6; d.a = 60; d.MA = 60; }
+        if (assayType === 'fib') { d.MA = Math.min(d.MA, 15); d.a = Math.min(d.a, 20); }
+        
+        // Fixed Platelet Mapping Logic: reduce MA significantly if anti-platelet agents are active
+        if (assayType === 'map') {
+            if (k === 'aspirin') d.MA = 15;
+            if (k === 'clopidogrel') d.MA = 12;
+            if (k === 'tirofiban') d.MA = 5;
+            if (k === 'normal') d.MA = 55; // Expected agonist response
+        }
+
+        if(t==='txa') d.LY=1; if(t==='ffp'){ d.R=Math.max(6,d.R-12); d.a+=15; }
+        if(t==='cryo'){ d.a+=25; d.MA+=15; } if(t==='plt'){ d.MA+=20; d.K=Math.max(1,d.K-2); }
+        if(t==='pcc' && ["warfarin","apixaban"].includes(k)){ d.R=6; d.a=60; }
+        if(t==='prot' && k==='heparin'){ d.R=6; d.a=60; d.MA=60; }
+        return {...d, tName: treatments[t].n, tFx: treatments[t].fx, tID: t};
+    }
+
+    function getArrows(id, v) {
+        const refs = { R: [5, 10], K: [1, 3], a: [53, 67], MA: [50, 70], LY: [0, 3] };
+        const [low, high] = refs[id];
+        if (v >= low && v <= high) return '<span style="color:var(--c2)">✔</span>';
+        let diff = v > high ? v - high : low - v;
+        let count = diff > (high-low) ? 3 : (diff > (high-low)*0.4 ? 2 : 1);
+        return `<span class="sev-${count}">${(v > high ? '↑' : '↓').repeat(count)}</span>`;
+    }
+
+    function updateUI() {
+        const body = document.getElementById('statBody'), panel = document.getElementById('tabContent1');
+        body.innerHTML = ''; let insightsHTML = '';
+        const params = [{id:'R', n:'R-Time', r:'5-10m'}, {id:'K', n:'K-Time', r:'1-3m'}, {id:'a', n:'Alpha', r:'53-67°'}, {id:'MA', n:'MA', r:'50-70mm'}, {id:'LY', n:'LY30', r:'< 3%'}];
+        
+        params.forEach(p => {
+            let row = `<tr><td>${p.n}</td><td>${p.r}</td>`;
+            if (currentMode === 'management') {
+                const d = getD(1); row += `<td class="val-cell">${d[p.id]} ${getArrows(p.id, d[p.id])}</td>`;
+            } else {
+                for(let i=1; i<=3; i++) { const d = getD(i); row += `<td class="val-cell">${d ? d[p.id] + ' ' + getArrows(p.id, d[p.id]) : '-'}</td>`; }
+            }
+            body.innerHTML += row + "</tr>";
+        });
+
+        if (currentMode === 'management') {
+            const d = getD(1); const mhR = parseFloat(document.getElementById('mhR').value), mfMA = parseFloat(document.getElementById('mfMA').value);
+            let issues = [];
+            if (d.R > 10) issues.push({n:(!isNaN(mhR) && mhR < 10) ? "Heparin Effect" : "Factor Deficiency", rx:(!isNaN(mhR) && mhR < 10) ? "Protamine Sulfate" : "Fresh Frozen Plasma or Prothrombin Complex Concentrate"});
+            if (d.MA < 50) issues.push({n:(!isNaN(mfMA) && mfMA < 12) ? "Hypofibrinogenaemia" : "Platelet Deficit", rx:(!isNaN(mfMA) && mfMA < 12) ? "Cryoprecipitate" : "Platelet Transfusion"});
+            if (d.LY > 3) issues.push({n:"Hyperfibrinolysis", rx:"Tranexamic Acid"});
+            insightsHTML = issues.length ? issues.map(iss => `<div class="edu-item"><span class="edu-tag" style="background:var(--c3)">ISSUE</span> <strong>${iss.n}</strong><br>Recommended: ${iss.rx}</div>`).join('') : "Balanced Profile.";
+        } else {
+            for(let i=1; i<=3; i++) {
+                const d = getD(i); const sVal = document.getElementById('s'+i).value;
+                const h = document.getElementById('h'+i);
+                if(d && sVal !== 'none') {
+                    h.innerHTML = `Channel ${i}: ${scenarios[sVal].n}${d.tID !== 'none' ? ' + ' + d.tName : ''}`;
+                    insightsHTML += `<div class="edu-item"><span class="edu-tag" style="background:var(--c${i})">Channel ${i}</span> <strong>${scenarios[sVal].n}</strong><br>${scenarios[sVal].insight}<br><strong>Suggested Action:</strong> ${scenarios[sVal].rx}${d.tID !== 'none' ? `<br><span style="color:var(--c2)"><strong>Active Intervention:</strong> ${d.tName} - ${d.tFx}</span>` : ''}</div>`;
+                } else { h.innerHTML = `Channel ${i}`; }
+            }
+        }
+        panel.innerHTML = insightsHTML || "Select pathology for clinical insights...";
+    }
+
+    let st; function start() { st = Date.now(); draw(); }
+
+    function draw() {
+        const p = Math.min((Date.now()-st)/1800, 1);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const colors = [getV('--c1'), getV('--c2'), getV('--c3')];
+        const focusIdx = parseInt(document.getElementById('assayChannel').value);
+        if (currentMode === 'management') {
+            const d = getD(1);
+            if(document.getElementById('chk_std').checked) render(d, {c: colors[0], w:4, d:[]}, p);
+            if(document.getElementById('chk_rt').checked) render(getD(1, 'rt'), {c: colors[0], w:2, d:[10,5]}, p);
+            if(document.getElementById('chk_hep').checked) render(getD(1, 'hep'), {c: colors[0], w:2, d:[2,4]}, p);
+            if(document.getElementById('chk_fib').checked) render(getD(1, 'fib'), {c: colors[0], w:2, d:[10,2,2,2]}, p);
+        } else {
+            for(let i=1; i<=3; i++) {
+                const d = getD(i, 'std');
+                if (i === focusIdx) {
+                    if(document.getElementById('chk_std').checked) render(d, {c: colors[i-1], w:4, d:[]}, p);
+                    if(document.getElementById('chk_rt').checked) render(getD(i, 'rt'), {c: colors[i-1], w:2, d:[10,5]}, p);
+                    if(document.getElementById('chk_hep').checked) render(getD(i, 'hep'), {c: colors[i-1], w:2, d:[2,4]}, p);
+                    if(document.getElementById('chk_fib').checked) render(getD(i, 'fib'), {c: colors[i-1], w:2, d:[10,2,2,2]}, p);
+                    if(document.getElementById('chk_map').checked) render(getD(i, 'map'), {c: colors[i-1], w:2, d:[8,4]}, p);
+                } else if(d) { render(d, {c: colors[i-1], w:3, d:[]}, p); }
+            }
+        }
+        if(p < 1) requestAnimationFrame(draw);
+    }
+
+    function generateScenario() {
+        setMode('modelling');
+        const k = Object.keys(scenarios).filter(x => x !== 'normal');
+        document.getElementById('s1').value = k[Math.floor(Math.random()*k.length)];
+        document.getElementById('c1').value = 'none';
+        init();
+    }
+
+    function getV(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+    function render(cfg, s, p) {
+        if(!cfg) return;
+        const midY = canvas.height/2, maxX = canvas.width * p;
+        ctx.strokeStyle = s.c; ctx.lineWidth = s.w; ctx.setLineDash(s.d);
+        for (let side of [-1, 1]) {
+            ctx.beginPath(); ctx.moveTo(0, midY);
+            for (let x = 0; x <= maxX; x++) {
+                let t = x / 18, amp = 0;
+                if (t > cfg.R) {
+                    let dt = t - cfg.R;
+                    amp = cfg.MA * 3.5 * (1 - Math.exp(-dt * (cfg.a/45) / 3));
+                    if (t > cfg.R + 15) amp *= Math.exp(-(t-(cfg.R+15))*(cfg.LY/100));
+                }
+                ctx.lineTo(x, midY + (amp * side));
+            }
+            ctx.stroke();
+        }
+        ctx.setLineDash([]);
+    }
+
+    build(); window.onload = init;
+</script>
+</body>
+</html>
