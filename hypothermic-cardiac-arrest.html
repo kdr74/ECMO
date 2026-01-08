@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Hypothermic Cardiac Arrest Pathway - UHBW</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --nhs-blue: #005EB8;
+            --nhs-dark-blue: #003087;
+            --nhs-red: #DA291C;
+            --nhs-green: #009639;
+            --nhs-yellow: #FFB81C;
+            --grey-1: #f0f4f5;
+            --grey-2: #dfe2e5;
+            --grey-3: #aeb0b5;
+            --text-dark: #231f20;
+        }
+
+        body {
+            font-family: "Frutiger W01", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--grey-1);
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none; /* Prevent pull-to-refresh on mobile */
+        }
+
+        .header {
+            background: var(--nhs-blue);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .critical-banner {
+            background: linear-gradient(135deg, var(--nhs-red), #b91919);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(218, 41, 28, 0.2);
+        }
+
+        .critical-banner h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .critical-banner ul {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--nhs-blue);
+            padding: 1.25rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box h3 {
+            color: var(--nhs-blue);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .info-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .calculation-display {
+            background: #fff9e6;
+            border-left: 4px solid var(--nhs-yellow);
+            padding: 1.25rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .calculation-display h4 {
+            color: var(--nhs-blue);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .calculation-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0e5b3;
+        }
+
+        .calculation-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--nhs-blue);
+            padding-top: 0.75rem;
+            margin-top: 0.5rem;
+            border-top: 2px solid var(--nhs-blue);
+        }
+
+        .calculation-label {
+            font-weight: 500;
+        }
+
+        .calculation-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--nhs-blue);
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--nhs-blue);
+        }
+
+        .form-section h2 {
+            color: var(--nhs-blue);
+            font-size: 1.3rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--grey-2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group.required label::after {
+            content: " *";
+            color: var(--nhs-red);
+        }
+
+        .form-group input[type="number"],
+        .form-group input[type="text"],
+        .form-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--grey-2);
+            border-radius: 4px;
+            font-size: 16px; /* Prevents iOS auto-zoom */
+            transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--nhs-blue);
+            box-shadow: 0 0 0 3px rgba(0, 94, 184, 0.1);
+        }
+
+        /* Custom select arrow for consistency across devices */
+        .form-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem;
+            padding-right: 2.5rem;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--grey-3);
+            margin-top: 0.35rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--grey-1);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px; /* Minimum touch target */
+        }
+
+        .radio-item:hover {
+            background: var(--grey-2);
+        }
+
+        .radio-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .radio-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .radio-item.selected {
+            background: #e3f2fd;
+            border-left: 4px solid var(--nhs-blue);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--grey-1);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px; /* Minimum touch target */
+        }
+
+        .checkbox-item:hover {
+            background: var(--grey-2);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-top: 0.25rem;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-item.checked {
+            background: #ffe5e5;
+            border-left: 4px solid var(--nhs-red);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            position: sticky;
+            bottom: 0;
+            background: var(--grey-1);
+            padding: 1rem 0;
+            z-index: 100;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--nhs-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--nhs-dark-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 94, 184, 0.2);
+        }
+
+        .btn-secondary {
+            background: var(--grey-2);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--grey-3);
+        }
+
+        .results-container {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .results-container.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .decision-box {
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .decision-exclude {
+            background: linear-gradient(135deg, var(--nhs-red), #b91919);
+            color: white;
+            border: 4px solid darkred;
+        }
+
+        .decision-activate {
+            background: linear-gradient(135deg, var(--nhs-green), #007a2f);
+            color: white;
+            border: 4px solid darkgreen;
+        }
+
+        .decision-box h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .decision-box .reason {
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .hope-score-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--nhs-blue);
+        }
+
+        .hope-score-card h3 {
+            color: var(--nhs-blue);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .survival-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .survival-percentage {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .survival-bar {
+            width: 100%;
+            height: 40px;
+            background: var(--grey-2);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .survival-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--nhs-red), var(--nhs-yellow), var(--nhs-green));
+            transition: width 0.8s ease;
+        }
+
+        .hope-interpretation {
+            background: var(--grey-1);
+            padding: 1.25rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+        }
+
+        .hope-components {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--grey-1);
+            border-radius: 4px;
+        }
+
+        .hope-components ul {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .hope-components li {
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .hope-components li::before {
+            content: "•";
+            position: absolute;
+            left: 0.5rem;
+            color: var(--nhs-blue);
+            font-weight: bold;
+        }
+
+        .action-checklist {
+            background: white;
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--nhs-green);
+        }
+
+        .action-checklist h3 {
+            color: var(--nhs-green);
+            margin-bottom: 1.25rem;
+            font-size: 1.3rem;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--grey-1);
+            border-radius: 6px;
+            gap: 1rem;
+        }
+
+        .action-number {
+            background: var(--nhs-blue);
+            color: white;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .action-content h4 {
+            color: var(--nhs-blue);
+            margin-bottom: 0.4rem;
+            font-size: 1.05rem;
+        }
+
+        .action-content p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .team-activation {
+            background: white;
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--nhs-yellow);
+        }
+
+        .team-activation h3 {
+            color: var(--nhs-blue);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .call-sequence {
+            background: #fff3cd;
+            border-left: 4px solid var(--nhs-yellow);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .call-sequence p {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .team-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--grey-1);
+            border-radius: 6px;
+            gap: 1rem;
+        }
+
+        .team-member-order {
+            background: var(--nhs-blue);
+            color: white;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .team-member-info {
+            flex: 1;
+        }
+
+        .team-member-title {
+            font-weight: 600;
+            color: var(--nhs-blue);
+            font-size: 1.05rem;
+        }
+
+        .team-member-contact {
+            font-size: 0.9rem;
+            color: var(--grey-3);
+            margin-top: 0.25rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .cpb-protocol {
+            background: white;
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--nhs-blue);
+        }
+
+        .cpb-protocol h3 {
+            color: var(--nhs-blue);
+            margin-bottom: 1.25rem;
+            font-size: 1.3rem;
+        }
+
+        .protocol-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .protocol-section h4 {
+            color: var(--nhs-blue);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .protocol-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .protocol-section li {
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+        }
+
+        .protocol-section li::before {
+            content: "→";
+            position: absolute;
+            left: 0.25rem;
+            color: var(--nhs-blue);
+            font-weight: bold;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-export {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: var(--nhs-blue);
+            border: 2px solid var(--nhs-blue);
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-export:hover {
+            background: var(--nhs-blue);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header p {
+                font-size: 0.85rem;
+            }
+
+            .version-badge {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.5rem;
+            }
+
+            .critical-banner h2 {
+                font-size: 1rem;
+            }
+
+            .critical-banner ul {
+                font-size: 0.9rem;
+            }
+
+            .form-section {
+                padding: 1.25rem;
+            }
+
+            .form-section h2 {
+                font-size: 1.1rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 48px; /* Minimum touch target size */
+            }
+
+            .help-text {
+                font-size: 0.8rem;
+            }
+
+            .radio-item,
+            .checkbox-item {
+                padding: 1rem;
+            }
+
+            .radio-item input[type="radio"],
+            .checkbox-item input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+                min-width: 24px;
+                min-height: 24px;
+            }
+
+            .radio-item label,
+            .checkbox-item label {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 1rem 1.5rem;
+                font-size: 0.95rem;
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .decision-box {
+                padding: 1.5rem;
+            }
+
+            .decision-box h2 {
+                font-size: 1.5rem;
+            }
+
+            .decision-box .reason {
+                font-size: 0.95rem;
+            }
+
+            .survival-percentage {
+                font-size: 3rem;
+            }
+
+            .hope-score-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .calculation-display {
+                padding: 1rem;
+            }
+
+            .calculation-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .calculation-value {
+                font-size: 1.1rem;
+            }
+
+            .action-item {
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
+
+            .action-number {
+                min-width: 28px;
+                height: 28px;
+                font-size: 0.9rem;
+            }
+
+            .action-content h4 {
+                font-size: 0.95rem;
+            }
+
+            .action-content p {
+                font-size: 0.85rem;
+            }
+
+            .team-member {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .team-member-order {
+                min-width: 28px;
+                height: 28px;
+            }
+
+            .team-member-title {
+                font-size: 0.95rem;
+            }
+
+            .team-member-contact {
+                font-size: 0.85rem;
+            }
+
+            .protocol-section h4 {
+                font-size: 1rem;
+            }
+
+            .protocol-section li {
+                font-size: 0.9rem;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .btn-export {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .hope-components ul {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Even smaller screens */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.75rem;
+            }
+
+            .form-section {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .critical-banner {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.1rem;
+            }
+
+            .decision-box h2 {
+                font-size: 1.3rem;
+            }
+
+            .survival-percentage {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media print {
+            .button-group,
+            .export-buttons,
+            .header {
+                display: none;
+            }
+
+            .form-section,
+            .results-container {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>❄️ Hypothermic Cardiac Arrest Pathway</h1>
+            <p>University Hospitals Bristol and Weston NHS Foundation Trust</p>
+            <span class="version-badge">CPB Rewarming Protocol - HOPE Calculator Integrated</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="critical-banner">
+            <h2>⚠️ Critical Pathway - Time-Sensitive Decision</h2>
+            <p style="margin-bottom: 0.75rem;"><strong>This pathway differs from standard ECMO criteria.</strong> Primary rewarming strategy is cardiopulmonary bypass (CPB) in cardiac theatres.</p>
+            <ul>
+                <li>Temperature threshold is age/health dependent: <30°C (young/healthy) OR <32°C (elderly/multimorbid)</li>
+                <li>HOPE survival probability ≥10% is an activation criterion</li>
+                <li>Drowning cases have specific time-based exclusions</li>
+                <li>Tool calculates HOPE survival probability automatically</li>
+            </ul>
+        </div>
+
+        <!-- Patient Location -->
+        <div class="form-section">
+            <h2>Patient Location</h2>
+            <p style="margin-bottom: 1rem; font-size: 0.95rem;">This determines timing calculations for CPR duration and ECLS initiation.</p>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" id="locationED" name="patientLocation" value="ed">
+                    <label for="locationED"><strong>Already in Emergency Department</strong></label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="locationInbound" name="patientLocation" value="inbound">
+                    <label for="locationInbound"><strong>Pre-alert - patient inbound</strong></label>
+                </div>
+            </div>
+
+            <div id="etaSection" style="display: none; margin-top: 1.5rem;">
+                <div class="form-group required">
+                    <label for="estimatedETA">Estimated Time of Arrival (minutes)</label>
+                    <input type="number" id="estimatedETA" min="0" max="120" step="1" inputmode="numeric" placeholder="Minutes until arrival in ED">
+                    <span class="help-text">Time from now until patient arrives in ED</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Demographics -->
+        <div class="form-section">
+            <h2>Patient Demographics</h2>
+            <div class="form-grid">
+                <div class="form-group required">
+                    <label for="patientAge">Age (years)</label>
+                    <input type="number" id="patientAge" min="0" max="120" step="1" inputmode="numeric" placeholder="Age in years">
+                    <span class="help-text">Determines temperature threshold and HOPE calculation</span>
+                </div>
+                <div class="form-group required">
+                    <label for="patientSex">Sex</label>
+                    <select id="patientSex">
+                        <option value="">Select...</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                    <span class="help-text">Required for HOPE calculation</span>
+                </div>
+                <div class="form-group">
+                    <label for="patientID">Hospital Number</label>
+                    <input type="text" id="patientID" inputmode="text" placeholder="Optional - for documentation">
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Health Status -->
+        <div class="form-section">
+            <h2>Patient Health Status</h2>
+            <p style="margin-bottom: 1rem; font-size: 0.95rem;">This determines the core temperature threshold for pathway activation.</p>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" id="healthYoung" name="healthStatus" value="young">
+                    <label for="healthYoung"><strong>Young and healthy</strong> - Requires core temperature <30°C</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="healthElderly" name="healthStatus" value="elderly">
+                    <label for="healthElderly"><strong>Elderly OR multimorbid</strong> - Requires core temperature <32°C</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arrest Timing -->
+        <div class="form-section">
+            <h2>Arrest Timing</h2>
+            <div class="form-grid">
+                <div class="form-group required">
+                    <label for="currentCPRDuration">Current CPR Duration (minutes)</label>
+                    <input type="number" id="currentCPRDuration" min="0" step="1" inputmode="numeric" placeholder="CPR time elapsed so far">
+                    <span class="help-text">Time from arrest to current moment</span>
+                </div>
+                <div class="form-group required">
+                    <label for="estimatedECLSTime">Estimated Time to ECLS Initiation (minutes)</label>
+                    <input type="number" id="estimatedECLSTime" min="30" step="1" inputmode="numeric" placeholder="Minimum 30 minutes">
+                    <span class="help-text">From arrival in ED to CPB/ECMO established (minimum 30 mins)</span>
+                </div>
+            </div>
+
+            <div class="calculation-display" id="arrestCalculations" style="display: none;">
+                <h4>📊 Calculated Arrest Durations</h4>
+                <div class="calculation-row">
+                    <span class="calculation-label">Current CPR duration:</span>
+                    <span class="calculation-value" id="calcCurrentDuration">- min</span>
+                </div>
+                <div class="calculation-row">
+                    <span class="calculation-label">Estimated CPR duration on arrival:</span>
+                    <span class="calculation-value" id="calcArrivalDuration">- min</span>
+                </div>
+                <div class="calculation-row">
+                    <span class="calculation-label">Estimated time to ECLS:</span>
+                    <span class="calculation-value" id="calcECLSTime">- min</span>
+                </div>
+                <div class="calculation-row">
+                    <span class="calculation-label">Total CPR duration for HOPE calculation:</span>
+                    <span class="calculation-value" id="calcTotalDuration">- min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Presentation -->
+        <div class="form-section">
+            <h2>Clinical Presentation</h2>
+            <div class="form-grid">
+                <div class="form-group required">
+                    <label for="coreTemp">Core Temperature (°C)</label>
+                    <input type="number" id="coreTemp" step="0.1" min="15" max="35" inputmode="decimal" placeholder="e.g., 28.5">
+                    <span class="help-text">Most recent measured core temperature</span>
+                </div>
+                <div class="form-group required">
+                    <label for="presentation">Clinical Status</label>
+                    <select id="presentation">
+                        <option value="">Select...</option>
+                        <option value="arrest">Cardiac arrest</option>
+                        <option value="collapse">Signs of impending cardiovascular collapse</option>
+                    </select>
+                    <span class="help-text">Current clinical state</span>
+                </div>
+                <div class="form-group required">
+                    <label for="potassium">Potassium (mmol/L)</label>
+                    <input type="number" id="potassium" step="0.1" min="0" max="15" inputmode="decimal" placeholder="If unknown, use 4.0">
+                    <span class="help-text">For HOPE calculation - use 4.0 if not yet available</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mechanism & Drowning -->
+        <div class="form-section">
+            <h2>Arrest Mechanism</h2>
+            <div class="form-grid">
+                <div class="form-group required">
+                    <label for="mechanism">Mechanism</label>
+                    <select id="mechanism">
+                        <option value="">Select mechanism...</option>
+                        <option value="environmental">Environmental hypothermia (exposure, shelter failure)</option>
+                        <option value="drowning">Drowning (submersion)</option>
+                        <option value="avalanche">Avalanche burial</option>
+                        <option value="other">Other asphyxia/hypoxia</option>
+                    </select>
+                    <span class="help-text">Primary mechanism of arrest</span>
+                </div>
+            </div>
+
+            <div id="drowningDetails" style="display: none; margin-top: 1.5rem;">
+                <h3 style="color: var(--nhs-blue); margin-bottom: 1rem; font-size: 1.1rem;">Drowning-Specific Details</h3>
+                <div class="form-grid">
+                    <div class="form-group required">
+                        <label for="waterType">Water Type</label>
+                        <select id="waterType">
+                            <option value="">Select...</option>
+                            <option value="freshwater">Freshwater (river, lake, pool)</option>
+                            <option value="seawater">Seawater</option>
+                        </select>
+                    </div>
+                    <div class="form-group required">
+                        <label for="submersionTime">Submersion Time (minutes)</label>
+                        <input type="number" id="submersionTime" min="0" step="1" inputmode="numeric" placeholder="Duration head under water">
+                        <span class="help-text">Time fully submerged</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="monthOfYear">Month of Incident</label>
+                        <select id="monthOfYear">
+                            <option value="">Select month...</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <span class="help-text">For freshwater seasonal limits</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleOccupant">Vehicle Occupant?</label>
+                        <select id="vehicleOccupant">
+                            <option value="">Select...</option>
+                            <option value="yes">Yes - occupant of submerged vehicle</option>
+                            <option value="no">No - not in vehicle</option>
+                        </select>
+                        <span class="help-text">Freshwater time limits do not apply to vehicle occupants</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exclusion Criteria -->
+        <div class="form-section">
+            <h2>Exclusion Criteria</h2>
+            <p style="margin-bottom: 1rem; color: var(--nhs-red); font-weight: 600;">Any single checked criterion EXCLUDES the patient from this pathway</p>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="exclude1">
+                    <label for="exclude1">Cardiac arrest more likely due to alternate cause PRIOR to cooling (e.g., MI, PE, trauma)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="exclude2">
+                    <label for="exclude2">Obvious signs of irreversible death (rigor mortis, decomposition, dependent lividity)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="exclude3">
+                    <label for="exclude3">Devastating traumatic injury incompatible with life</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="calculatePathway()">Calculate HOPE & Pathway Decision</button>
+            <button class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="resultsContainer">
+            <!-- Decision Box -->
+            <div class="decision-box" id="decisionBox">
+                <h2 id="decisionTitle"></h2>
+                <div class="reason" id="decisionReason"></div>
+            </div>
+
+            <!-- HOPE Score Display -->
+            <div class="hope-score-card">
+                <h3>HOPE Survival Probability</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 1rem; color: var(--grey-3);">Hypothermia Outcome Prediction after ECLS</p>
+                <div class="survival-display">
+                    <div class="survival-percentage" id="survivalPercentage" style="color: var(--nhs-blue);">-%</div>
+                    <div class="survival-bar" style="width: 100%; max-width: 600px;">
+                        <div class="survival-bar-fill" id="survivalBarFill" style="width: 0%"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--grey-3); margin-top: 0.5rem;">Predicted survival to hospital discharge</p>
+                </div>
+                <div class="hope-interpretation">
+                    <p id="hopeInterpretation" style="font-size: 1rem; font-weight: 600;"></p>
+                </div>
+                <div class="hope-components">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem;">HOPE Calculation Components:</p>
+                    <ul id="hopeComponentsList"></ul>
+                </div>
+            </div>
+
+            <!-- Action Checklist -->
+            <div class="action-checklist" id="actionChecklist" style="display: none;">
+                <h3>⚡ Immediate Actions - ED Team</h3>
+                <div id="actionsList"></div>
+            </div>
+
+            <!-- Team Activation -->
+            <div class="team-activation" id="teamActivation" style="display: none;">
+                <h3>📞 Team Activation Sequence</h3>
+                <div class="call-sequence">
+                    <p>Call 2222: "Hypothermic cardiac arrest" or pre-alert cardiac surgery team directly</p>
+                </div>
+                <h4 style="color: var(--nhs-blue); margin-bottom: 1rem; font-size: 1.1rem;">2222 Call Activates:</h4>
+                <div id="teamList2222"></div>
+                
+                <h4 style="color: var(--nhs-blue); margin: 1.5rem 0 1rem; font-size: 1.1rem;">CPB Team (Out-of-Hours Activation Sequence):</h4>
+                <div id="teamListCPB"></div>
+            </div>
+
+            <!-- CPB Protocol -->
+            <div class="cpb-protocol" id="cpbProtocol" style="display: none;">
+                <h3>🔧 Cardiopulmonary Bypass Rewarming Protocol</h3>
+                
+                <div class="protocol-section">
+                    <h4>Pre-Theatre Management</h4>
+                    <ul>
+                        <li>Continue high-quality CPR (LUCAS device essential)</li>
+                        <li>Gentle handling - avoid inducing VF</li>
+                        <li>NO rhythm checks until in theatre</li>
+                        <li>Intubate and secure airway</li>
+                        <li>Establish IV/IO access</li>
+                        <li>Send 2× samples for immediate crossmatch: 6 units PRC + 4 units FFP</li>
+                        <li>Minimise transfer equipment: ONLY LUCAS, power cable, oxygen cylinder</li>
+                    </ul>
+                </div>
+
+                <div class="protocol-section">
+                    <h4>Theatre Setup</h4>
+                    <ul>
+                        <li>Transfer directly to cardiac theatre</li>
+                        <li>Femoral-femoral CPB access (default approach)</li>
+                        <li>Continue CPR until on bypass</li>
+                        <li>Anticipate profound coagulopathy and pulmonary oedema</li>
+                    </ul>
+                </div>
+
+                <div class="protocol-section">
+                    <h4>Rewarming Strategy</h4>
+                    <ul>
+                        <li><strong>Initial phase:</strong> Arterial blood from HLM set to current core temp + 10°C (maximum 37°C)</li>
+                        <li><strong>After ROSC or core >32°C:</strong> Rewarm at 2-5°C/hour until core >36.5°C</li>
+                        <li>VF is common during rewarming - DC cardiovert as needed</li>
+                    </ul>
+                </div>
+
+                <div class="protocol-section">
+                    <h4>Outcomes After Normothermia (36.5°C)</h4>
+                    <ul>
+                        <li><strong>Cardiac activity resumes:</strong> Attempt to wean from CPB
+                            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                                <li>If haemodynamically stable (±vasoactives): Disconnect from CPB, transfer to ICU</li>
+                                <li>If haemodynamically unstable: Call Royal Brompton ECMO service (07815 494 175)</li>
+                            </ul>
+                        </li>
+                        <li><strong>No coordinated cardiac activity after achieving 36.5°C:</strong> Patient deceased</li>
+                    </ul>
+                </div>
+
+                <div class="protocol-section">
+                    <h4>Post-Procedure Care</h4>
+                    <ul>
+                        <li>Anticipate: glucose dysregulation, pancreatitis, liver injury</li>
+                        <li>Log case with ELSO registry (elso.org/registry)</li>
+                        <li>Log case with International Hypothermia Registry (hypothermia-registry.org/access) - contact Dr Stefan Gurney for credentials</li>
+                        <li>Coroner referral mandated for any hypothermia-related deaths</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="export-buttons">
+                <button class="btn-export" onclick="downloadReport()">📄 Download Report</button>
+                <button class="btn-export" onclick="printReport()">🖨️ Print Report</button>
+                <button class="btn-export" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show/hide ETA section based on location
+        document.querySelectorAll('input[name="patientLocation"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const etaSection = document.getElementById('etaSection');
+                if (this.value === 'inbound') {
+                    etaSection.style.display = 'block';
+                    document.getElementById('estimatedETA').setAttribute('required', '');
+                } else {
+                    etaSection.style.display = 'none';
+                    document.getElementById('estimatedETA').removeAttribute('required');
+                    document.getElementById('estimatedETA').value = '';
+                }
+                updateArrestCalculations();
+            });
+        });
+
+        // Update calculations when timing fields change
+        document.getElementById('currentCPRDuration').addEventListener('input', updateArrestCalculations);
+        document.getElementById('estimatedETA').addEventListener('input', updateArrestCalculations);
+        document.getElementById('estimatedECLSTime').addEventListener('input', updateArrestCalculations);
+
+        function updateArrestCalculations() {
+            const location = document.querySelector('input[name="patientLocation"]:checked');
+            if (!location) return;
+
+            const currentCPR = parseInt(document.getElementById('currentCPRDuration').value) || 0;
+            const eta = location.value === 'inbound' ? (parseInt(document.getElementById('estimatedETA').value) || 0) : 0;
+            const eclsTime = parseInt(document.getElementById('estimatedECLSTime').value) || 0;
+
+            if (currentCPR > 0 && eclsTime > 0) {
+                const arrivalDuration = currentCPR + eta;
+                const totalDuration = arrivalDuration + eclsTime;
+
+                document.getElementById('calcCurrentDuration').textContent = currentCPR + ' min';
+                document.getElementById('calcArrivalDuration').textContent = arrivalDuration + ' min';
+                document.getElementById('calcECLSTime').textContent = eclsTime + ' min';
+                document.getElementById('calcTotalDuration').textContent = totalDuration + ' min';
+                document.getElementById('arrestCalculations').style.display = 'block';
+            } else {
+                document.getElementById('arrestCalculations').style.display = 'none';
+            }
+        }
+
+        // Show/hide drowning details
+        document.getElementById('mechanism').addEventListener('change', function() {
+            const drowningDetails = document.getElementById('drowningDetails');
+            if (this.value === 'drowning') {
+                drowningDetails.style.display = 'block';
+            } else {
+                drowningDetails.style.display = 'none';
+            }
+        });
+
+        // Radio button visual feedback
+        document.querySelectorAll('.radio-item input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const groupName = this.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                    r.closest('.radio-item').classList.remove('selected');
+                });
+                if (this.checked) {
+                    this.closest('.radio-item').classList.add('selected');
+                }
+            });
+        });
+
+        // Checkbox visual feedback
+        document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const item = this.closest('.checkbox-item');
+                if (this.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+        });
+
+        // Calculate HOPE survival probability using correct published formula
+        // Formula from Pasquier et al., Resuscitation 2018
+        function calculateHOPE(age, sex, temp, mechanism, potassium, cprDuration) {
+            let components = [];
+
+            // Convert sex to numeric (male = 1, female = 0)
+            const sexNumeric = sex === 'male' ? 1 : 0;
+            const sexLabel = sex === 'male' ? 'Male' : 'Female';
+            
+            // Determine if asphyxia mechanism (yes = 1, no = 0)
+            const isAsphyxia = mechanism === 'drowning' || mechanism === 'avalanche' || mechanism === 'other';
+            const asphyxiaNumeric = isAsphyxia ? 1 : 0;
+            const asphyxiaLabel = isAsphyxia ? 'Yes (drowning/avalanche/other hypoxia)' : 'No (environmental hypothermia)';
+
+            // Calculate HOPE Score using the published formula:
+            // HOPE Score = 2.44 - 1.55*(Sex) - 1.95*(Asphyxia) - 0.0191*(Age) 
+            //              - 2.07*log2(Potassium) - 0.573*log2(CPR duration) 
+            //              + 0.937*(Temperature) - 0.0247*(Temperature)^2
+            
+            const hopeScore = 2.44 
+                - (1.55 * sexNumeric) 
+                - (1.95 * asphyxiaNumeric) 
+                - (0.0191 * age) 
+                - (2.07 * Math.log2(potassium)) 
+                - (0.573 * Math.log2(cprDuration)) 
+                + (0.937 * temp) 
+                - (0.0247 * Math.pow(temp, 2));
+
+            // Calculate survival probability: P(survival) = e^x / (1 + e^x)
+            const survivalProbability = Math.exp(hopeScore) / (1 + Math.exp(hopeScore));
+            const survivalPercentage = Math.round(survivalProbability * 100);
+
+            // Build component breakdown for display
+            components.push(`Sex: ${sexLabel} (coefficient: ${sexNumeric === 1 ? '-1.55' : '0'})`);
+            components.push(`Asphyxia: ${asphyxiaLabel} (coefficient: ${asphyxiaNumeric === 1 ? '-1.95' : '0'})`);
+            components.push(`Age: ${age} years (coefficient: -0.0191 per year)`);
+            components.push(`Potassium: ${potassium.toFixed(1)} mmol/L (coefficient: -2.07 × log₂[K⁺])`);
+            components.push(`CPR duration: ${cprDuration} minutes (coefficient: -0.573 × log₂[minutes])`);
+            components.push(`Temperature: ${temp.toFixed(1)}°C (coefficient: +0.937 per °C, -0.0247 per °C²)`);
+            components.push(`Calculated HOPE Score: ${hopeScore.toFixed(3)}`);
+
+            return {
+                score: hopeScore,
+                survivalPercentage: survivalPercentage,
+                components: components
+            };
+        }
+
+        function calculatePathway() {
+            // Validate patient location
+            const location = document.querySelector('input[name="patientLocation"]:checked');
+            if (!location) {
+                alert('Please select patient location (already in ED or inbound)');
+                return;
+            }
+
+            // Validate ETA if inbound
+            if (location.value === 'inbound') {
+                const eta = document.getElementById('estimatedETA').value;
+                if (!eta || eta === '') {
+                    alert('Please enter estimated time of arrival for inbound patient');
+                    return;
+                }
+            }
+
+            // Validate required fields
+            const requiredFields = [
+                'patientAge', 'patientSex', 'currentCPRDuration', 'estimatedECLSTime',
+                'coreTemp', 'presentation', 'potassium', 'mechanism'
+            ];
+
+            // Add health status validation
+            const healthStatus = document.querySelector('input[name="healthStatus"]:checked');
+            if (!healthStatus) {
+                alert('Please select patient health status (young/healthy or elderly/multimorbid)');
+                return;
+            }
+
+            let missingFields = [];
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (!element.value || element.value === '') {
+                    missingFields.push(element.previousElementSibling.textContent.replace(' *', ''));
+                }
+            });
+
+            // Validate drowning-specific fields
+            const mechanism = document.getElementById('mechanism').value;
+            if (mechanism === 'drowning') {
+                const drowningFields = ['waterType', 'submersionTime'];
+                drowningFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (!element.value || element.value === '') {
+                        missingFields.push(element.previousElementSibling.textContent.replace(' *', ''));
+                    }
+                });
+            }
+
+            if (missingFields.length > 0) {
+                alert('Please complete all required fields:\n\n' + missingFields.join('\n'));
+                return;
+            }
+
+            // Get values
+            const age = parseInt(document.getElementById('patientAge').value);
+            const sex = document.getElementById('patientSex').value;
+            const healthStatusValue = healthStatus.value;
+            const coreTemp = parseFloat(document.getElementById('coreTemp').value);
+            const potassium = parseFloat(document.getElementById('potassium').value);
+            const currentCPR = parseInt(document.getElementById('currentCPRDuration').value);
+            const eta = location.value === 'inbound' ? parseInt(document.getElementById('estimatedETA').value) : 0;
+            const eclsTime = parseInt(document.getElementById('estimatedECLSTime').value);
+
+            // Calculate total CPR duration for HOPE
+            const arrivalDuration = currentCPR + eta;
+            const totalCPRDuration = arrivalDuration + eclsTime;
+
+            // Calculate HOPE
+            const hopeResult = calculateHOPE(age, sex, coreTemp, mechanism, potassium, totalCPRDuration);
+
+            // Decision logic
+            let decision = 'ACTIVATE';
+            let reasons = [];
+
+            // 1. Check temperature threshold
+            if (healthStatusValue === 'young') {
+                if (coreTemp >= 30) {
+                    decision = 'EXCLUDE';
+                    reasons.push(`Core temperature ${coreTemp}°C does not meet threshold for young/healthy patients (<30°C required)`);
+                }
+            } else if (healthStatusValue === 'elderly') {
+                if (coreTemp >= 32) {
+                    decision = 'EXCLUDE';
+                    reasons.push(`Core temperature ${coreTemp}°C does not meet threshold for elderly/multimorbid patients (<32°C required)`);
+                }
+            }
+
+            // 2. Check HOPE survival threshold
+            if (hopeResult.survivalPercentage < 10) {
+                decision = 'EXCLUDE';
+                reasons.push(`HOPE survival probability ${hopeResult.survivalPercentage}% is below required threshold (≥10% required)`);
+            }
+
+            // 3. Check potassium (absolute exclusion if >10)
+            if (potassium > 10) {
+                decision = 'EXCLUDE';
+                reasons.push(`Potassium ${potassium} mmol/L exceeds maximum (>10 mmol/L is absolute exclusion)`);
+            }
+
+            // 4. Check drowning time limits
+            if (mechanism === 'drowning') {
+                const waterType = document.getElementById('waterType').value;
+                const submersionTime = parseInt(document.getElementById('submersionTime').value);
+                const month = parseInt(document.getElementById('monthOfYear').value) || 0;
+                const vehicleOccupant = document.getElementById('vehicleOccupant').value;
+
+                if (waterType === 'seawater') {
+                    if (submersionTime > 30) {
+                        decision = 'EXCLUDE';
+                        reasons.push(`Seawater submersion time ${submersionTime} minutes exceeds limit (>30 min excludes)`);
+                    }
+                } else if (waterType === 'freshwater' && vehicleOccupant === 'no') {
+                    if (month >= 3 && month <= 11) {
+                        if (submersionTime > 30) {
+                            decision = 'EXCLUDE';
+                            reasons.push(`Freshwater submersion time ${submersionTime} minutes in warm months (Mar-Nov) exceeds limit (>30 min excludes)`);
+                        }
+                    } else {
+                        if (submersionTime > 90) {
+                            decision = 'EXCLUDE';
+                            reasons.push(`Freshwater submersion time ${submersionTime} minutes in cold months (Dec-Feb) exceeds limit (>90 min excludes)`);
+                        }
+                    }
+                }
+            }
+
+            // 5. Check exclusion checkboxes
+            const exclusionChecked = document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked').length > 0;
+            if (exclusionChecked) {
+                decision = 'EXCLUDE';
+                const checkedItems = Array.from(document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked'))
+                    .map(cb => cb.nextElementSibling.textContent);
+                reasons.push('Absolute exclusion criteria met: ' + checkedItems.join('; '));
+            }
+
+            // Display results
+            displayResults(decision, reasons, hopeResult, totalCPRDuration);
+        }
+
+        function displayResults(decision, reasons, hopeResult, totalCPRDuration) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const decisionBox = document.getElementById('decisionBox');
+            const decisionTitle = document.getElementById('decisionTitle');
+            const decisionReason = document.getElementById('decisionReason');
+
+            resultsContainer.classList.add('show');
+
+            // Display HOPE
+            document.getElementById('survivalPercentage').textContent = hopeResult.survivalPercentage + '%';
+            document.getElementById('survivalBarFill').style.width = hopeResult.survivalPercentage + '%';
+
+            // HOPE interpretation
+            let interpretation = '';
+            let color = '';
+            if (hopeResult.survivalPercentage >= 50) {
+                interpretation = `✅ Good predicted survival (≥50%). Strong candidate for CPB rewarming. Total CPR duration for calculation: ${totalCPRDuration} minutes.`;
+                color = 'var(--nhs-green)';
+            } else if (hopeResult.survivalPercentage >= 20) {
+                interpretation = `⚠️ Moderate predicted survival (20-49%). Consider individual factors and discuss with team. Total CPR duration for calculation: ${totalCPRDuration} minutes.`;
+                color = 'var(--nhs-yellow)';
+            } else if (hopeResult.survivalPercentage >= 10) {
+                interpretation = `⚠️ Lower predicted survival (10-19%). Meets minimum threshold but prognosis guarded. Senior discussion required. Total CPR duration for calculation: ${totalCPRDuration} minutes.`;
+                color = 'var(--nhs-red)';
+            } else {
+                interpretation = `❌ Below threshold (<10%). Does NOT meet pathway activation criteria. Total CPR duration for calculation: ${totalCPRDuration} minutes.`;
+                color = 'var(--nhs-red)';
+            }
+            document.getElementById('survivalPercentage').style.color = color;
+            document.getElementById('hopeInterpretation').textContent = interpretation;
+
+            // Display HOPE components
+            const componentsList = document.getElementById('hopeComponentsList');
+            componentsList.innerHTML = hopeResult.components.map(comp => `<li>${comp}</li>`).join('');
+
+            // Display decision
+            if (decision === 'EXCLUDE') {
+                decisionBox.className = 'decision-box decision-exclude';
+                decisionTitle.textContent = '🛑 PATHWAY NOT INDICATED';
+                decisionReason.innerHTML = '<strong>Patient does not meet activation criteria or has exclusion criteria:</strong><br><br>' + 
+                    reasons.map(r => '• ' + r).join('<br><br>');
+                
+                document.getElementById('actionChecklist').style.display = 'none';
+                document.getElementById('teamActivation').style.display = 'none';
+                document.getElementById('cpbProtocol').style.display = 'none';
+            } else {
+                decisionBox.className = 'decision-box decision-activate';
+                decisionTitle.textContent = '✅ ACTIVATE PATHWAY - CPB REWARMING';
+                decisionReason.innerHTML = '<strong>All activation criteria met. No exclusion criteria present.</strong><br><br>' +
+                    `HOPE survival probability: ${hopeResult.survivalPercentage}% (≥10% required)<br>` +
+                    'Patient meets criteria for hypothermic cardiac arrest pathway with CPB rewarming.<br>' +
+                    'Activate cardiac surgery team immediately and transfer to cardiac theatres.';
+                
+                document.getElementById('actionChecklist').style.display = 'block';
+                document.getElementById('teamActivation').style.display = 'block';
+                document.getElementById('cpbProtocol').style.display = 'block';
+
+                generateActions();
+                generateTeamActivation();
+            }
+
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function generateActions() {
+            const actions = [
+                {
+                    title: 'Call 2222 - "Hypothermic cardiac arrest"',
+                    description: 'State location and patient status. This activates the multidisciplinary team including ICU, cardiac surgery, cardiology, and anaesthesia.'
+                },
+                {
+                    title: 'Intubate patient',
+                    description: 'Secure airway definitively. Prepare for transfer to theatre.'
+                },
+                {
+                    title: 'Attach LUCAS device',
+                    description: 'High-quality mechanical CPR essential. NO further rhythm checks until arrival in theatre. Gentle handling - avoid inducing VF.'
+                },
+                {
+                    title: 'Establish IV/IO access',
+                    description: 'Obtain vascular access for fluid resuscitation and drug administration.'
+                },
+                {
+                    title: 'Send urgent bloods',
+                    description: 'Crossmatch for 6 units PRC + 4 units FFP. Send VBG, FBC, coagulation, U&E, glucose.'
+                },
+                {
+                    title: 'Minimise transfer equipment',
+                    description: 'ONLY take: LUCAS device, power cable, oxygen cylinder. Remove all unnecessary equipment for rapid transfer.'
+                },
+                {
+                    title: 'Pre-alert cardiac surgery team',
+                    description: 'If not already done via 2222, directly contact cardiac surgery registrar (bleep 2325) to alert CPB team.'
+                },
+                {
+                    title: 'Transfer to cardiac theatres',
+                    description: 'Continue CPR throughout transfer. Theatre team will set up for femoral-femoral CPB.'
+                }
+            ];
+
+            const actionsList = document.getElementById('actionsList');
+            actionsList.innerHTML = actions.map((action, index) => `
+                <div class="action-item">
+                    <div class="action-number">${index + 1}</div>
+                    <div class="action-content">
+                        <h4>${action.title}</h4>
+                        <p>${action.description}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function generateTeamActivation() {
+            const team2222 = [
+                { order: 1, title: 'Intensive Care Registrar', contact: 'Bleep 2451' },
+                { order: 2, title: 'Cardiothoracic Surgery Registrar', contact: 'Bleep 2325' },
+                { order: 3, title: 'Cardiology Registrar', contact: 'Phone #6527' },
+                { order: 4, title: 'Anaesthesia Registrar', contact: 'Bleep 3036' },
+                { order: 5, title: 'Anaesthetics SHO', contact: 'Bleep 2188' }
+            ];
+
+            const teamCPB = [
+                { order: 1, title: 'Cardiac Surgery Consultant (On-call)', contact: 'Via switchboard' },
+                { order: 2, title: 'Cardiac Anaesthesia/CICU Consultant (On-call)', contact: 'Via switchboard' },
+                { order: 3, title: 'Perfusionist (On-call)', contact: 'Via switchboard' },
+                { order: 4, title: 'Cardiac Theatre Team', contact: 'Anaesthesia assistant and scrub team via switchboard' }
+            ];
+
+            const teamList2222 = document.getElementById('teamList2222');
+            teamList2222.innerHTML = team2222.map(member => `
+                <div class="team-member">
+                    <div class="team-member-order">${member.order}</div>
+                    <div class="team-member-info">
+                        <div class="team-member-title">${member.title}</div>
+                        <div class="team-member-contact">${member.contact}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            const teamListCPB = document.getElementById('teamListCPB');
+            teamListCPB.innerHTML = teamCPB.map(member => `
+                <div class="team-member">
+                    <div class="team-member-order">${member.order}</div>
+                    <div class="team-member-info">
+                        <div class="team-member-title">${member.title}</div>
+                        <div class="team-member-contact">${member.contact}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function resetForm() {
+            if (confirm('Reset all fields and start over?')) {
+                document.querySelectorAll('input, select').forEach(el => {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        el.checked = false;
+                        el.closest('.checkbox-item, .radio-item')?.classList.remove('checked', 'selected');
+                    } else {
+                        el.value = '';
+                    }
+                });
+                document.getElementById('resultsContainer').classList.remove('show');
+                document.getElementById('drowningDetails').style.display = 'none';
+                document.getElementById('etaSection').style.display = 'none';
+                document.getElementById('arrestCalculations').style.display = 'none';
+            }
+        }
+
+        function generateReportText() {
+            const timestamp = new Date().toLocaleString('en-GB');
+            const location = document.querySelector('input[name="patientLocation"]:checked');
+            
+            let report = '='.repeat(80) + '\n';
+            report += 'HYPOTHERMIC CARDIAC ARREST PATHWAY - DECISION REPORT\n';
+            report += 'University Hospitals Bristol and Weston NHS Foundation Trust\n';
+            report += 'CPB Rewarming Protocol with HOPE Calculator\n';
+            report += '='.repeat(80) + '\n\n';
+            report += `Generated: ${timestamp}\n`;
+            report += `Hospital Number: ${document.getElementById('patientID').value || 'Not recorded'}\n\n`;
+            
+            report += 'PATIENT LOCATION\n';
+            report += '-'.repeat(80) + '\n';
+            report += `Location: ${location ? (location.value === 'ed' ? 'Already in ED' : 'Inbound pre-alert') : 'Not specified'}\n`;
+            if (location && location.value === 'inbound') {
+                report += `ETA: ${document.getElementById('estimatedETA').value} minutes\n`;
+            }
+            report += '\n';
+            
+            report += 'ARREST TIMING CALCULATIONS\n';
+            report += '-'.repeat(80) + '\n';
+            report += document.getElementById('calcCurrentDuration').textContent ? 
+                `Current CPR duration: ${document.getElementById('calcCurrentDuration').textContent}\n` : '';
+            report += document.getElementById('calcArrivalDuration').textContent ?
+                `CPR duration on arrival: ${document.getElementById('calcArrivalDuration').textContent}\n` : '';
+            report += document.getElementById('calcECLSTime').textContent ?
+                `Estimated time to ECLS: ${document.getElementById('calcECLSTime').textContent}\n` : '';
+            report += document.getElementById('calcTotalDuration').textContent ?
+                `Total CPR duration for HOPE: ${document.getElementById('calcTotalDuration').textContent}\n` : '';
+            report += '\n';
+            
+            report += 'PATIENT DEMOGRAPHICS\n';
+            report += '-'.repeat(80) + '\n';
+            report += `Age: ${document.getElementById('patientAge').value} years\n`;
+            report += `Sex: ${document.getElementById('patientSex').value}\n`;
+            const healthStatus = document.querySelector('input[name="healthStatus"]:checked');
+            report += `Health Status: ${healthStatus ? (healthStatus.value === 'young' ? 'Young/healthy' : 'Elderly/multimorbid') : 'Not specified'}\n\n`;
+            
+            report += 'CLINICAL PARAMETERS\n';
+            report += '-'.repeat(80) + '\n';
+            report += `Core Temperature: ${document.getElementById('coreTemp').value}°C\n`;
+            report += `Clinical Status: ${document.getElementById('presentation').value}\n`;
+            report += `Potassium: ${document.getElementById('potassium').value} mmol/L\n`;
+            report += `Mechanism: ${document.getElementById('mechanism').value}\n`;
+            
+            const mechanism = document.getElementById('mechanism').value;
+            if (mechanism === 'drowning') {
+                report += `\nDROWNING DETAILS:\n`;
+                report += `Water Type: ${document.getElementById('waterType').value || 'Not specified'}\n`;
+                report += `Submersion Time: ${document.getElementById('submersionTime').value || 'Not specified'} minutes\n`;
+                const month = document.getElementById('monthOfYear').value;
+                if (month) {
+                    const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                                      'July', 'August', 'September', 'October', 'November', 'December'];
+                    report += `Month of Incident: ${monthNames[parseInt(month)]}\n`;
+                }
+                report += `Vehicle Occupant: ${document.getElementById('vehicleOccupant').value || 'Not specified'}\n`;
+            }
+            report += '\n';
+            
+            report += 'HOPE SURVIVAL PROBABILITY\n';
+            report += '-'.repeat(80) + '\n';
+            report += `Survival Probability: ${document.getElementById('survivalPercentage').textContent}\n`;
+            report += `Interpretation: ${document.getElementById('hopeInterpretation').textContent}\n\n`;
+            report += 'HOPE Components:\n';
+            const components = document.querySelectorAll('#hopeComponentsList li');
+            components.forEach(comp => {
+                report += `  - ${comp.textContent}\n`;
+            });
+            report += '\n';
+            
+            const decisionText = document.getElementById('decisionTitle').textContent;
+            const reasonText = document.getElementById('decisionReason').textContent;
+            report += 'PATHWAY DECISION\n';
+            report += '-'.repeat(80) + '\n';
+            report += `${decisionText}\n\n`;
+            report += `${reasonText}\n\n`;
+            
+            if (decisionText.includes('ACTIVATE')) {
+                report += 'IMMEDIATE ACTIONS - ED TEAM\n';
+                report += '-'.repeat(80) + '\n';
+                const actions = document.querySelectorAll('.action-item');
+                actions.forEach((action, idx) => {
+                    const title = action.querySelector('h4').textContent;
+                    const desc = action.querySelector('p').textContent;
+                    report += `${idx + 1}. ${title}\n   ${desc}\n\n`;
+                });
+                
+                report += '\nTEAM ACTIVATION - 2222 CALL\n';
+                report += '-'.repeat(80) + '\n';
+                report += 'Call 2222: "Hypothermic cardiac arrest"\n\n';
+                const team2222 = document.querySelectorAll('#teamList2222 .team-member');
+                team2222.forEach(member => {
+                    const order = member.querySelector('.team-member-order').textContent;
+                    const title = member.querySelector('.team-member-title').textContent;
+                    const contact = member.querySelector('.team-member-contact').textContent;
+                    report += `${order}. ${title} - ${contact}\n`;
+                });
+                
+                report += '\n\nCPB TEAM ACTIVATION (OUT-OF-HOURS)\n';
+                report += '-'.repeat(80) + '\n';
+                const teamCPB = document.querySelectorAll('#teamListCPB .team-member');
+                teamCPB.forEach(member => {
+                    const order = member.querySelector('.team-member-order').textContent;
+                    const title = member.querySelector('.team-member-title').textContent;
+                    const contact = member.querySelector('.team-member-contact').textContent;
+                    report += `${order}. ${title} - ${contact}\n`;
+                });
+            }
+            
+            report += '\n' + '='.repeat(80) + '\n';
+            report += 'END OF REPORT\n';
+            report += '='.repeat(80) + '\n';
+            
+            return report;
+        }
+
+        function downloadReport() {
+            const report = generateReportText();
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Hypothermic_Arrest_Pathway_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function copyToClipboard() {
+            const report = generateReportText();
+            navigator.clipboard.writeText(report).then(() => {
+                alert('Report copied to clipboard');
+            }).catch(err => {
+                alert('Failed to copy to clipboard');
+            });
+        }
+    </script>
+</body>
+</html>
